@@ -8,6 +8,7 @@ type Expense = {
     amount: number;
     note: string;
     type: string;
+    balance: string;
     created_at: string;
 };
 
@@ -20,6 +21,8 @@ export default function IbuExpenses() {
     const [type, setType] = useState("Withdrawal");
     const [loading, setLoading] = useState(false);
     const [showSuccessMessage, setShowSuccessMessage] = useState("");
+    const [totalExpense, setTotalExpense] = useState(0);
+    const [totalDeposit, setTotalDeposit] = useState(0);
 
     useEffect(() => {
         fetchExpenses();
@@ -30,7 +33,28 @@ export default function IbuExpenses() {
         const res = await fetch("/api/expenses");
         const data: Expense[] = await res.json();
         setExpenses(data);
+        setTotalExpenses(data);
+        setTotalDeposits(data);
         setLoading(false);
+    }
+
+    function setTotalExpenses(expenses: Expense[]) {
+        let total = 0
+        expenses?.map((expense) => {
+            if (expense.type === "Withdrawal") {
+                total += Number(expense.amount);
+            }
+        });
+        setTotalExpense(total);
+    }
+    function setTotalDeposits(deposits: Expense[]) {
+        let total = 0
+        deposits?.map((deposit) => {
+            if (deposit.type === "Deposit") {
+                total += Number(deposit.amount);
+            }
+        });
+        setTotalDeposit(total);
     }
 
     async function addExpense() {
@@ -41,10 +65,21 @@ export default function IbuExpenses() {
             return;
         }
 
+        let balanceNumber = Number(expenses[expenses?.length-1]?.balance)
+
+        if(type === "Deposit") {
+            balanceNumber = Number(balanceNumber) + Number(amount);
+        }
+        else if(type === "Withdrawal") {
+            balanceNumber = Number(balanceNumber) - Number(amount);
+        }
+
+        let balance = balanceNumber.toString();
+
         const response = await fetch("/api/expenses", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ amount, note, type }),
+            body: JSON.stringify({ amount, note, type , balance }),
         });
 
         const data = await response.json();
@@ -63,6 +98,7 @@ export default function IbuExpenses() {
             alert(`Error: ${data.error}`);
             setLoading(false);
         }
+        setLoading(false);
     }
 
     async function deleteExpense(expenseIdToDelete: string) {
@@ -150,6 +186,11 @@ export default function IbuExpenses() {
                                     </td>
                                 </tr>
                             )))}
+                            <tr>
+                            <th className="text-[8px]">Total Expense : {totalExpense}</th>
+                            <th className="text-[8px]">Total Deposit : {totalDeposit}</th>
+                            <th className="text-[8px]">Current Balance : {expenses[expenses?.length - 1]?.balance}</th>
+                            </tr>
                         </tbody>
                     </table>
                 </div> :
