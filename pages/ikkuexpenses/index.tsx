@@ -107,9 +107,17 @@ export default function IkkuExpenses() {
                         <option value="Deposit">Deposit</option>
                     </select>
                 </fieldset>
-                <button onClick={addExpense} className="btn btn-outline">
+                <button onClick={addExpense} className="btn btn-outline mb-[20px]">
                     Add Expense
                 </button>
+                {showSuccessMessage && (
+                <div className="flex items-center justify-center">
+                    <div role="alert" className="alert alert-success alert-soft mb-4 text-center">
+                        <span>{showSuccessMessage}</span>
+                    </div>
+                </div>
+
+            )}
             </div>
 
             {loading ? <div className="flex flex-col gap-2 justify-center items-center">
@@ -121,7 +129,7 @@ export default function IkkuExpenses() {
                 <div className="overflow-x-auto rounded-box border border-base-content/5 bg-base-100">
                     <table className="table">
                         <thead>
-                            <tr>
+                            <tr className="text-[12px]">
                                 <th>Amount</th>
                                 <th>Note</th>
                                 <th>Type</th>
@@ -131,7 +139,7 @@ export default function IkkuExpenses() {
                         </thead>
                         <tbody>
                             {expenses.map((expense => (
-                                <tr>
+                                <tr className="text-[12px]">
                                     <th>{expense.amount}</th>
                                     <td>{expense.note}</td>
                                     <td>{expense.type}</td>
@@ -152,14 +160,7 @@ export default function IkkuExpenses() {
                 </div>
             }
 
-            {showSuccessMessage && (
-                <div className="flex items-center justify-center">
-                    <div role="alert" className="alert alert-success alert-soft mb-4 absolute bottom-0 text-center">
-                        <span>{showSuccessMessage}</span>
-                    </div>
-                </div>
 
-            )}
         </div>
     );
 }

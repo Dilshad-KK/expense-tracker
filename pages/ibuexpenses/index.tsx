@@ -107,9 +107,17 @@ export default function IbuExpenses() {
                         <option value="Deposit">Deposit</option>
                     </select>
                 </fieldset>
-                <button onClick={addExpense} className="btn btn-outline">
+                <button onClick={addExpense} className="btn btn-outline mb-[20px]">
                     Add Expense
                 </button>
+                {showSuccessMessage && (
+                    <div className="flex items-center justify-center">
+                        <div role="alert" className="alert alert-success alert-soft mb-4 text-center">
+                            <span>{showSuccessMessage}</span>
+                        </div>
+                    </div>
+                )
+                }
             </div>
             {loading ? <div className="flex flex-col gap-2 justify-center items-center">
                 <div className="skeleton h-4 w-[80%]"></div>
@@ -131,7 +139,7 @@ export default function IbuExpenses() {
                         <tbody>
                             {expenses.map((expense => (
                                 <tr>
-                                    <th>{expense.amount}</th>
+                                    <th >{expense.amount}</th>
                                     <td>{expense.note}</td>
                                     <td>{expense.type}</td>
                                     <td>{moment(expense.created_at).format('MMMM Do YYYY, h:mm a')}</td>
@@ -144,21 +152,12 @@ export default function IbuExpenses() {
                             )))}
                         </tbody>
                     </table>
-                </div> : 
+                </div> :
                 <div className="flex items-center justify-center mt-16 text-gray-400 flex-col">
-                    <img src="/assets/empty.png" className="h-[70px] mb-4"/>
+                    <img src="/assets/empty.png" className="h-[70px] mb-4" />
                     <span className="text-center">No Expenses Found...!</span>
                 </div>
             }
-
-            {showSuccessMessage && (
-                <div className="flex items-center justify-center">
-                    <div role="alert" className="alert alert-success alert-soft mb-4 absolute bottom-0 text-center">
-                        <span>{showSuccessMessage}</span>
-                    </div>
-                </div>
-
-            )}
 
         </div>
     );
