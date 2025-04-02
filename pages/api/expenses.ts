@@ -12,14 +12,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   if (req.method === "POST") {
     // Insert a new expense
-    const { amount, note , type, balance } = req.body;
+    const { amount, note , type } = req.body;
 
     if (!amount || !note || !type)
       return res.status(400).json({ error: "Amount, note, and type are required" });
 
     const { data, error } = await supabase
       .from("ibuexpenses")
-      .insert([{ amount, note, type, balance }])
+      .insert([{ amount, note, type }])
       .select();
 
     if (error) return res.status(500).json({ error: error.message });
