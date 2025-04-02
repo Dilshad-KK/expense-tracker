@@ -129,7 +129,7 @@ export default function IkkuExpenses() {
                 <div className="overflow-x-auto rounded-box border border-base-content/5 bg-base-100">
                     <table className="table">
                         <thead>
-                            <tr className="text-[12px]">
+                            <tr className="text-[8px]">
                                 <th>Amount</th>
                                 <th>Note</th>
                                 <th>Type</th>
@@ -139,7 +139,7 @@ export default function IkkuExpenses() {
                         </thead>
                         <tbody>
                             {expenses.map((expense => (
-                                <tr className="text-[12px]">
+                                <tr className="text-[8px]">
                                     <th>{expense.amount}</th>
                                     <td>{expense.note}</td>
                                     <td>{expense.type}</td>
