@@ -227,7 +227,6 @@ export default function ExpensesUi(props: UserType) {
                   <th className="w-[40px]">Amount</th>
                   <th>Note</th>
                   <th>Type</th>
-                  <th>Balance</th>
                   <th className="w-[100px]">Date</th>
                   <th></th>
                 </tr>
@@ -238,7 +237,6 @@ export default function ExpensesUi(props: UserType) {
                     <th>{expense.amount}</th>
                     <td>{expense.note}</td>
                     <td>{expense.type}</td>
-                    <td>{expense.balance}</td>
                     <td>{moment(expense.created_at).format('MMMM Do YYYY')}</td>
                     <td>
                       <FaTrashAlt className="cursor-pointer text-red-400" onClick={() => {
