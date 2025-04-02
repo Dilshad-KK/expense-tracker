@@ -226,8 +226,8 @@ export default function ExpensesUi(props:UserType) {
                                     <th className="w-[40px]">Amount</th>
                                     <th>Note</th>
                                     <th>Type</th>
-                                    <th>Date</th>
-                                    <th>Actions</th>
+                                    <th className="w-[100px]">Date</th>
+                                    <th></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -236,7 +236,7 @@ export default function ExpensesUi(props:UserType) {
                                         <th>{expense.amount}</th>
                                         <td>{expense.note}</td>
                                         <td>{expense.type}</td>
-                                        <td>{moment(expense.created_at).format('MMMM Do YYYY, h:mm a')}</td>
+                                        <td>{moment(expense.created_at).format('MMMM Do YYYY')}</td>
                                         <td>
                                             <FaTrashAlt className="cursor-pointer text-red-400" onClick={() => {
                                                 deleteExpense(expense.id.toString());
