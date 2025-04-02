@@ -8,18 +8,20 @@ type Expense = {
     amount: number;
     note: string;
     type: string;
+    balance: string;
     created_at: string;
 };
 
-
-
-export default function IkkuExpenses() {
+export default function IkkuExpensesUae() {
     const [expenses, setExpenses] = useState<Expense[]>([]);
     const [amount, setAmount] = useState("");
     const [note, setNote] = useState("");
     const [type, setType] = useState("Withdrawal");
     const [loading, setLoading] = useState(false);
     const [showSuccessMessage, setShowSuccessMessage] = useState("");
+    const [totalExpense, setTotalExpense] = useState(0);
+    const [totalDeposit, setTotalDeposit] = useState(0);
+    const [closingBalance, setClosingBalance] = useState(0);
 
     useEffect(() => {
         fetchExpenses();
@@ -27,10 +29,55 @@ export default function IkkuExpenses() {
 
     async function fetchExpenses() {
         setLoading(true);
-        const res = await fetch("/api/ikkuexpenses");
+        const res = await fetch("/api/ikkuexpensesuae");
         const data: Expense[] = await res.json();
         setExpenses(data);
+        setTotalExpenses(data);
+        setTotalDeposits(data);
+        setClosingBalances(data);
         setLoading(false);
+    }
+
+    function setTotalExpenses(expenses: Expense[]) {
+        let total = 0
+        expenses?.map((expense) => {
+            if (expense.type === "Withdrawal") {
+                total += Number(expense.amount);
+            }
+        });
+        setTotalExpense(total);
+    }
+    function setTotalDeposits(deposits: Expense[]) {
+        let total = 0
+        deposits?.map((deposit) => {
+            if (deposit.type === "Deposit") {
+                total += Number(deposit.amount);
+            }
+        });
+        setTotalDeposit(total);
+    }
+
+    function setClosingBalances(transactions: Expense[]) {
+        let deposits = 0;
+        let withdrawals = 0;
+        let cbalance = 0;
+        
+        transactions?.map((transaction) => {
+            if (transaction.type === "Deposit") {
+                deposits += Number(transaction.amount);
+            }
+        });
+
+        transactions?.map((transaction) => {
+            if (transaction.type === "Withdrawal") {
+                withdrawals += Number(transaction.amount);
+            }
+        });
+
+        console.log(deposits,withdrawals)
+
+        cbalance = deposits - withdrawals;
+        setClosingBalance(cbalance);
     }
 
     async function addExpense() {
@@ -41,10 +88,27 @@ export default function IkkuExpenses() {
             return;
         }
 
-        const response = await fetch("/api/ikkuexpenses", {
+        let balanceNumber = 0;
+
+        if(!expenses[expenses?.length-1]?.balance && type === "Deposit") {
+            balanceNumber += Number(amount)
+        }
+        else if(!expenses[expenses?.length-1]?.balance && type === "Withdrawal"){
+            balanceNumber -= Number(amount)
+        }
+        else if(expenses[expenses?.length-1]?.balance && type === "Deposit"){
+            balanceNumber = Number(expenses[expenses?.length-1]?.balance) + Number(amount);
+        }
+        else if(expenses[expenses?.length-1]?.balance && type === "Withdrawal"){
+            balanceNumber = Number(expenses[expenses?.length-1]?.balance) - Number(amount);
+        }
+
+        let balance = balanceNumber.toString();
+
+        const response = await fetch("/api/ikkuexpensesuae", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ amount, note, type }),
+            body: JSON.stringify({ amount, note, type , balance }),
         });
 
         const data = await response.json();
@@ -63,11 +127,12 @@ export default function IkkuExpenses() {
             alert(`Error: ${data.error}`);
             setLoading(false);
         }
+        setLoading(false);
     }
 
     async function deleteExpense(expenseIdToDelete: string) {
         setLoading(true);
-        const response = await fetch(`/api/ikkuexpenses?id=${expenseIdToDelete}`, {
+        const response = await fetch(`/api/ikkuexpensesuae?id=${expenseIdToDelete}`, {
             method: "DELETE",
         });
 
@@ -91,7 +156,7 @@ export default function IkkuExpenses() {
         <div className="min-h-screen bg-base-200 p-4">
             <div className="flex items-center justify-center mb-8 flex-col">
                 <fieldset className="fieldset w-xs bg-base-200 border border-base-300 p-4 rounded-box">
-                    <legend className="fieldset-legend">Ikkooo's Expenses</legend>
+                    <legend className="fieldset-legend">Ikkooos's UAE Expenses</legend>
 
                     <label className="fieldset-label">Amount</label>
                     <input type="number" className="input" placeholder="Enter Amount" value={amount}
@@ -111,15 +176,14 @@ export default function IkkuExpenses() {
                     Add Expense
                 </button>
                 {showSuccessMessage && (
-                <div className="flex items-center justify-center">
-                    <div role="alert" className="alert alert-success alert-soft mb-4 text-center">
-                        <span>{showSuccessMessage}</span>
+                    <div className="flex items-center justify-center">
+                        <div role="alert" className="alert alert-success alert-soft mb-4 text-center">
+                            <span>{showSuccessMessage}</span>
+                        </div>
                     </div>
-                </div>
-
-            )}
+                )
+                }
             </div>
-
             {loading ? <div className="flex flex-col gap-2 justify-center items-center">
                 <div className="skeleton h-4 w-[80%]"></div>
                 <div className="skeleton h-4 w-[80%]"></div>
@@ -140,7 +204,7 @@ export default function IkkuExpenses() {
                         <tbody>
                             {expenses.map((expense => (
                                 <tr className="text-[8px]">
-                                    <th>{expense.amount}</th>
+                                    <th >{expense.amount}</th>
                                     <td>{expense.note}</td>
                                     <td>{expense.type}</td>
                                     <td>{moment(expense.created_at).format('MMMM Do YYYY, h:mm a')}</td>
@@ -151,15 +215,19 @@ export default function IkkuExpenses() {
                                     </td>
                                 </tr>
                             )))}
+                            <tr>
+                            <th className="text-[8px]">Total Expense : {totalExpense}</th>
+                            <th className="text-[8px]">Total Deposit : {totalDeposit}</th>
+                            <th className="text-[8px]">Closing Balance : {closingBalance}</th>
+                            </tr>
                         </tbody>
                     </table>
-                </div> : 
+                </div> :
                 <div className="flex items-center justify-center mt-16 text-gray-400 flex-col">
-                    <img src="/assets/empty.png" className="h-[70px] mb-4"/>
+                    <img src="/assets/empty.png" className="h-[70px] mb-4" />
                     <span className="text-center">No Expenses Found...!</span>
                 </div>
             }
-
 
         </div>
     );

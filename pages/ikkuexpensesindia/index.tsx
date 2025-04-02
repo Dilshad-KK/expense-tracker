@@ -12,7 +12,7 @@ type Expense = {
     created_at: string;
 };
 
-export default function IbuExpenses() {
+export default function IkkuExpensesIndia() {
     const [expenses, setExpenses] = useState<Expense[]>([]);
     const [amount, setAmount] = useState("");
     const [note, setNote] = useState("");
@@ -29,7 +29,7 @@ export default function IbuExpenses() {
 
     async function fetchExpenses() {
         setLoading(true);
-        const res = await fetch("/api/expenses");
+        const res = await fetch("/api/ikkuexpensesindia");
         const data: Expense[] = await res.json();
         setExpenses(data);
         setTotalExpenses(data);
@@ -105,7 +105,7 @@ export default function IbuExpenses() {
 
         let balance = balanceNumber.toString();
 
-        const response = await fetch("/api/expenses", {
+        const response = await fetch("/api/ikkuexpensesindia", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ amount, note, type , balance }),
@@ -132,7 +132,7 @@ export default function IbuExpenses() {
 
     async function deleteExpense(expenseIdToDelete: string) {
         setLoading(true);
-        const response = await fetch(`/api/expenses?id=${expenseIdToDelete}`, {
+        const response = await fetch(`/api/ikkuexpensesindia?id=${expenseIdToDelete}`, {
             method: "DELETE",
         });
 
@@ -156,7 +156,7 @@ export default function IbuExpenses() {
         <div className="min-h-screen bg-base-200 p-4">
             <div className="flex items-center justify-center mb-8 flex-col">
                 <fieldset className="fieldset w-xs bg-base-200 border border-base-300 p-4 rounded-box">
-                    <legend className="fieldset-legend">Ibooootty's Expenses</legend>
+                    <legend className="fieldset-legend">Ikkooos's India Expenses</legend>
 
                     <label className="fieldset-label">Amount</label>
                     <input type="number" className="input" placeholder="Enter Amount" value={amount}

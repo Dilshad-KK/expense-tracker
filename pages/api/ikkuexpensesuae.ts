@@ -4,7 +4,7 @@ import { supabase } from "../../lib/supabase";
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === "GET") {
     // Fetch expenses
-    const { data, error } = await supabase.from("ikkuexpenses").select("*");
+    const { data, error } = await supabase.from("ikkuexpensesuae").select("*");
 
     if (error) return res.status(500).json({ error: error.message });
     return res.status(200).json(data);
@@ -12,14 +12,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   if (req.method === "POST") {
     // Insert a new expense
-    const { amount, note , type } = req.body;
+    const { amount, note , type , balance} = req.body;
 
     if (!amount || !note || !type)
       return res.status(400).json({ error: "Amount, note, and type are required" });
 
     const { data, error } = await supabase
-      .from("ikkuexpenses")
-      .insert([{ amount, note, type }])
+      .from("ikkuexpensesuae")
+      .insert([{ amount, note, type , balance}])
       .select();
 
     if (error) return res.status(500).json({ error: error.message });
@@ -34,7 +34,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     try {
-      const { error } = await supabase.from("ikkuexpenses").delete().eq("id", id);
+      const { error } = await supabase.from("ikkuexpensesuae").delete().eq("id", id);
 
       if (error) {
         console.error("Delete Error:", error.message);
