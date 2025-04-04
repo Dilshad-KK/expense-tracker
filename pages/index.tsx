@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import React from 'react'
+import CountDown from "@/components/timer";
 
 const Home = () => {
   return (
@@ -7,6 +8,7 @@ const Home = () => {
       <div className='text-3xl font-bold text-center mb-8'>
         Welcome to <span className='text-primary'>IBU</span> Expense Tracker
       </div>
+      <CountDown />
       <div className='flex justify-between'>
         <Link href={"/ibuexpenses"} className="btn btn-soft btn-info mr-2">Ibu</Link>
         <Link href={"/ikkuexpensesuae"} className="btn btn-soft btn-success mr-2">Ikku UAE</Link>
