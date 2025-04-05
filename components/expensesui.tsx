@@ -2,6 +2,8 @@
 import moment from "moment";
 import { useState, useEffect } from "react";
 import { FaTrashAlt } from "react-icons/fa";
+import { messaging } from "../firebase";
+import { requestFCMToken } from "../firebase";
 
 type Expense = {
   id: number;
@@ -27,6 +29,7 @@ export default function ExpensesUi(props: UserType) {
   const [totalExpense, setTotalExpense] = useState(0);
   const [totalDeposit, setTotalDeposit] = useState(0);
   const [closingBalance, setClosingBalance] = useState(0);
+  const [fcmToken, setFcmToken] = useState("")
 
   let apiPath = '';
   let formTitle = '';
@@ -136,6 +139,7 @@ export default function ExpensesUi(props: UserType) {
     console.log(data);
     if (response.ok) {
       setShowSuccessMessage("Expense Added Successfully...!");
+      sendNotification(`Expense Added For ${formTitle}`);
       fetchExpenses();
       setAmount("");
       setNote("");
@@ -172,6 +176,57 @@ export default function ExpensesUi(props: UserType) {
       setLoading(false);
     }
   }
+
+  //notification
+
+  useEffect(() => {
+    const fetchToken = async () => {
+      const token = await requestFCMToken();
+      if (token) {
+        localStorage.setItem("fcm_token", token); // Save FCM token locally
+        setFcmToken(token);
+      }
+    };
+    fetchToken();
+
+
+    if (typeof window !== "undefined" && "Notification" in window) {
+      import("firebase/messaging").then(({ onMessage }) => {
+        if (messaging) {
+          onMessage(messaging, (payload: any) => {
+            console.log("📩 Foreground notification received:", payload);
+            new Notification(payload.notification.title, {
+              body: payload.notification.body,
+              icon: "/assets/notification.png",
+            });
+          });
+        }
+      });
+    }
+
+  }, []);
+
+  const sendNotification = async (message:String) => {
+    const fcmToken = localStorage.getItem("fcm_token");
+
+    if (!fcmToken) {
+      alert("FCM token not found! Please enable notifications.");
+      return;
+    }
+
+    const response = await fetch("/api/sendNotification", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        fcmToken: fcmToken,
+        title: "IBU Expense Tracker Alert!",
+        body: message,
+      }),
+    });
+
+    const data = await response.json();
+    console.log("Notification Response:", data);
+  };
 
   return (
     <div className="min-h-screen bg-base-200 p-4">
@@ -214,11 +269,13 @@ export default function ExpensesUi(props: UserType) {
       </div> : expenses?.length > 0 ?
         <>
           <table className="table table-xs mb-8">
-            <tr>
-              <th className="text-[8px] border-amber-50 border-[1px] border-solid">Total Expense : {totalExpense}</th>
-              <th className="text-[8px] border-amber-50 border-[1px] border-solid">Total Deposit : {totalDeposit}</th>
-              <th className="text-[8px] border-amber-50 border-[1px] border-solid">Closing Balance : {closingBalance}</th>
-            </tr>
+            <tbody>
+              <tr>
+                <th className="text-[8px] border-amber-50 border-[1px] border-solid">Total Expense : {totalExpense}</th>
+                <th className="text-[8px] border-amber-50 border-[1px] border-solid">Total Deposit : {totalDeposit}</th>
+                <th className="text-[8px] border-amber-50 border-[1px] border-solid">Closing Balance : {closingBalance}</th>
+              </tr>
+            </tbody>
           </table>
           <div className="overflow-x-auto rounded-box border border-base-content/5 bg-base-100">
             <table className="table table-xs">
@@ -232,8 +289,8 @@ export default function ExpensesUi(props: UserType) {
                 </tr>
               </thead>
               <tbody>
-                {expenses.map((expense => (
-                  <tr className="text-[8px]">
+                {expenses.map(((expense, key) => (
+                  <tr className="text-[8px]" key={key}>
                     <th>{expense.amount}</th>
                     <td>{expense.note}</td>
                     <td>{expense.type}</td>
@@ -249,7 +306,6 @@ export default function ExpensesUi(props: UserType) {
               </tbody>
             </table>
           </div>
-
         </>
         :
         <div className="flex items-center justify-center mt-16 text-gray-400 flex-col">
