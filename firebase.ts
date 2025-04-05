@@ -30,7 +30,7 @@ export const requestFCMToken = async () => {
     try {
         const registration = await navigator.serviceWorker.register("/firebase-messaging-sw.js");
         console.log("Service Worker Registered:", registration);
-        alert("Service Worker Registered:");
+        alert("Service Worker Registered: "+JSON.stringify(registration));
 
         const token = await getToken(messaging, {
             vapidKey: "BO9UcANN_R4LJ2eGRdYn5qlK6Ylrx4r6hstVkT-KIWWcR0reB_hzm-kIP5bC1qnZTSFRPLZhp66amvH9Co9rvtI",
