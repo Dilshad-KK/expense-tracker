@@ -36,11 +36,13 @@ export const requestFCMToken = async () => {
             vapidKey: "BO9UcANN_R4LJ2eGRdYn5qlK6Ylrx4r6hstVkT-KIWWcR0reB_hzm-kIP5bC1qnZTSFRPLZhp66amvH9Co9rvtI",
             serviceWorkerRegistration: registration,
         });
+
         alert(JSON.stringify(token)+"here=========*****>")
         console.log("FCM Token:", token);
         return token;
     } catch (error) {
         console.error("FCM Token Error:", error);
+        alert("FCM Token Error: "+error)
         return null;
     }
 };
