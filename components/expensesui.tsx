@@ -2,8 +2,8 @@
 import moment from "moment";
 import { useState, useEffect } from "react";
 import { FaTrashAlt } from "react-icons/fa";
-import { messaging } from "../firebase";
-import { requestFCMToken } from "../firebase";
+// import { messaging } from "../firebase";
+// import { requestFCMToken } from "../firebase";
 
 type Expense = {
   id: number;
@@ -29,7 +29,7 @@ export default function ExpensesUi(props: UserType) {
   const [totalExpense, setTotalExpense] = useState(0);
   const [totalDeposit, setTotalDeposit] = useState(0);
   const [closingBalance, setClosingBalance] = useState(0);
-  const [fcmToken, setFcmToken] = useState("")
+  // const [fcmToken, setFcmToken] = useState("")
 
   let apiPath = '';
   let formTitle = '';
@@ -139,7 +139,7 @@ export default function ExpensesUi(props: UserType) {
     console.log(data);
     if (response.ok) {
       setShowSuccessMessage("Expense Added Successfully...!");
-      sendNotification(`Expense Added For ${formTitle}`);
+      // sendNotification(`Expense Added For ${formTitle}`);
       fetchExpenses();
       setAmount("");
       setNote("");
@@ -179,59 +179,59 @@ export default function ExpensesUi(props: UserType) {
 
   //notification
 
-  useEffect(() => {
+  // useEffect(() => {
 
 
 
-    const fetchToken = async () => {
-      const token = await requestFCMToken();
-      if (token) {
-        localStorage.setItem("fcm_token", token); // Save FCM token locally
-        setFcmToken(token);
-      }
-    };
-    fetchToken();
+  //   const fetchToken = async () => {
+  //     const token = await requestFCMToken();
+  //     if (token) {
+  //       localStorage.setItem("fcm_token", token); // Save FCM token locally
+  //       // setFcmToken(token);
+  //     }
+  //   };
+  //   fetchToken();
 
 
-    if (typeof window !== "undefined" && "Notification" in window) {
-      import("firebase/messaging").then(({ onMessage }) => {
-        if (messaging) {
-          onMessage(messaging, (payload: any) => {
-            console.log("📩 Foreground notification received:", payload);
-            new Notification(payload.notification.title, {
-              body: payload.notification.body,
-              icon: "/assets/notification.png",
-            });
-          });
-        }
-      });
-    }
+  //   if (typeof window !== "undefined" && "Notification" in window) {
+  //     import("firebase/messaging").then(({ onMessage }) => {
+  //       if (messaging) {
+  //         onMessage(messaging, (payload: any) => {
+  //           console.log("📩 Foreground notification received:", payload);
+  //           new Notification(payload.notification.title, {
+  //             body: payload.notification.body,
+  //             icon: "/assets/notification.png",
+  //           });
+  //         });
+  //       }
+  //     });
+  //   }
 
-  }, []);
+  // }, []);
 
-  const sendNotification = async (message:String) => {
-    alert("send fn called ====>")
-    const fcmToken = localStorage.getItem("fcm_token");
-    alert(JSON.stringify(fcmToken))
+  // const sendNotification = async (message:String) => {
+  //   alert("send fn called ====>")
+  //   const fcmToken = localStorage.getItem("fcm_token");
+  //   alert(JSON.stringify(fcmToken))
 
-    if (!fcmToken) {
-      alert("FCM token not found! Please enable notifications.");
-      return;
-    }
+  //   if (!fcmToken) {
+  //     alert("FCM token not found! Please enable notifications.");
+  //     return;
+  //   }
 
-    const response = await fetch("/api/sendNotification", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        fcmToken: fcmToken,
-        title: "IBU Expense Tracker Alert!",
-        body: message,
-      }),
-    });
+  //   const response = await fetch("/api/sendNotification", {
+  //     method: "POST",
+  //     headers: { "Content-Type": "application/json" },
+  //     body: JSON.stringify({
+  //       fcmToken: fcmToken,
+  //       title: "IBU Expense Tracker Alert!",
+  //       body: message,
+  //     }),
+  //   });
 
-    const data = await response.json();
-    console.log("Notification Response:", data);
-  };
+  //   const data = await response.json();
+  //   console.log("Notification Response:", data);
+  // };
 
   return (
     <div className="min-h-screen bg-base-200 p-4">
@@ -318,7 +318,6 @@ export default function ExpensesUi(props: UserType) {
           <span className="text-center">No Expenses Found...!</span>
         </div>
       }
-
     </div>
   );
 }
