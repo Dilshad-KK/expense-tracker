@@ -31,7 +31,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   try {
     await admin.messaging().send(message);
     console.log("key is correct")
-    // return res.status(200).json({ success: true, message: "Notification sent!" });
+    return res.status(200).json({ success: true, message: "Notification sent!" });
   } catch (error) {
     console.error("FCM Error:", error);
     return res.status(500).json({ success: false, error: "Failed to send notification", details: (error as Error).message });

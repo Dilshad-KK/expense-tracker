@@ -180,6 +180,9 @@ export default function ExpensesUi(props: UserType) {
   //notification
 
   useEffect(() => {
+
+
+
     const fetchToken = async () => {
       const token = await requestFCMToken();
       if (token) {
@@ -207,7 +210,9 @@ export default function ExpensesUi(props: UserType) {
   }, []);
 
   const sendNotification = async (message:String) => {
+    alert("send fn called ====>")
     const fcmToken = localStorage.getItem("fcm_token");
+    alert(JSON.stringify(fcmToken))
 
     if (!fcmToken) {
       alert("FCM token not found! Please enable notifications.");
