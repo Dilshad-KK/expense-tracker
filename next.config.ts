@@ -1,16 +1,20 @@
 // @ts-expect-error: next-pwa has no types
 import withPWA from 'next-pwa';
-import type { NextConfig } from 'next';
 
-const nextConfig: NextConfig = {
+const nextConfig = {
   reactStrictMode: true,
 };
 
-export default withPWA({
-  ...nextConfig,
+const pwaConfig = withPWA({
   pwa: {
     dest: 'public',
     register: true,
     skipWaiting: true,
   },
 });
+
+// Merge them manually to avoid reactStrictMode getting into PWA config
+export default {
+  ...nextConfig,
+  ...pwaConfig,
+};
