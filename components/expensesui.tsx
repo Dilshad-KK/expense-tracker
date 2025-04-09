@@ -234,7 +234,7 @@ export default function ExpensesUi(props: UserType) {
   // };
 
   return (
-    <div className="min-h-screen bg-base-200 p-4">
+    <div className="min-h-screen bg-base-200 p-4 mb-[100px]">
       <div className="flex items-center justify-center mb-8 flex-col">
         <fieldset className="fieldset w-xs bg-base-200 border border-base-300 p-4 rounded-box">
           <legend className="fieldset-legend">{formTitle}</legend>
@@ -294,19 +294,20 @@ export default function ExpensesUi(props: UserType) {
                 </tr>
               </thead>
               <tbody>
-                {expenses.map(((expense, key) => (
-                  <tr className="text-[8px]" key={key}>
-                    <th>{expense.amount}</th>
-                    <td>{expense.note}</td>
-                    <td>{expense.type}</td>
-                    <td>{moment(expense.created_at).format('MMMM Do YYYY')}</td>
-                    <td>
-                      <FaTrashAlt className="cursor-pointer text-red-400" onClick={() => {
-                        deleteExpense(expense.id.toString());
-                      }} />
-                    </td>
-                  </tr>
-                )))}
+                {expenses.slice() // create a shallow copy to avoid mutating the original array
+                  .reverse().map(((expense, key) => (
+                    <tr className="text-[8px]" key={key}>
+                      <th>{expense.amount}</th>
+                      <td>{expense.note}</td>
+                      <td>{expense.type}</td>
+                      <td>{moment(expense.created_at).format('MMMM Do YYYY')}</td>
+                      <td>
+                        <FaTrashAlt className="cursor-pointer text-red-400" onClick={() => {
+                          deleteExpense(expense.id.toString());
+                        }} />
+                      </td>
+                    </tr>
+                  )))}
 
               </tbody>
             </table>
