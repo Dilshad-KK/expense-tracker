@@ -234,9 +234,28 @@ export default function ExpensesUi(props: UserType) {
   // };
 
   return (
-    <div className="min-h-screen bg-base-200 p-4 mb-[100px]">
-      <div className="flex items-center justify-center mb-8 flex-col">
-        <fieldset className="fieldset w-xs bg-base-200 border border-base-300 p-4 rounded-box">
+    <div className="min-h-screen bg-[#e8e8fd] p-4 pb-[150px]">
+      <div className="flex items-center justify-center mb-4 flex-col">
+        <h3 className="mb-4 mt-8 text-black/80 font-poppinsMed">{formTitle}</h3>
+        <input
+          type="number"
+          placeholder="Amount"
+          className="input mb-2 border-[1px] border-solid border-[#d3d3fe] w-full bg-[#f3f3fd]" value={amount}
+          onChange={(e) => setAmount(e.target.value)} />
+        <input
+          type="text"
+          placeholder="Enter Description"
+          className="input mb-2 border-[1px] border-solid border-[#d3d3fe] w-full bg-[#f3f3fd]" value={note}
+          onChange={(e) => setNote(e.target.value)} />
+        <select className="select border-[1px] border-solid border-[#d3d3fe] w-full bg-[#f3f3fd]"
+          value={type} onChange={(e) => setType(e.target.value)}>
+          <option value="Withdrawal">Withdrawal</option>
+          <option value="Deposit">Deposit</option>
+        </select>
+        <button onClick={addExpense} className="btn btn-outline my-[16px] w-full">
+          Add Transaction
+        </button>
+        {/* <fieldset className="fieldset w-xs bg-base-200 border border-base-300 p-4 rounded-box">
           <legend className="fieldset-legend">{formTitle}</legend>
 
           <label className="fieldset-label">Amount</label>
@@ -255,38 +274,38 @@ export default function ExpensesUi(props: UserType) {
           <button onClick={addExpense} className="btn btn-outline my-[16px]">
             Add Transaction
           </button>
-        </fieldset>
+        </fieldset> */}
 
         {showSuccessMessage && (
-          <div className="flex items-center justify-center">
-            <div role="alert" className="alert alert-success alert-soft mb-4 text-center">
-              <span>{showSuccessMessage}</span>
+          <div className="flex items-center justify-center w-full">
+            <div role="alert" className="alert alert-success alert-soft mb-4 text-center w-full">
+              <span className="text-white">{showSuccessMessage}</span>
             </div>
           </div>
         )
         }
       </div>
       {loading ? <div className="flex flex-col gap-2 justify-center items-center">
-        <div className="skeleton h-4 w-[80%]"></div>
-        <div className="skeleton h-4 w-[80%]"></div>
-        <div className="skeleton h-4 w-[80%]"></div>
-        <div className="skeleton h-4 w-[80%]"></div>
+        <div className="skeleton h-4 w-[80%] bg-[#a5a5fe]"></div>
+        <div className="skeleton h-4 w-[80%] bg-[#a5a5fe]"></div>
+        <div className="skeleton h-4 w-[80%] bg-[#a5a5fe]"></div>
+        <div className="skeleton h-4 w-[80%] bg-[#a5a5fe]"></div>
       </div> : expenses?.length > 0 ?
         <>
-          <table className="table table-xs mb-8">
+          <table className="table table-xs mb-4">
             <tbody>
               <tr>
-                <th className="text-[8px] border-amber-50 border-[1px] border-solid">Total Expense : {totalExpense}</th>
-                <th className="text-[8px] border-amber-50 border-[1px] border-solid">Total Deposit : {totalDeposit}</th>
-                <th className="text-[8px] border-amber-50 border-[1px] border-solid">Closing Balance : {closingBalance}</th>
+                <th className="text-[8px] text-[#000000d3] border-solid border-[1px] border-[#c6c6fc]">Total Expense : {totalExpense}</th>
+                <th className="text-[8px] text-[#000000] border-solid border-[1px] border-[#c6c6fc]">Total Deposit : {totalDeposit}</th>
+                <th className="text-[8px] text-[#000000] border-solid border-[1px] border-[#c6c6fc]">Closing Balance : {closingBalance}</th>
               </tr>
             </tbody>
           </table>
-          <div className="overflow-x-auto rounded-box border border-base-content/5 bg-base-100">
-            <table className="table table-xs">
+          <div className="overflow-x-auto">
+            <table className="table table-xs bg-[#f2f2fe] rounded-none text-[#000000d3]">
               <thead>
-                <tr className="text-[8px]">
-                  <th className="w-[40px]">Amount</th>
+                <tr className="text-[8px] text-[#000000d3] font-poppinsBold border-solid border-[1px] border-[#dadafc]">
+                  <th className="w-[40px] px-3">Amount</th>
                   <th>Note</th>
                   <th>Type</th>
                   <th className="w-[100px]">Date</th>
@@ -296,13 +315,13 @@ export default function ExpensesUi(props: UserType) {
               <tbody>
                 {expenses.slice() // create a shallow copy to avoid mutating the original array
                   .reverse().map(((expense, key) => (
-                    <tr className="text-[8px]" key={key}>
-                      <th>{expense.amount}</th>
-                      <td>{expense.note}</td>
-                      <td>{expense.type}</td>
-                      <td>{moment(expense.created_at).format('MMMM Do YYYY')}</td>
-                      <td>
-                        <FaTrashAlt className="cursor-pointer text-red-400" onClick={() => {
+                    <tr key={key} className="border-solid border-[1px] border-[#dadafc]">
+                      <th className="text-[8px] px-3">{expense.amount}</th>
+                      <td className="text-[8px]">{expense.note}</td>
+                      <td className="text-[8px]">{expense.type}</td>
+                      <td className="text-[8px]">{moment(expense.created_at).format('MMMM Do YYYY')}</td>
+                      <td className="px-3">
+                        <FaTrashAlt className="cursor-pointer text-red-400 text-[10px]" onClick={() => {
                           deleteExpense(expense.id.toString());
                         }} />
                       </td>
