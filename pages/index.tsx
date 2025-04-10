@@ -4,6 +4,7 @@ import { IoMdNotifications } from "react-icons/io";
 import { PiMoneyThin } from "react-icons/pi";
 import { FaPeoplePulling } from "react-icons/fa6";
 import Slider from "react-slick";
+import Clock from '@/components/time';
 // import CountdownTimer from "@/components/timer";
 
 const Home = () => {
@@ -35,7 +36,11 @@ const Home = () => {
         <div className='h-[50px] w-[50px] bg-white rounded-full flex items-center justify-center mb-3 z-[2000]'>
           <img src="/assets/icons/avatar.png" className='h-[35px]' />
         </div>
-        <span className='text-white z-[2000]'>Welcome Back..!</span>
+        <div className='flex flex-col items-start w-[200px]'>
+          <Clock />
+          <span className='text-white z-[2000] font-poppinsMed'>Welcome Back</span>
+          <span className='text-[#ffffffbe] z-[2000] text-[12px]'>Have a nice day...!</span>
+        </div>
         <div className='h-[50px] w-[50px] bg-white rounded-full flex items-center justify-center mb-3 z-[2000]'>
           <IoMdNotifications className='text-[24px]' />
         </div>
