@@ -2,6 +2,9 @@
 import moment from "moment";
 import { useState, useEffect } from "react";
 import { FaTrashAlt } from "react-icons/fa";
+import { IoMdNotifications } from "react-icons/io";
+import { FaArrowLeft } from "react-icons/fa6";
+import GoBack from "./goback";
 // import { messaging } from "../firebase";
 // import { requestFCMToken } from "../firebase";
 
@@ -234,28 +237,37 @@ export default function ExpensesUi(props: UserType) {
   // };
 
   return (
-    <div className="min-h-screen bg-[#e8e8fd] p-4 pb-[150px]">
-      <div className="flex items-center justify-center mb-4 flex-col">
-        <h3 className="mb-4 mt-8 text-black/80 font-poppinsMed">{formTitle}</h3>
-        <input
-          type="number"
-          placeholder="Amount"
-          className="input mb-2 border-[1px] border-solid border-[#d3d3fe] w-full bg-[#f3f3fd]" value={amount}
-          onChange={(e) => setAmount(e.target.value)} />
-        <input
-          type="text"
-          placeholder="Enter Description"
-          className="input mb-2 border-[1px] border-solid border-[#d3d3fe] w-full bg-[#f3f3fd]" value={note}
-          onChange={(e) => setNote(e.target.value)} />
-        <select className="select border-[1px] border-solid border-[#d3d3fe] w-full bg-[#f3f3fd]"
-          value={type} onChange={(e) => setType(e.target.value)}>
-          <option value="Withdrawal">Withdrawal</option>
-          <option value="Deposit">Deposit</option>
-        </select>
-        <button onClick={addExpense} className="btn btn-outline my-[16px] w-full">
-          Add Transaction
-        </button>
-        {/* <fieldset className="fieldset w-xs bg-base-200 border border-base-300 p-4 rounded-box">
+    <div className="bg-[#e8e8fd]">
+      <div className='relative bg-[#514cff] h-[150px] rounded-b-[60px] flex justify-between items-center px-4'>
+        <div className='absolute left-[-90px] z-[1000] bg-[#ffffff18] rounded-full w-[200px] h-[200px]'></div>
+        <div className='absolute left-[-30px] z-[1000] bg-[#ffffff1a] rounded-full w-[200px] h-[200px]'></div>
+        <GoBack />
+        <span className='text-white z-[2000]'>{formTitle}</span>
+        <div className='h-[50px] w-[50px] bg-white rounded-full flex items-center justify-center mb-3 z-[2000]'>
+          <IoMdNotifications className='text-[24px]' />
+        </div>
+      </div>
+      <div className="min-h-screen p-4 pb-[150px]">
+        <div className="flex items-center justify-center mb-4 flex-col">
+          <input
+            type="number"
+            placeholder="Amount"
+            className="input mb-2 border-[1px] border-solid border-[#d3d3fe] w-full bg-[#f3f3fd] placeholder:text-[12px]" value={amount}
+            onChange={(e) => setAmount(e.target.value)} />
+          <input
+            type="text"
+            placeholder="Enter Description"
+            className="input mb-2 border-[1px] border-solid border-[#d3d3fe] w-full bg-[#f3f3fd] placeholder:text-[12px]" value={note}
+            onChange={(e) => setNote(e.target.value)} />
+          <select className="select border-[1px] border-solid border-[#d3d3fe] w-full bg-[#f3f3fd] text-[12px] placeholder:text-[12px]"
+            value={type} onChange={(e) => setType(e.target.value)}>
+            <option value="Withdrawal">Withdrawal</option>
+            <option value="Deposit">Deposit</option>
+          </select>
+          <button onClick={addExpense} className="btn bg-[#514cff] text-white border-none text-[12px] my-[16px] w-full">
+            Add Transaction
+          </button>
+          {/* <fieldset className="fieldset w-xs bg-base-200 border border-base-300 p-4 rounded-box">
           <legend className="fieldset-legend">{formTitle}</legend>
 
           <label className="fieldset-label">Amount</label>
@@ -276,68 +288,70 @@ export default function ExpensesUi(props: UserType) {
           </button>
         </fieldset> */}
 
-        {showSuccessMessage && (
-          <div className="flex items-center justify-center w-full">
-            <div role="alert" className="alert alert-success alert-soft mb-4 text-center w-full">
-              <span className="text-white">{showSuccessMessage}</span>
+          {showSuccessMessage && (
+            <div className="flex items-center justify-center w-full">
+              <div role="alert" className="alert alert-success alert-soft mb-4 text-center w-full">
+                <span className="text-white">{showSuccessMessage}</span>
+              </div>
             </div>
-          </div>
-        )
-        }
-      </div>
-      {loading ? <div className="flex flex-col gap-2 justify-center items-center">
-        <div className="skeleton h-4 w-[80%] bg-[#a5a5fe]"></div>
-        <div className="skeleton h-4 w-[80%] bg-[#a5a5fe]"></div>
-        <div className="skeleton h-4 w-[80%] bg-[#a5a5fe]"></div>
-        <div className="skeleton h-4 w-[80%] bg-[#a5a5fe]"></div>
-      </div> : expenses?.length > 0 ?
-        <>
-          <table className="table table-xs mb-4">
-            <tbody>
-              <tr>
-                <th className="text-[8px] text-[#000000d3] border-solid border-[1px] border-[#c6c6fc]">Total Expense : {totalExpense}</th>
-                <th className="text-[8px] text-[#000000] border-solid border-[1px] border-[#c6c6fc]">Total Deposit : {totalDeposit}</th>
-                <th className="text-[8px] text-[#000000] border-solid border-[1px] border-[#c6c6fc]">Closing Balance : {closingBalance}</th>
-              </tr>
-            </tbody>
-          </table>
-          <div className="overflow-x-auto">
-            <table className="table table-xs bg-[#f2f2fe] rounded-none text-[#000000d3]">
-              <thead>
-                <tr className="text-[8px] text-[#000000d3] font-poppinsBold border-solid border-[1px] border-[#dadafc]">
-                  <th className="w-[40px] px-3">Amount</th>
-                  <th>Note</th>
-                  <th>Type</th>
-                  <th className="w-[100px]">Date</th>
-                  <th></th>
-                </tr>
-              </thead>
+          )
+          }
+        </div>
+        {loading ? <div className="flex flex-col gap-2 justify-center items-center">
+          <div className="skeleton h-4 w-[80%] bg-[#a5a5fe]"></div>
+          <div className="skeleton h-4 w-[80%] bg-[#a5a5fe]"></div>
+          <div className="skeleton h-4 w-[80%] bg-[#a5a5fe]"></div>
+          <div className="skeleton h-4 w-[80%] bg-[#a5a5fe]"></div>
+        </div> : expenses?.length > 0 ?
+          <>
+            <table className="table table-xs mb-4">
               <tbody>
-                {expenses.slice() // create a shallow copy to avoid mutating the original array
-                  .reverse().map(((expense, key) => (
-                    <tr key={key} className="border-solid border-[1px] border-[#dadafc]">
-                      <th className="text-[8px] px-3">{expense.amount}</th>
-                      <td className="text-[8px]">{expense.note}</td>
-                      <td className="text-[8px]">{expense.type}</td>
-                      <td className="text-[8px]">{moment(expense.created_at).format('MMMM Do YYYY')}</td>
-                      <td className="px-3">
-                        <FaTrashAlt className="cursor-pointer text-red-400 text-[10px]" onClick={() => {
-                          deleteExpense(expense.id.toString());
-                        }} />
-                      </td>
-                    </tr>
-                  )))}
-
+                <tr>
+                  <th className="text-[8px] text-[#000000d3] border-solid border-[1px] border-[#c6c6fc]">Total Expense : {totalExpense}</th>
+                  <th className="text-[8px] text-[#000000] border-solid border-[1px] border-[#c6c6fc]">Total Deposit : {totalDeposit}</th>
+                  <th className="text-[8px] text-[#000000] border-solid border-[1px] border-[#c6c6fc]">Closing Balance : {closingBalance}</th>
+                </tr>
               </tbody>
             </table>
+            <div className="overflow-x-auto">
+              <table className="table table-xs bg-[#f2f2fe] rounded-none text-[#000000d3]">
+                <thead>
+                  <tr className="text-[8px] text-[#000000d3] font-poppinsBold border-solid border-[1px] border-[#dadafc]">
+                    <th className="w-[40px] px-3">Amount</th>
+                    <th>Note</th>
+                    <th>Type</th>
+                    <th className="w-[100px]">Date</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {expenses.slice() // create a shallow copy to avoid mutating the original array
+                    .reverse().map(((expense, key) => (
+                      <tr key={key} className="border-solid border-[1px] border-[#dadafc]">
+                        <th className="text-[8px] px-3">{expense.amount}</th>
+                        <td className="text-[8px]">{expense.note}</td>
+                        <td className="text-[8px]">{expense.type}</td>
+                        <td className="text-[8px]">{moment(expense.created_at).format('MMMM Do YYYY')}</td>
+                        <td className="px-3">
+                          <FaTrashAlt className="cursor-pointer text-red-400 text-[10px]" onClick={() => {
+                            deleteExpense(expense.id.toString());
+                          }} />
+                        </td>
+                      </tr>
+                    )))}
+
+                </tbody>
+              </table>
+            </div>
+          </>
+          :
+          <div className="flex items-center justify-center mt-16 text-gray-400 flex-col">
+            <img src="/assets/empty.png" className="h-[70px] mb-4" />
+            <span className="text-center">No Expenses Found...!</span>
           </div>
-        </>
-        :
-        <div className="flex items-center justify-center mt-16 text-gray-400 flex-col">
-          <img src="/assets/empty.png" className="h-[70px] mb-4" />
-          <span className="text-center">No Expenses Found...!</span>
-        </div>
-      }
+        }
+      </div>
     </div>
+
   );
 }
