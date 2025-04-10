@@ -17,6 +17,15 @@ const Home = () => {
     arrows: false,
     autoplay: true
   };
+  var settings1 = {
+    // dots: true,
+    infinite: true,
+    speed: 600,
+    slidesToShow: 1,
+    slidesToScroll: 1,
+    arrows: false,
+    autoplay: true
+  };
 
   return (
     <div className='bg-[#e8e8fd]'>
@@ -127,7 +136,7 @@ const Home = () => {
           <h3 className='text-left mb-3 text-[#4a99fb] text-[12px] font-poppinsMed cursor-pointer'>View All</h3>
         </div>
         <div className='mb-8 w-full bg-[#ffffff] p-4 rounded-[8px] shadow-md'>
-          <Slider {...settings} className='max-w-[100%]'>
+          <Slider {...settings1} className='max-w-[100%]'>
             <div>
               <div className='flex flex-row items-center justify-start'>
                 <div className='bg-[#eeedf9] h-[40px] w-[40px] rounded-md flex flex-row items-center justify-center mr-[16px]'>
