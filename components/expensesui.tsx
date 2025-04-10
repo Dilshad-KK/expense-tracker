@@ -325,8 +325,7 @@ export default function ExpensesUi(props: UserType) {
                   </tr>
                 </thead>
                 <tbody>
-                  {expenses.slice() // create a shallow copy to avoid mutating the original array
-                    .reverse().map(((expense, key) => (
+                  {expenses.map(((expense, key) => (
                       <tr key={key} className="border-solid border-[1px] border-[#dadafc]">
                         <th className="text-[8px] px-3">{expense.amount}</th>
                         <td className="text-[8px]">{expense.note}</td>
