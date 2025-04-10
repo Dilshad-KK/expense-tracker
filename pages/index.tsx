@@ -172,7 +172,7 @@ const Home = () => {
           <h3 className='text-left mb-3 text-black text-[14px] font-poppinsBold'>Menstrual Cycle</h3>
           <h3 className='text-left mb-3 text-[#4a99fb] text-[12px] font-poppinsMed cursor-pointer'>Explore</h3>
         </div>
-        <div className='mb-16 flex justify-between w-full bg-[#ffffff] p-4 rounded-[8px] shadow-md'>
+        <div className='mb-8 flex justify-between w-full bg-[#ffffff] p-4 rounded-[8px] shadow-md'>
           <div className='flex flex-row items-center justify-start'>
             <div className='bg-[#fdeded] h-[40px] w-[40px] rounded-md flex flex-row items-center justify-center mr-[16px]'>
               <MdWaterDrop className='text-[24px] text-[#fc3f3f]' />
@@ -188,7 +188,7 @@ const Home = () => {
           <h3 className='text-left mb-3 text-black text-[14px] font-poppinsBold'>Checklist Today</h3>
           <h3 className='text-left mb-3 text-[#4a99fb] text-[12px] font-poppinsMed cursor-pointer'>View All</h3>
         </div>
-        <div className='mb-8 flex justify-between w-full bg-[#ffffff] p-4 rounded-[8px] shadow-md'>
+        <div className='mb-32 flex justify-between w-full bg-[#ffffff] p-4 rounded-[8px] shadow-md'>
 
         </div>
 
