@@ -298,10 +298,10 @@ export default function ExpensesUi(props: UserType) {
           }
         </div>
         {loading ? <div className="flex flex-col gap-2 justify-center items-center">
-          <div className="skeleton h-4 w-[80%] bg-[#a5a5fe]"></div>
-          <div className="skeleton h-4 w-[80%] bg-[#a5a5fe]"></div>
-          <div className="skeleton h-4 w-[80%] bg-[#a5a5fe]"></div>
-          <div className="skeleton h-4 w-[80%] bg-[#a5a5fe]"></div>
+          <div className="skeleton h-4 w-[100%] bg-[#a5a5fe]"></div>
+          <div className="skeleton h-4 w-[100%] bg-[#a5a5fe]"></div>
+          <div className="skeleton h-4 w-[100%] bg-[#a5a5fe]"></div>
+          <div className="skeleton h-4 w-[100%] bg-[#a5a5fe]"></div>
         </div> : expenses?.length > 0 ?
           <>
             <table className="table table-xs mb-4">
