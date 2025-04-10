@@ -10,7 +10,7 @@ const NavLinks = () => {
   const isActive = (path: string) => currentPath === path
 
   return (
-    <div className='bottom-0 w-full h-[90px] bg-white fixed shadow-[0_-4px_10px_rgba(0,0,0,0.1)] z-50'>
+    <div className='bottom-0 w-full h-[90px] bg-white fixed shadow-[0_-4px_10px_rgba(0,0,0,0.1)] z-50 rounded-t-[24px]'>
       <div className='flex justify-between px-12 w-full h-full'>
         <Link href={"/"} className={`col-span-3  flex items-center justify-center flex-col cursor-pointer`}>
           <img src={isActive("/") ? "/assets/icons/home-active.png" : "/assets/icons/home.png"} className='h-[22px]' />

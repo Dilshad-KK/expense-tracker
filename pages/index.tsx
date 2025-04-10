@@ -7,8 +7,8 @@ const Home = () => {
   return (
     <div className='bg-[#e8e8fd]'>
       <div className='relative bg-[#514cff] h-[150px] rounded-b-[60px] flex justify-between items-center px-4'>
-        <div className='absolute left-[-90px] z-[1000] bg-[#ffffff18] rounded-full w-[200px] h-[200px]'>ff</div>
-        <div className='absolute left-[-30px] z-[1000] bg-[#ffffff1a] rounded-full w-[200px] h-[200px]'>ff</div>
+        <div className='absolute left-[-90px] z-[1000] bg-[#ffffff18] rounded-full w-[200px] h-[200px]'></div>
+        <div className='absolute left-[-30px] z-[1000] bg-[#ffffff1a] rounded-full w-[200px] h-[200px]'></div>
         <div className='h-[50px] w-[50px] bg-white rounded-full flex items-center justify-center mb-3 z-[2000]'>
           <img src="/assets/icons/avatar.png" className='h-[35px]' />
         </div>
@@ -17,7 +17,7 @@ const Home = () => {
           <IoMdNotifications className='text-[24px]' />
         </div>
       </div>
-      <div className='min-h-screen px-4 py-12'>
+      <div className='min-h-screen px-4 py-8'>
         {/* <CountdownTimer /> */}
         <h3 className='text-left mb-3 text-black text-[14px] font-poppinsMed'>Transactions</h3>
         <div className='mb-8 flex justify-between w-full bg-[#ffffff] p-4 rounded-[8px] shadow-md'>
@@ -40,22 +40,32 @@ const Home = () => {
             <h2 className='font-poppinsMed text-[12px] text-black/80'>D-TXNS-IND</h2>
           </Link>
         </div>
-        <h3 className='text-left mb-3 text-black text-[14px] font-poppinsMed'>Checklist Today</h3>
+        <div className='flex justify-between'>
+          <h3 className='text-left mb-3 text-black text-[14px] font-poppinsMed'>Budget & Loans</h3>
+          <h3 className='text-left mb-3 text-[#4a99fb] text-[12px] font-poppinsMed cursor-pointer'>View All</h3>
+        </div>
         <div className='mb-8 flex justify-between w-full bg-[#ffffff] p-4 rounded-[8px] shadow-md'>
 
         </div>
-        <h3 className='text-left mb-3 text-black text-[14px] font-poppinsMed'>Upcoming Occasions</h3>
+        <div className='flex justify-between'>
+          <h3 className='text-left mb-3 text-black text-[14px] font-poppinsMed'>Checklist Today</h3>
+          <h3 className='text-left mb-3 text-[#4a99fb] text-[12px] font-poppinsMed cursor-pointer'>View All</h3>
+        </div>
+        <div className='mb-8 flex justify-between w-full bg-[#ffffff] p-4 rounded-[8px] shadow-md'>
+
+        </div>
+        <div className='flex justify-between'>
+          <h3 className='text-left mb-3 text-black text-[14px] font-poppinsMed'>Upcoming Occasions</h3>
+          <h3 className='text-left mb-3 text-[#4a99fb] text-[12px] font-poppinsMed cursor-pointer'>View All</h3>
+        </div>
         <div className='mb-8 flex justify-between w-full bg-[#ffffff] p-4 rounded-[8px] shadow-md'>
 
         </div>
         <h3 className='text-left mb-3 text-black text-[14px] font-poppinsMed'>Menstrual Cycle</h3>
-        <div className='mb-8 flex justify-between w-full bg-[#ffffff] p-4 rounded-[8px] shadow-md'>
-
-        </div>
-        <h3 className='text-left mb-3 text-black text-[14px] font-poppinsMed'>Budget & Loans</h3>
         <div className='mb-16 flex justify-between w-full bg-[#ffffff] p-4 rounded-[8px] shadow-md'>
 
         </div>
+
       </div>
     </div>
 
