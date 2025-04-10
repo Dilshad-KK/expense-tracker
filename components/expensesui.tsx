@@ -291,7 +291,7 @@ export default function ExpensesUi(props: UserType) {
           {showSuccessMessage && (
             <div className="flex items-center justify-center w-full">
               <div role="alert" className="alert alert-success alert-soft mb-4 text-center w-full">
-                <span className="text-white">{showSuccessMessage}</span>
+                <span className="text-white text-[14px]">{showSuccessMessage}</span>
               </div>
             </div>
           )
