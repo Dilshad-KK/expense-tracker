@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { PiMoneyThin } from "react-icons/pi";
 import Slider from "react-slick";
 import moment from 'moment';
 

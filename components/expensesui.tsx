@@ -265,26 +265,6 @@ export default function ExpensesUi(props: UserType) {
           <button onClick={addExpense} className="btn bg-[#514cff] text-white border-none text-[12px] my-[16px] w-full">
             Add Transaction
           </button>
-          {/* <fieldset className="fieldset w-xs bg-base-200 border border-base-300 p-4 rounded-box">
-          <legend className="fieldset-legend">{formTitle}</legend>
-
-          <label className="fieldset-label">Amount</label>
-          <input type="number" className="input" placeholder="Enter Amount" value={amount}
-            onChange={(e) => setAmount(e.target.value)} />
-
-          <label className="fieldset-label">Note</label>
-          <input type="text" className="input" placeholder="Enter Description" value={note}
-            onChange={(e) => setNote(e.target.value)} />
-
-          <label className="fieldset-label">Type</label>
-          <select className="select" value={type} onChange={(e) => setType(e.target.value)}>
-            <option value="Withdrawal">Withdrawal</option>
-            <option value="Deposit">Deposit</option>
-          </select>
-          <button onClick={addExpense} className="btn btn-outline my-[16px]">
-            Add Transaction
-          </button>
-        </fieldset> */}
 
           {showSuccessMessage && (
             <div className="flex items-center justify-center w-full">

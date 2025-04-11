@@ -3,6 +3,7 @@ import { IoMdNotifications } from "react-icons/io";
 import GoBack from "../../components/goback";
 import moment from 'moment';
 import Link from 'next/link';
+import { FaPlus } from "react-icons/fa6";
 
 type Loan = {
     id: number;
@@ -34,7 +35,7 @@ const AllLoans = () => {
     }
 
     return (
-        <div className="bg-[#e8e8fd] min-h-screen">
+        <div className="bg-[#e8e8fd] min-h-screen relative">
             <div className='relative bg-[#514cff] h-[150px] rounded-b-[60px] flex justify-between items-center px-4 mb-8'>
                 <div className='absolute left-[-90px] z-[1000] bg-[#ffffff18] rounded-full w-[200px] h-[200px]'></div>
                 <div className='absolute left-[-30px] z-[1000] bg-[#ffffff1a] rounded-full w-[200px] h-[200px]'></div>
@@ -73,7 +74,9 @@ const AllLoans = () => {
                         : null
                 }
             </div>
-
+            <Link href={"/newloan"} className='fixed z-[2000] right-8 bottom-28 bg-[#514cff] h-[50px] w-[50px] rounded-full flex items-center justify-center cursor-pointer'>
+                <FaPlus className='text-white text-base'/>
+            </Link>
         </div>
     )
 }
