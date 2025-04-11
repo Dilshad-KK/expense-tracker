@@ -27,9 +27,8 @@ const NewLoan = () => {
     const [paidInsts, setPaidInsts] = useState("");
     const [totalAmount, setTotalAmount] = useState("");
     const [currency, setCurrency] = useState("");
-    const [dateStarted, setDateStarted] = useState("");
+    const [dateStarted, setDateStarted] = useState<Date | null>(new Date());
     const [status, setStatus] = useState("");
-    const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
     const [showSuccessMessage, setShowSuccessMessage] = useState("");
 
     async function addLoan() {
@@ -41,7 +40,7 @@ const NewLoan = () => {
             return;
         }
 
-        const response = await fetch('apiPath', {
+        const response = await fetch('/api/loans', {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ title, totalInsts, paidInsts, totalAmount, currency, dateStarted, status }),
@@ -56,9 +55,8 @@ const NewLoan = () => {
             setPaidInsts("");
             setTotalAmount("");
             setCurrency("");
-            setDateStarted("");
+            setDateStarted(new Date());
             setStatus("");
-            setSelectedDate(new Date());
             setLoading(false);
             setTimeout(() => {
                 setShowSuccessMessage("");
@@ -106,7 +104,7 @@ const NewLoan = () => {
                         placeholder="Total Insts"
                         className="input mb-2 border-[1px] border-solid border-[#d3d3fe] w-full bg-[#f3f3fd] placeholder:text-[12px]"
                         value={totalInsts}
-                        onChange={(e) => setTitle(e.target.value)}
+                        onChange={(e) => setTotalInsts(e.target.value)}
                     />
                     <input
                         type="number"
@@ -115,13 +113,13 @@ const NewLoan = () => {
                         value={paidInsts}
                         onChange={(e) => setPaidInsts(e.target.value)}
                     />
-                    <input
+                    {/* <input
                         type="text"
                         placeholder="Date Started"
                         className="input mb-2 border-[1px] border-solid border-[#d3d3fe] w-full bg-[#f3f3fd] placeholder:text-[12px]"
                         value={dateStarted}
                         onChange={(e) => setDateStarted(e.target.value)}
-                    />
+                    /> */}
                     <input
                         type="text"
                         placeholder="Status"
@@ -132,8 +130,8 @@ const NewLoan = () => {
                     <div className="w-full">
                         <DatePicker
                             wrapperClassName='w-full'
-                            selected={selectedDate}
-                            onChange={(date: Date | null) => setSelectedDate(date)}
+                            selected={dateStarted}
+                            onChange={(date: Date | null) => setDateStarted(date)}
                             className="input mb-2 border border-[#d3d3fe] w-full bg-[#f3f3fd] placeholder:text-[12px] text-[14px]"
                             placeholderText="Select date"
                         />
