@@ -6,6 +6,7 @@ import { FaPeoplePulling } from "react-icons/fa6";
 import Slider from "react-slick";
 import Clock from '@/components/time';
 import { MdWaterDrop } from "react-icons/md";
+import Loans from '@/components/loans';
 
 // import CountdownTimer from "@/components/timer";
 
@@ -70,80 +71,24 @@ const Home = () => {
             <h2 className='font-poppinsMed text-[12px] text-black/80'>D-TXNS-IND</h2>
           </Link>
         </div>
-        <div className='flex justify-between'>
-          <h3 className='text-left mb-3 text-black text-[14px] font-poppinsBold'>Budget & Loans</h3>
-          <h3 className='text-left mb-3 text-[#4a99fb] text-[12px] font-poppinsMed cursor-pointer'>View All</h3>
-        </div>
-        <div className='mb-8 w-full bg-[#ffffff] p-4 rounded-[8px] shadow-md'>
-          <Slider {...settings} className='max-w-[100%]'>
-            <div>
-              <div className='flex flex-row items-center justify-start'>
-                <div className='bg-[#eeedf9] h-[40px] w-[40px] rounded-md flex flex-row items-center justify-center mr-[16px]'>
-                  <PiMoneyThin className='text-[24px] text-[#8b81fa]' />
-                </div>
-                <div className='flex flex-col items-start justify-center'>
-                  <span className='text-[12px] text-black font-poppinsMed mb-1'>Nikkah Ceremony</span>
-                  <span className='text-[10px] text-[#858585] font-poppinsMed mb-1'>December 20 , 2025</span>
-                  <span className='text-[10px] text-[#ff3030] font-poppinsMed mb-1'>Pending</span>
-                </div>
-              </div>
-            </div>
-            <div>
-              <div className='flex flex-row items-center justify-start'>
-                <div className='bg-[#eeedf9] h-[40px] w-[40px] rounded-md flex flex-row items-center justify-center mr-[16px]'>
-                  <PiMoneyThin className='text-[24px] text-[#8b81fa]' />
-                </div>
-                <div className='flex flex-col items-start justify-center'>
-                  <span className='text-[12px] text-black font-poppinsMed mb-1'>MacBook Air M2</span>
-                  <span className='text-[10px] text-[#858585] font-poppinsMed mb-1'>December 20 , 2025</span>
-                  <span className='text-[10px] text-[#1aa127] font-poppinsMed mb-1'>Completed</span>
-                </div>
-              </div>
-            </div>
-            <div>
-              <div className='flex flex-row items-center justify-start'>
-                <div className='bg-[#eeedf9] h-[40px] w-[40px] rounded-md flex flex-row items-center justify-center mr-[16px]'>
-                  <PiMoneyThin className='text-[24px] text-[#8b81fa]' />
-                </div>
-                <div className='flex flex-col items-start justify-center'>
-                  <span className='text-[12px] text-black font-poppinsMed mb-1'>House Construction</span>
-                  <span className='text-[10px] text-[#858585] font-poppinsMed mb-1'>February 10 , 2022</span>
-                  <span className='text-[10px] text-[#ff3030] font-poppinsMed mb-1'>Pending</span>
-                </div>
-              </div>
-            </div>
-            <div>
-              <div className='flex flex-row items-center justify-start'>
-                <div className='bg-[#eeedf9] h-[40px] w-[40px] rounded-md flex flex-row items-center justify-center mr-[16px]'>
-                  <PiMoneyThin className='text-[24px] text-[#8b81fa]' />
-                </div>
-                <div className='flex flex-col items-start justify-center'>
-                  <span className='text-[12px] text-black font-poppinsMed mb-1'>Iphone 13</span>
-                  <span className='text-[10px] text-[#858585] font-poppinsMed mb-1'>February 10 , 2022</span>
-                  <span className='text-[10px] text-[#ff3030] font-poppinsMed mb-1'>Pending</span>
-                </div>
-              </div>
-            </div>
-            <div>
-              <div className='flex flex-row items-center justify-start'>
-                <div className='bg-[#eeedf9] h-[40px] w-[40px] rounded-md flex flex-row items-center justify-center mr-[16px]'>
-                  <PiMoneyThin className='text-[24px] text-[#8b81fa]' />
-                </div>
-                <div className='flex flex-col items-start justify-center'>
-                  <span className='text-[12px] text-black font-poppinsMed mb-1'>Iphone 16 Pro</span>
-                  <span className='text-[10px] text-[#858585] font-poppinsMed mb-1'>February 10 , 2022</span>
-                  <span className='text-[10px] text-[#ff3030] font-poppinsMed mb-1'>Pending</span>
-                </div>
-              </div>
-            </div>
-          </Slider>
-        </div>
+        <Loans />
         <div className='flex justify-between'>
           <h3 className='text-left mb-3 text-black text-[14px] font-poppinsBold'>Upcoming Occasions</h3>
           <h3 className='text-left mb-3 text-[#4a99fb] text-[12px] font-poppinsMed cursor-pointer'>View All</h3>
         </div>
         <div className='mb-8 w-full bg-[#ffffff] p-4 rounded-[8px] shadow-md'>
           <Slider {...settings1} className='max-w-[100%]'>
+            <div>
+              <div className='flex flex-row items-center justify-start'>
+                <div className='bg-[#eeedf9] h-[40px] w-[40px] rounded-md flex flex-row items-center justify-center mr-[16px]'>
+                  <FaPeoplePulling className='text-[24px] text-[#a097ff]' />
+                </div>
+                <div className='flex flex-col items-start justify-center'>
+                  <span className='text-[12px] text-black font-poppinsMed mb-1'>Banglore Days</span>
+                  <span className='text-[10px] text-[#858585] font-poppinsMed mb-1'>June 20 , 2025</span>
+                </div>
+              </div>
+            </div>
             <div>
               <div className='flex flex-row items-center justify-start'>
                 <div className='bg-[#eeedf9] h-[40px] w-[40px] rounded-md flex flex-row items-center justify-center mr-[16px]'>

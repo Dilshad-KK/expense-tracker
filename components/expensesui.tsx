@@ -1,9 +1,7 @@
-'use client'
 import moment from "moment";
 import { useState, useEffect } from "react";
 import { FaTrashAlt } from "react-icons/fa";
 import { IoMdNotifications } from "react-icons/io";
-import { FaArrowLeft } from "react-icons/fa6";
 import GoBack from "./goback";
 // import { messaging } from "../firebase";
 // import { requestFCMToken } from "../firebase";
