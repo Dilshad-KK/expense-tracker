@@ -40,7 +40,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           const { error: detailsError } = await supabase.from("loanDetails").insert([
             {
               loan_id: loan.id,
-              amount: loan.total_amount / loan.total_insts,
+              amount: Number((loan.total_amount / loan.total_insts).toFixed(2)),
               due_date: dueDate,
               status: loan.status,
             }

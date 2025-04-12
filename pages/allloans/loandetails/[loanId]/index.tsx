@@ -121,28 +121,32 @@ const LoanDetails = () => {
           <div className='absolute left-[32px] z-[1000]'>
             <GoBack />
           </div>
-          <div className='flex justify-center items-center flex-col'>
-            <div className='bg-[#ffffff18] px-6 py-2 rounded-[24px] mb-4'>
-              {loan?.length && <span className='text-white text-[18px] font-poppinsBold'>{loan[0]?.title}</span>}
-            </div>
-            <div className='mr-2 bg-[#2d23b9] px-4 py-2 rounded-[24px] flex items-center justify-center mb-2'>
-              {loan?.length && <span className='text-white text-[10px] font-poppinsMed'>Total Amount &nbsp;&nbsp;&nbsp;<span className='font-poppinsBold'>{loan[0]?.currency}&nbsp;&nbsp;{loan[0]?.total_amount}</span> </span>}
-            </div>
-            <div className='flex mb-3'>
-              <div className='mr-2 bg-[#2d23b9] px-4 py-2 rounded-[24px] flex items-center justify-center'>
-                {loan?.length && <span className='text-white text-[10px] font-poppinsMed'>Total Paid &nbsp;&nbsp;&nbsp;<span className='font-poppinsBold'>{loan[0]?.currency}&nbsp;&nbsp;{totalPaid}</span> &nbsp;&nbsp; | &nbsp;&nbsp;Total Remaining &nbsp;&nbsp;&nbsp;<span className='font-poppinsBold'>{loan[0]?.currency}&nbsp;&nbsp;{Number(loan[0]?.total_amount) - totalPaid}</span> </span>}
+          {loan?.length ?
+            <div className='flex justify-center items-center flex-col'>
+              <div className='bg-[#ffffff18] px-6 py-2 rounded-[24px] mb-4'>
+                {loan?.length && <span className='text-white text-[18px] font-poppinsBold'>{loan[0]?.title}</span>}
               </div>
-            </div>
-            <div className='flex'>
-              <div className='mr-2 bg-[#c8f7de] px-4 py-0 rounded-[24px] flex items-center justify-center'>
-                <span className='text-[#0d4a2a] text-[10px] font-poppinsMed'>Update</span>
+              <div className='mr-2 bg-[#2d23b9] px-4 py-2 rounded-[24px] flex items-center justify-center mb-2'>
+                {loan?.length && <span className='text-white text-[10px] font-poppinsMed'>Total Amount &nbsp;&nbsp;&nbsp;<span className='font-poppinsBold'>{loan[0]?.currency}&nbsp;&nbsp;{loan[0]?.total_amount}</span> </span>}
               </div>
-              <div className='mr-2 bg-[#f6d2c5] px-4 py-2 rounded-[24px] flex items-center justify-center'>
-                <span className='text-[#85371a] text-[10px] font-poppinsMed'>Delete</span>
+              <div className='flex mb-3'>
+                <div className='mr-2 bg-[#2d23b9] px-4 py-2 rounded-[24px] flex items-center justify-center'>
+                  {loan?.length && <span className='text-white text-[10px] font-poppinsMed'>Total Paid &nbsp;&nbsp;&nbsp;<span className='font-poppinsBold'>{loan[0]?.currency}&nbsp;&nbsp;{totalPaid}</span> &nbsp;&nbsp; | &nbsp;&nbsp;Total Remaining &nbsp;&nbsp;&nbsp;<span className='font-poppinsBold'>{loan[0]?.currency}&nbsp;&nbsp;{Number(loan[0]?.total_amount) - totalPaid}</span> </span>}
+                </div>
               </div>
-            </div>
+              <div className='flex'>
+                <div className='mr-2 bg-[#c8f7de] px-4 py-2 rounded-[24px] flex items-center justify-center cursor-pointer'>
+                  <span className='text-[#0d4a2a] text-[10px] font-poppinsMed'>Update</span>
+                </div>
+                <div className='mr-2 bg-[#f6d2c5] px-4 py-2 rounded-[24px] flex items-center justify-center cursor-pointer' onClick={() => deleteLoan(loanId as string)}>
+                  <span className='text-[#85371a] text-[10px] font-poppinsMed'>Delete</span>
+                </div>
+              </div>
 
-          </div>
+            </div>
+            : null
+          }
+
         </div>
       </div>
       {loading ?
@@ -193,13 +197,6 @@ const LoanDetails = () => {
         </div>
       )
       }
-
-      <div className='fixed z-[2000] border-solid border-[1px] border-[#fed7d7] right-8 bottom-28 bg-[#ffe9e9] h-[50px] w-[50px] rounded-full flex items-center justify-center cursor-pointer' onClick={() => deleteLoan(loanId as string)}>
-        <IoMdTrash className='text-[#fd3a3a] text-[20px]' />
-      </div>
-      {/* <Link href={`/loandetails/${loanId}/edit`} className='fixed z-[2000] border-solid border-[1px] border-[#c6d0f7] right-24 bottom-28 bg-[#c5d0fb] h-[50px] w-[50px] rounded-full flex items-center justify-center cursor-pointer'>
-        <HiPencil className='text-[#4d71ff] text-[20px]' />
-      </Link> */}
     </div>
   );
 };
