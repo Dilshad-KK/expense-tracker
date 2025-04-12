@@ -45,7 +45,7 @@ const AllLoans = () => {
             </div>
             <div className='px-4 pt-4 pb-[150px]'>
                 {loading ?
-                    <div className='p-4'>
+                    <div>
                         {[1, 2, 3, 4]?.map(() => (
                             <div className="h-[70px] w-[100%] bg-white px-4 py-4 my-3 rounded-[12px] flex">
                                 <div className="skeleton h-full w-[10%] bg-[#d6d6fc] rounded-[12px] mr-3"></div>
