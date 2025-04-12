@@ -51,9 +51,17 @@ const Loans = () => {
             </div>
             <div>
                 {loans?.length > 1 ?
-                    <Slider {...settings} className='max-w-[100%]'>
-                        {loading ? null :
-                            loans?.length > 0 ?
+                    loading ?
+                        <div className="h-[90px] w-[100%] bg-white px-4 py-4 rounded-[12px] flex mb-8 items-center">
+                            <div className="skeleton h-[40px] w-[50px] bg-[#d6d6fc] rounded-[12px] mr-3"></div>
+                            <div className='w-full flex flex-col items-center justify-center'>
+                                <div className="skeleton h-3 w-[100%] bg-[#d6d6fc] mb-2 rounded-[4px]"></div>
+                                <div className="skeleton h-2 w-[100%] bg-[#d6d6fc] mb-2 rounded-[4px]"></div>
+                                <div className="skeleton h-2 w-[100%] bg-[#d6d6fc] rounded-[4px]"></div>
+                            </div>
+                        </div> :
+                        <Slider {...settings} className='max-w-[100%]'>
+                            {
                                 loans.map((loan, key) => (
                                     <div>
                                         <Link href={`/allloans/loandetails/${loan.id}`} key={key} className='bg-white px-4 py-4 mb-8 rounded-[12px] flex justify-between'>
@@ -76,14 +84,21 @@ const Loans = () => {
                                             </div>
                                         </Link>
                                     </div>
-
                                 ))
-                                : null
-                        }
-                    </Slider>
+                            }
+                        </Slider>
                     :
 
-                    loading ? null :
+                    loading ?
+                        <div className="h-[90px] w-[100%] bg-white px-4 py-4 rounded-[12px] flex mb-8 items-center">
+                            <div className="skeleton h-[40px] w-[50px] bg-[#d6d6fc] rounded-[12px] mr-3"></div>
+                            <div className='w-full flex flex-col items-center justify-center'>
+                                <div className="skeleton h-3 w-[100%] bg-[#d6d6fc] mb-2 rounded-[4px]"></div>
+                                <div className="skeleton h-2 w-[100%] bg-[#d6d6fc] mb-2 rounded-[4px]"></div>
+                                <div className="skeleton h-2 w-[100%] bg-[#d6d6fc] rounded-[4px]"></div>
+                            </div>
+                        </div>
+                        :
                         loans?.length > 0 ?
                             loans.map((loan, key) => (
 
