@@ -13,6 +13,16 @@ type Loan = {
     date_started: string;
     created_at: string;
     status: string;
+    times: number;
+};
+
+type ILoanDetails = {
+    id: number;
+    loan_id: string;
+    created_at: string;
+    due_date: string;
+    amount: string;
+    status: string;
 };
 
 const Loans = () => {
@@ -30,17 +40,54 @@ const Loans = () => {
         autoplay: true
     };
 
-    useEffect(() => {
+useEffect(() => {
         fetchLoans();
     }, []);
 
     async function fetchLoans() {
         setLoading(true);
-        const res = await fetch('/api/loans');
-        const data: Loan[] = await res.json();
-        setLoans(data);
-        setLoading(false);
+
+        try {
+            const res = await fetch('/api/loans');
+            const data: Loan[] = await res.json();
+
+            // Use Promise.all to await all fetchLoanDetails
+            const enrichedLoans = await Promise.all(
+                data.map(async (item) => {
+                    const times = await fetchLoanDetails(item.id);
+                    return {
+                        ...item,
+                        times: times ?? 0, // fallback to 0 if undefined
+                    };
+                })
+            );
+
+            setLoans(enrichedLoans);
+        } catch (error) {
+            console.error("Error fetching loans:", error);
+        } finally {
+            setLoading(false);
+        }
     }
+
+    const fetchLoanDetails = async (loanId: number): Promise<number> => {
+        try {
+            const res = await fetch(`/api/loanitems?loanId=${loanId}`);
+            const data: ILoanDetails[] = await res.json();
+
+            let paidTimes = 0;
+            data?.forEach((item) => {
+                if (item?.status === 'paid') {
+                    paidTimes += 1;
+                }
+            });
+
+            return paidTimes;
+        } catch (error) {
+            console.error("Error fetching loan details:", error);
+            return 0;
+        }
+    };
 
 
     return (
@@ -64,16 +111,17 @@ const Loans = () => {
                             {
                                 loans.map((loan, key) => (
                                     <div>
-                                        <Link href={`/allloans/loandetails/${loan.id}`} key={key} className='bg-white px-4 py-4 mb-8 rounded-[12px] flex justify-between'>
+                                        <Link href={`/allloans/loandetails/${loan.id}`} key={key} className='bg-white px-4 py-4 mb-8 mx-1 rounded-[12px] flex justify-between'>
                                             <div className='flex items-center'>
-                                                <div className='bg-[#a5a5fe2d] rounded-[12px] h-[40px] w-[40px] flex items-center justify-center flex-col mr-8'>
+                                                <div className='bg-[#a5a5fe2d] rounded-[12px] h-[60px] w-[60px] flex items-center justify-center flex-col mr-8'>
                                                     <span className='text-black/80 text-[12px] font-poppinsMed'>{moment(loan?.date_started).format("DD")}</span>
                                                     <span className='text-black/80 text-[10px] uppercase font-poppinsMed'>{moment(loan?.date_started).format("MMM")}</span>
+                                                    <span className='text-black/80 text-[8px] uppercase font-poppinsMed'>{moment(loan?.date_started).format("YYYY")}</span>
                                                 </div>
                                                 <div className='flex items-start justify-center flex-col'>
                                                     <span className='text-black/80 text-[14px] font-poppinsMed mb-1'>{loan?.title}</span>
                                                     <span className='text-black/60 text-[12px] font-poppinsMed mb-1'>{loan?.currency + " "} {loan?.total_amount}</span>
-                                                    <span className='text-black/60 text-[10px] font-poppins'>{`${loan?.total_insts} Payments`}</span>
+                                                     <span className='text-black/60 text-[10px] font-poppins'>{`${loan?.times}/${loan?.total_insts} Payment${loan?.times > 1 ? 's' : ''} done`}</span>
                                                 </div>
                                             </div>
                                             <div className='flex items-center justify-end'>
@@ -104,14 +152,15 @@ const Loans = () => {
 
                                 <Link href={`/loandetails/${loan.id}`} key={key} className='bg-white px-4 py-4 mb-8 rounded-[12px] flex justify-between'>
                                     <div className='flex items-center'>
-                                        <div className='bg-[#a5a5fe2d] rounded-[12px] h-[40px] w-[40px] flex items-center justify-center flex-col mr-8'>
+                                        <div className='bg-[#a5a5fe2d] rounded-[12px] h-[60px] w-[60px] flex items-center justify-center flex-col mr-8'>
                                             <span className='text-black/80 text-[12px] font-poppinsMed'>{moment(loan?.date_started).format("DD")}</span>
                                             <span className='text-black/80 text-[10px] uppercase font-poppinsMed'>{moment(loan?.date_started).format("MMM")}</span>
+                                            <span className='text-black/80 text-[8px] uppercase font-poppinsMed'>{moment(loan?.date_started).format("YYYY")}</span>
                                         </div>
                                         <div className='flex items-start justify-center flex-col'>
                                             <span className='text-black/80 text-[14px] font-poppinsMed mb-1'>{loan?.title}</span>
                                             <span className='text-black/60 text-[12px] font-poppinsMed mb-1'>{loan?.currency + " "} {loan?.total_amount}</span>
-                                            <span className='text-black/60 text-[10px] font-poppins'>{`${loan?.total_insts} Payments`}</span>
+                                             <span className='text-black/60 text-[10px] font-poppins'>{`${loan?.times}/${loan?.total_insts} Payment${loan?.times > 1 ? 's' : ''} done`}</span>
                                         </div>
                                     </div>
                                     <div className='flex items-center justify-end'>

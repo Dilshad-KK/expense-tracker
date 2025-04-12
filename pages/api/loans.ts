@@ -8,7 +8,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     let query = supabase
       .from("loans")
       .select("*")
-      .order("created_at", { ascending: false });
+      .order("date_started", { ascending: false });
     if (loanId) {
       query = query.eq("id", loanId)
     }
@@ -36,7 +36,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const loan = loanData[0];
       
         for (let i = 0; i < loan.total_insts; i++) {
-          const dueDate = moment(loan.date_started).add(i * 30, "days").toISOString();
+          const dueDate = moment(loan.date_started).add(i * 31, "days").toISOString();
           const { error: detailsError } = await supabase.from("loanDetails").insert([
             {
               loan_id: loan.id,
