@@ -14,5 +14,23 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(200).json(data);
   }
 
+  if (req.method === "PUT") {
+    const { id, status, due_date } = req.body;
+
+    if (!id) {
+      return res.status(400).json({ error: "Installment ID is required" });
+    }
+
+    const { data, error } = await supabase
+      .from("loanDetails")
+      .update({ status, due_date })
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (error) return res.status(500).json({ error: error.message });
+    return res.status(200).json({ message: "Installment updated successfully", data });
+  }
+
   return res.status(405).json({ error: `Method ${req.method} Not Allowed` });
 }

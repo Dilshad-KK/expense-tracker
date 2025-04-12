@@ -69,7 +69,6 @@ const LoanDetails = () => {
       setLoanDetails(data);
       getTotalPaid(data);
       setLoading(false);
-      fetch
     } catch (error) {
       console.error("Error fetching loan:", error);
     } finally {
@@ -161,8 +160,8 @@ const LoanDetails = () => {
 
       {loading ?
         <div className='p-4'>
-          {[1, 2, 3, 4]?.map(() => (
-            <div className="h-[70px] w-[100%] bg-white px-4 py-4 my-3 rounded-[12px] flex">
+          {[1, 2, 3, 4]?.map((key) => (
+            <div className="h-[70px] w-[100%] bg-white px-4 py-4 my-3 rounded-[12px] flex" key={key}>
               <div className="skeleton h-full w-[10%] bg-[#d6d6fc] rounded-[12px] mr-3"></div>
               <div className='w-full'>
                 <div className="skeleton h-4 w-[100%] bg-[#d6d6fc] mb-2"></div>
