@@ -177,9 +177,10 @@ const LoanDetails = () => {
                 return (
                   <div className='bg-white px-4 py-4 my-3 rounded-[12px] flex justify-between items-center'>
                     <div className='flex'>
-                      <div className='bg-[#a5a5fe2d] rounded-[12px] h-[40px] w-[40px] flex items-center justify-center flex-col mr-8'>
+                      <div className='bg-[#a5a5fe2d] rounded-[12px] h-[60px] w-[60px] flex items-center justify-center flex-col mr-8'>
                         <span className='text-black/80 text-[12px] font-poppinsMed'>{moment(item?.due_date).format("DD")}</span>
                         <span className='text-black/80 text-[10px] uppercase font-poppinsMed'>{moment(item?.due_date).format("MMM")}</span>
+                        <span className='text-black/80 text-[8px] uppercase font-poppinsMed'>{moment(item?.due_date).format("YYYY")}</span>
                       </div>
                       <div className='flex items-start justify-center flex-col mr-8'>
                         <span className='text-black/80 text-[14px] font-poppinsMed mb-1'>{loan[0]?.currency + " "} {item?.amount}</span>

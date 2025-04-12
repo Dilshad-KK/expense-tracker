@@ -108,7 +108,7 @@ const AllLoans = () => {
 
                             <Link href={`/allloans/loandetails/${loan.id}`} key={key} className='bg-white px-4 py-4 my-3 rounded-[12px] flex justify-between'>
                                 <div className='flex items-center'>
-                                    <div className='bg-[#a5a5fe2d] rounded-[12px] h-[60px] w-[60px] flex items-center justify-center flex-col mr-8'>
+                                    <div className='bg-[#a5a5fe2d] rounded-[12px] h-[60px] w-[60px] flex items-center justify-center flex-col mr-4'>
                                         <span className='text-black/80 text-[12px] font-poppinsMed'>{moment(loan?.date_started).format("DD")}</span>
                                         <span className='text-black/80 text-[10px] uppercase font-poppinsMed'>{moment(loan?.date_started).format("MMM")}</span>
                                         <span className='text-black/80 text-[8px] uppercase font-poppinsMed'>{moment(loan?.date_started).format("YYYY")}</span>

@@ -12,15 +12,6 @@ import Loans from '@/components/loans';
 
 const Home = () => {
 
-  var settings = {
-    // dots: true,
-    infinite: true,
-    speed: 500,
-    slidesToShow: 1,
-    slidesToScroll: 1,
-    arrows: false,
-    autoplay: true
-  };
   var settings1 = {
     // dots: true,
     infinite: true,
@@ -47,7 +38,7 @@ const Home = () => {
     if (timezone.includes("Asia/Dubai")) {
       user = "Dilshad";
     } else {
-      user = "Shifa";
+      user = "Shifa Dilshad";
     }
   
     localStorage.setItem("userIdentity", user);
