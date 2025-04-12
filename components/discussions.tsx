@@ -88,7 +88,7 @@ const Discussions = () => {
                                                         <div className='bg-[#a7fac5] rounded-[12px] text-[8px] py-1 px-3 flex items-center justify-center uppercase text-[#345c42] font-poppinsMed'>{item?.status}</div>
                                                     }
                                                 </div>
-                                                <span className='text-black/60 text-[12px]'>{item?.message?.slice(0, 45)}{item?.message?.length >= 45 ? '...' : ''}</span>
+                                                <span className='text-black/60 text-[12px]'>{item?.message?.slice(0, 25)}{item?.message?.length >= 25 ? <span className='text-[#5272ff] text-[10px]'>...Read More</span> : ''}</span>
                                             </div>
 
                                         </div>
@@ -116,7 +116,7 @@ const Discussions = () => {
                                         <div className='bg-[#a7fac5] rounded-[12px] text-[8px] py-1 px-3 flex items-center justify-center uppercase text-[#345c42] font-poppinsMed'>{discussions[0]?.status}</div>
                                     }
                                 </div>
-                                <span className='text-black/60 text-[12px]'>{discussions[0]?.message?.slice(0, 45)}{discussions[0]?.message?.length >= 45 ? '...' : ''}</span>
+                                <span className='text-black/60 text-[12px]'>{discussions[0]?.message?.slice(0, 25)}{discussions[0]?.message?.length >= 25 ? <span className='text-[#5272ff] text-[10px]'>...Read More</span> : ''}</span>
                             </div>
 
                         </div>
