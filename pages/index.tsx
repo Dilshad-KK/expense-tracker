@@ -6,7 +6,7 @@ import Slider from "react-slick";
 import Clock from '@/components/time';
 import { MdWaterDrop } from "react-icons/md";
 import Loans from '@/components/loans';
-
+import Discussions from '@/components/discussions';
 
 // import CountdownTimer from "@/components/timer";
 
@@ -86,6 +86,7 @@ const Home = () => {
           </Link>
         </div>
         <Loans />
+        <Discussions/>
         <div className='flex justify-between'>
           <h3 className='text-left mb-3 text-black text-[14px] font-poppinsBold'>Upcoming Occasions</h3>
           <h3 className='text-left mb-3 text-[#4a99fb] text-[12px] font-poppinsMed cursor-pointer'>View All</h3>
