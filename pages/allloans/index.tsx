@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react'
-import { IoMdNotifications } from "react-icons/io";
 import GoBack from "../../components/gobackSecond";
 import moment from 'moment';
 import Link from 'next/link';
