@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 // import { IoMdNotifications } from "react-icons/io";
-import GoBack from "../../components/gobackSecond";
+import GoBack from "../../../components/gobackSecond";
 // import moment from 'moment';
 // import Link from 'next/link';
 // import { FaPlus } from "react-icons/fa6";
@@ -24,7 +24,6 @@ const NewLoan = () => {
     const [loading, setLoading] = useState(false);
     const [title, setTitle] = useState("");
     const [totalInsts, setTotalInsts] = useState("");
-    const [paidInsts, setPaidInsts] = useState("");
     const [totalAmount, setTotalAmount] = useState("");
     const [currency, setCurrency] = useState("");
     const [dateStarted, setDateStarted] = useState<Date | null>(new Date());
@@ -34,7 +33,7 @@ const NewLoan = () => {
     async function addLoan() {
         setLoading(true);
         console.log(loading)
-        if (!title || !totalInsts || !paidInsts || !totalAmount || !currency || !dateStarted || !status) {
+        if (!title || !totalInsts || !totalAmount || !currency || !dateStarted || !status) {
             alert("All fields are required!");
             setLoading(false);
             return;
@@ -43,7 +42,7 @@ const NewLoan = () => {
         const response = await fetch('/api/loans', {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ title, totalInsts, paidInsts, totalAmount, currency, dateStarted, status }),
+            body: JSON.stringify({ title, totalInsts, totalAmount, currency, dateStarted, status }),
         });
 
         const data = await response.json();
@@ -52,7 +51,6 @@ const NewLoan = () => {
             setShowSuccessMessage("Loan Added Successfully...!");
             setTitle("");
             setTotalInsts("");
-            setPaidInsts("");
             setTotalAmount("");
             setCurrency("");
             setDateStarted(new Date());
@@ -105,13 +103,6 @@ const NewLoan = () => {
                         className="input mb-2 border-[1px] border-solid border-[#d3d3fe] w-full bg-[#f3f3fd] placeholder:text-[12px]"
                         value={totalInsts}
                         onChange={(e) => setTotalInsts(e.target.value)}
-                    />
-                    <input
-                        type="number"
-                        placeholder="Paid Insts"
-                        className="input mb-2 border-[1px] border-solid border-[#d3d3fe] w-full bg-[#f3f3fd] placeholder:text-[12px]"
-                        value={paidInsts}
-                        onChange={(e) => setPaidInsts(e.target.value)}
                     />
                     {/* <input
                         type="text"

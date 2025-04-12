@@ -18,7 +18,7 @@ export default function Clock() {
   if (!currentTime) return null; // Avoid rendering anything until mounted
 
   return (
-    <span className='text-[#ffffffbe] z-[2000] text-[12px] mb-2'>
+    <span className='text-[#ffffffee] z-[2000] font-poppinsMed text-[12px] mb-2'>
       {currentTime}
     </span>
   );

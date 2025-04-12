@@ -56,7 +56,7 @@ const Loans = () => {
                             loans?.length > 0 ?
                                 loans.map((loan, key) => (
                                     <div>
-                                        <Link href={`/loandetails/${loan.id}`} key={key} className='bg-white px-4 py-4 mb-8 rounded-[12px] flex justify-between'>
+                                        <Link href={`/allloans/loandetails/${loan.id}`} key={key} className='bg-white px-4 py-4 mb-8 rounded-[12px] flex justify-between'>
                                             <div className='flex items-center'>
                                                 <div className='bg-[#a5a5fe2d] rounded-[12px] h-[40px] w-[40px] flex items-center justify-center flex-col mr-8'>
                                                     <span className='text-black/80 text-[12px] font-poppinsMed'>{moment(loan?.date_started).format("DD")}</span>
