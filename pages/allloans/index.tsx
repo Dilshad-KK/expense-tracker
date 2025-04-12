@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { IoMdNotifications } from "react-icons/io";
-import GoBack from "../../components/goback";
+import GoBack from "../../components/gobackSecond";
 import moment from 'moment';
 import Link from 'next/link';
 import { FaPlus } from "react-icons/fa6";
@@ -36,17 +36,28 @@ const AllLoans = () => {
 
     return (
         <div className="bg-[#e8e8fd] min-h-screen relative">
-            <div className='relative bg-[#514cff] h-[150px] rounded-b-[60px] flex justify-between items-center px-4 mb-8'>
+            <div className='bg-[#514cff] px-4 py-8 flex justify-center items-center rounded-b-[24px] h-[120px]'>
                 <div className='absolute left-[-90px] z-[1000] bg-[#ffffff18] rounded-full w-[200px] h-[200px]'></div>
                 <div className='absolute left-[-30px] z-[1000] bg-[#ffffff1a] rounded-full w-[200px] h-[200px]'></div>
-                <GoBack />
-                <span className='text-white z-[2000]'>Loans</span>
-                <div className='h-[50px] w-[50px] bg-white rounded-full flex items-center justify-center mb-3 z-[2000]'>
-                    <IoMdNotifications className='text-[24px]' />
+                <div className='absolute left-[32px] z-[1000]'>
+                    <GoBack />
                 </div>
+                <span className='text-white z-[2000] font-poppinsBold text-[18px]'>Loans</span>
             </div>
-            <div className='px-4 pb-[150px]'>
-                {loading ? null :
+            <div className='px-4 pt-4 pb-[150px]'>
+                {loading ?
+                    <div className='p-4'>
+                        {[1, 2, 3, 4]?.map(() => (
+                            <div className="h-[70px] w-[100%] bg-white px-4 py-4 my-3 rounded-[12px] flex">
+                                <div className="skeleton h-full w-[10%] bg-[#d6d6fc] rounded-[12px] mr-3"></div>
+                                <div className='w-full'>
+                                    <div className="skeleton h-4 w-[100%] bg-[#d6d6fc] mb-2"></div>
+                                    <div className="skeleton h-4 w-[100%] bg-[#d6d6fc]"></div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                    :
                     loans?.length > 0 ?
                         loans.map((loan, key) => (
 
@@ -57,7 +68,7 @@ const AllLoans = () => {
                                         <span className='text-black/80 text-[10px] uppercase font-poppinsMed'>{moment(loan?.date_started).format("MMM")}</span>
                                     </div>
                                     <div className='flex items-start justify-center flex-col'>
-                                    <span className='text-black/80 text-[14px] font-poppinsMed mb-1'>{loan?.title}</span>
+                                        <span className='text-black/80 text-[14px] font-poppinsMed mb-1'>{loan?.title}</span>
                                         <span className='text-black/60 text-[12px] font-poppinsMed mb-1'>{loan?.currency + " "} {loan?.total_amount}</span>
                                         <span className='text-black/60 text-[10px] font-poppins'>{`${loan?.total_insts} Payments`}</span>
                                     </div>
@@ -75,7 +86,7 @@ const AllLoans = () => {
                 }
             </div>
             <Link href={"/allloans/newloan"} className='fixed z-[2000] right-8 bottom-28 bg-[#514cff] h-[50px] w-[50px] rounded-full flex items-center justify-center cursor-pointer'>
-                <FaPlus className='text-white text-base'/>
+                <FaPlus className='text-white text-base' />
             </Link>
         </div>
     )

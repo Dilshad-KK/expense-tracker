@@ -144,20 +144,35 @@ const LoanDetails = () => {
               </div>
 
             </div>
-            : null
+            : <div className="flex w-[250px] flex-col gap-4 items-center justify-cenetr">
+              <div className="skeleton h-8 w-[180px] bg-[#e0e0ff]"></div>
+              <div className="skeleton h-4 w-[160px] bg-[#c4c4fa]"></div>
+              <div className="skeleton h-6 w-full bg-[#d6d6f5]"></div>
+              <div className='w-full flex items-center justify-center'>
+                <div className="skeleton h-6 w-[60px] bg-[#d6d6f5] mr-2"></div>
+                <div className="skeleton h-6 w-[60px] bg-[#d6d6f5]"></div>
+              </div>
+            </div>
           }
+
 
         </div>
       </div>
+
       {loading ?
-        <div className="flex flex-col gap-2 justify-center items-center mt-8 p-4">
-          <div className="skeleton h-4 w-[100%] bg-[#a5a5fe]"></div>
-          <div className="skeleton h-4 w-[100%] bg-[#a5a5fe]"></div>
-          <div className="skeleton h-4 w-[100%] bg-[#a5a5fe]"></div>
-          <div className="skeleton h-4 w-[100%] bg-[#a5a5fe]"></div>
+        <div className='p-4'>
+          {[1, 2, 3, 4]?.map(() => (
+            <div className="h-[70px] w-[100%] bg-white px-4 py-4 my-3 rounded-[12px] flex">
+              <div className="skeleton h-full w-[10%] bg-[#d6d6fc] rounded-[12px] mr-3"></div>
+              <div className='w-full'>
+                <div className="skeleton h-4 w-[100%] bg-[#d6d6fc] mb-2"></div>
+                <div className="skeleton h-4 w-[100%] bg-[#d6d6fc]"></div>
+              </div>
+            </div>
+          ))}
         </div>
         : loan?.length ?
-          <div className='p-4'>
+          <div className='px-4 pt-4 pb-[150px]'>
             {loanDetails?.length && loan?.length ?
               loanDetails?.map((item, key) => {
                 return (
@@ -167,19 +182,20 @@ const LoanDetails = () => {
                         <span className='text-black/80 text-[12px] font-poppinsMed'>{moment(item?.due_date).format("DD")}</span>
                         <span className='text-black/80 text-[10px] uppercase font-poppinsMed'>{moment(item?.due_date).format("MMM")}</span>
                       </div>
-                      <div className='flex items-start justify-center flex-col'>
+                      <div className='flex items-start justify-center flex-col mr-8'>
                         <span className='text-black/80 text-[14px] font-poppinsMed mb-1'>{loan[0]?.currency + " "} {item?.amount}</span>
                         <span className='text-black/60 text-[12px] font-poppins'>{`Payment ${key + 1} of ${loanDetails?.length}`}</span>
                       </div>
+                      <div className='flex items-center justify-center'>
+                        {item?.status === 'paid' ?
+                          <div className='bg-[#a7fac5] rounded-[12px] text-[10px] py-1 px-3 flex items-center justify-center uppercase text-[#345c42] font-poppinsMed'>{item?.status}</div>
+                          :
+                          <div className='bg-[#fbe2de] rounded-[12px] text-[10px] py-1 px-3 flex items-center justify-center uppercase text-[#8f4d43] font-poppinsMed'>{item?.status}</div>}
+                      </div>
                     </div>
-                    <div className='flex items-center justify-end'>
-                      {item?.status === 'paid' ?
-                        <div className='bg-[#a7fac5] rounded-[12px] text-[10px] py-1 px-3 flex items-center justify-center uppercase text-[#345c42] font-poppinsMed'>{item?.status}</div>
-                        :
-                        <div className='bg-[#fbe2de] rounded-[12px] text-[10px] py-1 px-3 flex items-center justify-center uppercase text-[#8f4d43] font-poppinsMed'>{item?.status}</div>}
-                    </div>
+
                     <Link href={`/allloans/loandetails/${loanId}/${item?.id}/edit`}>
-                      <HiPencil className='text-[#137724] text-[20px] cursor-pointer' />
+                      <HiPencil className='text-[rgb(81,107,255)] text-[20px] cursor-pointer' />
                     </Link>
                   </div>
                 )
