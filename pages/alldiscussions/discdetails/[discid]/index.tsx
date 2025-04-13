@@ -73,7 +73,7 @@ const DiscussionDetails = () => {
           <div className='absolute left-[32px] z-[1000]'>
             <GoBack />
           </div>
-          <div className='flex flex-col items-center justify-center'>
+          <div className='flex flex-col items-center justify-center z-[2000]'>
             <span className='text-white z-[2000] font-poppinsBold text-[18px] mb-4'>Discussion Details</span>
             <div className='flex'>
               <Link href={`/alldiscussions/discdetails/${discid}/edit`} className='mr-2 bg-[#c8f7de] px-4 py-2 rounded-[24px] flex items-center justify-center cursor-pointer'>
