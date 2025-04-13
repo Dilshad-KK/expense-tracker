@@ -64,7 +64,7 @@ const AllDiscussions = () => {
 
                             <Link href={`/`} className='bg-white px-4 py-4 my-3 rounded-[12px] flex justify-between' key={key}>
                                 <div className='flex items-center justify-center'>
-                                    <div className={`h-[40px] w-[40px] ${item?.user === 'Dilshad' ? 'bg-[#126581]' : 'bg-[#8e156a]'}  rounded-full flex items-center justify-center mr-4`}>
+                                    <div className={`h-[40px] w-[40px] ${item?.user === 'Dilshad' ? 'bg-[#126581]' : 'bg-[#8e156a]'}  rounded-full flex items-center justify-center mr-4 flex-shrink-0`}>
                                         <span className='text-[18px] text-white font-poppinsMed'>{item?.user === 'Dilshad' ? 'D' : 'S'}</span>
                                     </div>
                                     <div>

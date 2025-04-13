@@ -193,7 +193,6 @@ const LoanDetails = () => {
                           <div className='bg-[#fbe2de] rounded-[12px] text-[10px] py-1 px-3 flex items-center justify-center uppercase text-[#8f4d43] font-poppinsMed'>{item?.status}</div>}
                       </div>
                     </div>
-
                     <Link href={`/allloans/loandetails/${loanId}/${item?.id}/edit`}>
                       <HiPencil className='text-[rgb(81,107,255)] text-[20px] cursor-pointer' />
                     </Link>
