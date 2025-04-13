@@ -76,9 +76,9 @@ const DiscussionDetails = () => {
           <div className='flex flex-col items-center justify-center'>
             <span className='text-white z-[2000] font-poppinsBold text-[18px] mb-4'>Discussion Details</span>
             <div className='flex'>
-              <div className='mr-2 bg-[#c8f7de] px-4 py-2 rounded-[24px] flex items-center justify-center cursor-pointer'>
-                <Link href={`/alldiscussions/discdetails/${discid}/edit`} className='text-[#0d4a2a] text-[10px] font-poppinsMed'>Update</Link>
-              </div>
+              <Link href={`/alldiscussions/discdetails/${discid}/edit`} className='mr-2 bg-[#c8f7de] px-4 py-2 rounded-[24px] flex items-center justify-center cursor-pointer'>
+                <span  className='text-[#0d4a2a] text-[10px] font-poppinsMed'>Update</span>
+              </Link>
               <div className='mr-2 bg-[#f6d2c5] px-4 py-2 rounded-[24px] flex items-center justify-center cursor-pointer'>
                 <span className='text-[#85371a] text-[10px] font-poppinsMed' onClick={()=>deleteDiscussion(discussion[0]?.id)}>Delete</span>
               </div>
