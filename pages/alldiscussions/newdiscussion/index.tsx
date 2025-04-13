@@ -35,11 +35,9 @@ const NewDiscussion = () => {
         setLoading(true);
         console.log(loading)
         if (!message || !status || !user) {
-            alert("All fields are required!" + JSON.stringify(message + status + user));
             setLoading(false);
             return;
         }
-
         const response = await fetch('/api/discussions', {
             method: "POST",
             headers: { "Content-Type": "application/json" },

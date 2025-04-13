@@ -35,51 +35,27 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
 
-//   if (req.method === "PUT") {
-//     const { id, title, totalInsts, totalAmount, currency, dateStarted, status } = req.body;
+  if (req.method === "PUT") {
+    const { id, message, status } = req.body;
 
-//     if (!id || !title || !totalInsts || !totalAmount || !currency || !dateStarted || !status) {
-//       return res.status(400).json({ error: "id, title, totalInsts, totalAmount, currency, dateStarted and status are required" });
-//     }
+    if (!id || !message || !status) {
+      return res.status(400).json({ error: "id, message and status are required" });
+    }
 
-//     const { error: updateError } = await supabase
-//       .from("loans")
-//       .update({
-//         title,
-//         total_insts: totalInsts,
-//         total_amount: totalAmount,
-//         currency,
-//         date_started: dateStarted,
-//         status
-//       })
-//       .eq("id", id);
+    const { error: updateError } = await supabase
+      .from("discussions")
+      .update({
+        message,
+        status
+      })
+      .eq("id", id);
 
-//     if (updateError) {
-//       return res.status(500).json({ error: updateError.message });
-//     }
+    if (updateError) {
+      return res.status(500).json({ error: updateError.message });
+    }
 
-//     // Optional: Delete and re-insert all related loanDetails
-//     await supabase.from("loanDetails").delete().eq("loan_id", id);
-
-//     for (let i = 0; i < totalInsts; i++) {
-//       const dueDate = moment(dateStarted).add(i * 30, "days").toISOString();
-
-//       const { error: detailsError } = await supabase.from("loanDetails").insert([
-//         {
-//           loan_id: id,
-//           amount: totalAmount / totalInsts,
-//           due_date: dueDate,
-//           status: status,
-//         }
-//       ]);
-
-//       if (detailsError) {
-//         return res.status(500).json({ error: `Loan updated but failed to update installment: ${detailsError.message}` });
-//       }
-//     }
-
-//     return res.status(200).json({ message: "Loan updated successfully" });
-//   }
+    return res.status(200).json({ message: "Discussion updated successfully" });
+  }
 
   if (req.method === "DELETE") {
     const { id } = req.query;
