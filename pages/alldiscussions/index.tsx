@@ -2,59 +2,37 @@ import React, { useEffect, useState } from 'react'
 import GoBack from "../../components/gobackSecond";
 import Link from 'next/link';
 import { FaPlus } from "react-icons/fa6";
+import moment from 'moment';
 
-const discussions = [
-    {
-        id: 1,
-        user: "Paaathu",
-        time: "3h ago",
-        message: "Moona memma symptoms discussed on call",
-        status: "Pending"
-    },
-    {
-        id: 2,
-        user: "Ikku",
-        time: "3h ago",
-        message: "Umma Uppa Call Details",
-        status: "Pending"
-    },
-    {
-        id: 3,
-        user: "Ikku",
-        time: "3h ago",
-        message: "Kunjitha Call Details",
-        status: "Discussed"
-    },
-    {
-        id: 4,
-        user: "Paaathu",
-        time: "3h ago",
-        message: "App bug discussed today on call",
-        status: "Pending"
-    },
-    {
-        id: 5,
-        user: "Ikku",
-        time: "3h ago",
-        message: "Unwanted android apps found on screenshot",
-        status: "Pending"
-    },
-    {
-        id: 6,
-        user: "Ikku",
-        time: "3h ago",
-        message: "Islamic ruling on other relion's food which is a part of ritual",
-        status: "Pending"
-    }
-]
+type Discussion = {
+    message: string;
+    status: string;
+    user: string;
+    created_at: string;
+};
 
-const AllLoans = () => {
+const AllDiscussions = () => {
 
     const [loading, setLoading] = useState(false);
+    const [discussions, setDiscussions] = useState<Discussion[]>([]);
 
     useEffect(() => {
-        setLoading(false);
+        fetchDiscussions();
     }, []);
+
+    async function fetchDiscussions() {
+        setLoading(true);
+
+        try {
+            const res = await fetch('/api/discussions');
+            const data: Discussion[] = await res.json();
+            setDiscussions(data);
+        } catch (error) {
+            console.error("Error fetching discussions:", error);
+        } finally {
+            setLoading(false);
+        }
+    }
 
 
     return (
@@ -86,16 +64,16 @@ const AllLoans = () => {
 
                             <Link href={`/`} className='bg-white px-4 py-4 my-3 rounded-[12px] flex justify-between' key={key}>
                                 <div className='flex items-center justify-center'>
-                                    <div className={`h-[40px] w-[40px] ${item?.user === 'Ikku' ? 'bg-[#126581]' : 'bg-[#8e156a]'}  rounded-full flex items-center justify-center mr-4`}>
-                                        <span className='text-[18px] text-white font-poppinsMed'>{item?.user === 'Ikku' ? 'D' : 'S'}</span>
+                                    <div className={`h-[40px] w-[40px] ${item?.user === 'Dilshad' ? 'bg-[#126581]' : 'bg-[#8e156a]'}  rounded-full flex items-center justify-center mr-4`}>
+                                        <span className='text-[18px] text-white font-poppinsMed'>{item?.user === 'Dilshad' ? 'D' : 'S'}</span>
                                     </div>
                                     <div>
                                         <div className='flex items-center justify-start'>
-                                            <span className='mr-2 text-[10px] text-slate-600'>{item?.user}</span>
-                                            <span className='mr-2 mb-2 text-[16px] text-slate-600'>.</span>
-                                            <span className='text-[10px] text-slate-600 mr-2'>{item?.time}</span>
-                                            <span className='mr-2 mb-2 text-[16px] text-slate-600'>.</span>
-                                            {item?.status === "Pending" ?
+                                            <span className='mr-1 text-[10px] text-slate-600'>{item?.user}</span>
+                                            <span className='mr-1 mb-2 text-[16px] text-slate-600'>.</span>
+                                            <span className='text-[10px] text-slate-600 mr-2'>{moment(item?.created_at).fromNow().replace(/^\w/, c => c.toUpperCase())}</span>
+                                            <span className='mr-1 mb-2 text-[16px] text-slate-600'>.</span>
+                                            {item?.status === "pending" ?
                                                 <div className='bg-[#fbe2de] rounded-[12px] text-[8px] py-1 px-3 flex items-center justify-center uppercase text-[#8f4d43] font-poppinsMed'>{item?.status}</div>
                                                 :
                                                 <div className='bg-[#a7fac5] rounded-[12px] text-[8px] py-1 px-3 flex items-center justify-center uppercase text-[#345c42] font-poppinsMed'>{item?.status}</div>
@@ -113,11 +91,11 @@ const AllLoans = () => {
                         : null
                 }
             </div>
-            <Link href={"/"} className='fixed z-[2000] right-8 bottom-28 bg-[#514cff] h-[50px] w-[50px] rounded-full flex items-center justify-center cursor-pointer'>
+            <Link href={"/alldiscussions/newdiscussion"} className='fixed z-[2000] right-8 bottom-28 bg-[#514cff] h-[50px] w-[50px] rounded-full flex items-center justify-center cursor-pointer'>
                 <FaPlus className='text-white text-base' />
             </Link>
         </div>
     )
 }
 
-export default AllLoans
+export default AllDiscussions
