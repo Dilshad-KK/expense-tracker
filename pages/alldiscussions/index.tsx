@@ -5,6 +5,7 @@ import { FaPlus } from "react-icons/fa6";
 import moment from 'moment';
 
 type Discussion = {
+    id: number;
     message: string;
     status: string;
     user: string;
@@ -62,7 +63,7 @@ const AllDiscussions = () => {
                     discussions?.length > 0 ?
                         discussions.map((item, key) => (
 
-                            <Link href={`/`} className='bg-white px-4 py-4 my-3 rounded-[12px] flex justify-between' key={key}>
+                            <Link href={`/alldiscussions/discdetails/${item?.id}`} className='bg-white px-4 py-4 my-3 rounded-[12px] flex justify-between' key={key}>
                                 <div className='flex items-center justify-center'>
                                     <div className={`h-[40px] w-[40px] ${item?.user === 'Dilshad' ? 'bg-[#126581]' : 'bg-[#8e156a]'}  rounded-full flex items-center justify-center mr-4 flex-shrink-0`}>
                                         <span className='text-[18px] text-white font-poppinsMed'>{item?.user === 'Dilshad' ? 'D' : 'S'}</span>

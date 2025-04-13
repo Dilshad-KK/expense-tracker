@@ -174,7 +174,6 @@ const Loans = () => {
 
                                     ))
                                     : null
-
                 }
             </div>
         </>
