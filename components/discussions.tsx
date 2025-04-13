@@ -4,6 +4,7 @@ import Link from 'next/link';
 import moment from 'moment';
 
 type Discussion = {
+    id:number;
     message: string;
     status: string;
     user: string;
@@ -64,7 +65,7 @@ const Discussions = () => {
                                 {
                                     discussions.map((item, key) => (
                                         <div key={key}>
-                                            <Link href={`/`} className='bg-white px-4 py-4 mb-8 mx-1 rounded-[12px] flex justify-between'>
+                                            <Link href={`/alldiscussions/discdetails/${item?.id}`} className='bg-white px-4 py-4 mb-8 mx-1 rounded-[12px] flex justify-between'>
                                                 <div className='flex items-center justify-center'>
                                                     <div className={`h-[40px] w-[40px] ${item?.user === 'Dilshad' ? 'bg-[#126581]' : 'bg-[#8e156a]'}  rounded-full flex items-center justify-center mr-4 flex-shrink-0`}>
                                                         <span className='text-[18px] text-white font-poppinsMed'>{item?.user === 'Dilshad' ? 'D' : 'S'}</span>
@@ -92,7 +93,7 @@ const Discussions = () => {
                                 }
                             </Slider>
                             :
-                            <Link href={`/`} className='bg-white px-4 py-4 mb-8 rounded-[12px] flex justify-between' >
+                            <Link href={`/alldiscussions/discdetails/${discussions[0]?.id}`} className='bg-white px-4 py-4 mb-8 rounded-[12px] flex justify-between' >
                                 <div className='flex items-center justify-center'>
                                     <div className={`h-[40px] w-[40px] ${discussions[0]?.user === 'Dilshad' ? 'bg-[#126581]' : 'bg-[#8e156a]'}  rounded-full flex items-center justify-center mr-4 flex-shrink-0`}>
                                         <span className='text-[18px] text-white font-poppinsMed'>{discussions[0]?.user === 'Dilshad' ? 'D' : 'S'}</span>
