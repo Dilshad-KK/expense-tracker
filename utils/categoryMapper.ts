@@ -24,12 +24,16 @@ const categoryIcons: Record<string, { keywords: string[]; icon: string }> = {
         icon: "/assets/icons/topup.png",
     },
     food: {
-        keywords: ["fish", "meals", "sadya", "chicken"],
+        keywords: ["fish", "meals", "sadya", "chicken","lunch","breakfast","dinner","snacks"],
         icon: "/assets/icons/food.png",
     },
     dress: {
         keywords: ["dress", "pants", "top", "shirt"],
         icon: "/assets/icons/dress.png",
+    },
+    medicine:{
+        keywords: ["medicine", "pharmacy", "doctor", "clinic"],
+        icon: "/assets/icons/pharmacy.png",
     }
 };
 
