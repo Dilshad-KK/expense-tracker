@@ -237,7 +237,7 @@ export default function ExpensesUi(props: UserType) {
                     <div className="bg-[#e9f7ed] p-3 mr-3 flex-shrink-0">
                       <img src={getCategoryIcon(item?.note)} className="h-[20px] opacity-70" />
                     </div>
-                    <div className="max-w-[220px]">
+                    <div className="max-w-[200px]">
                       <div className="text-black/70 text-[12px] mb-1">{item?.note}</div>
                       <div className="text-black/50 text-[10px]">{item?.type}</div>
                     </div>
