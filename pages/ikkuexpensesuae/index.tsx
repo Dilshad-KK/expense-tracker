@@ -1,4 +1,4 @@
-import ExpensesUi from "@/components/expensesui";
+import ExpensesUi from "@/components/expenses/expensesui";
 
 export default function IkkuExpensesUae() {
     return (
