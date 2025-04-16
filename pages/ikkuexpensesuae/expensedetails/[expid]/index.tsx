@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import GoBack from "../../../../components/gobackSecond";
 import moment from 'moment';
 import Link from 'next/link';
+import { getCategoryIcon } from '@/utils/categoryMapper';
 
 type Expense = {
   id: number;
@@ -105,7 +106,7 @@ const ExpenseDetails = () => {
                   <span className="text-[12px] text-black/70">{moment(item?.created_at).format("DD")}</span>
                 </div>
                 <div className="bg-[#e9f7ed] p-3 mr-3 flex-shrink-0">
-                  <img src="/assets/icons/grocery.png" className="h-[20px] opacity-70" />
+                  <img src={getCategoryIcon(item?.note)} className="h-[20px] opacity-70" />
                 </div>
                 <div className="max-w-[220px]">
                   <div className="text-black/70 text-[12px] mb-1">{item?.note}</div>

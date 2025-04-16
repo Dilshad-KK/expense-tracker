@@ -242,8 +242,8 @@ export default function ExpensesUi(props: UserType) {
                       <div className="text-black/50 text-[10px]">{item?.type}</div>
                     </div>
                     <div className="flex flex-1 items-end justify-center flex-col flex-shrink-0">
-                      <div className={`text-[8px] ${item?.type === 'Withdrawal' ? 'text-[#e7632b]' : 'text-[#1b987b]'}`}>{item?.type === 'Withdrawal' ? 'You Paid' : 'You Received'}</div>
-                      <div className={`text-[12px] ${item?.type === 'Withdrawal' ? 'text-[#e7632b]' : 'text-[#1b987b]'}`}>{currency}&nbsp;{item?.amount}</div>
+                      <div className={`text-[8px] font-poppinsMed ${item?.type === 'Withdrawal' ? 'text-[#e7632b]' : 'text-[#1b987b]'}`}>{item?.type === 'Withdrawal' ? 'You Paid' : 'You Received'}</div>
+                      <div className={`text-[12px] font-poppinsMed ${item?.type === 'Withdrawal' ? 'text-[#e7632b]' : 'text-[#1b987b]'}`}>{currency}&nbsp;{item?.amount}</div>
                     </div>
                   </Link>
                 ))}
