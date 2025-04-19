@@ -32,7 +32,6 @@ export default function ExpensesUi(props: UserType) {
   const [totalExpense, setTotalExpense] = useState(0);
   const [totalDeposit, setTotalDeposit] = useState(0);
   const [closingBalance, setClosingBalance] = useState(0);
-  // const [fcmToken, setFcmToken] = useState("")
 
   let apiPath = '';
   let formTitle = '';
@@ -119,61 +118,7 @@ export default function ExpensesUi(props: UserType) {
     setClosingBalance(parseFloat(cbalance.toFixed(2)));
   }
 
-  //notification
-
-  // useEffect(() => {
-
-
-
-  //   const fetchToken = async () => {
-  //     const token = await requestFCMToken();
-  //     if (token) {
-  //       localStorage.setItem("fcm_token", token); // Save FCM token locally
-  //       // setFcmToken(token);
-  //     }
-  //   };
-  //   fetchToken();
-
-
-  //   if (typeof window !== "undefined" && "Notification" in window) {
-  //     import("firebase/messaging").then(({ onMessage }) => {
-  //       if (messaging) {
-  //         onMessage(messaging, (payload: any) => {
-  //           console.log("📩 Foreground notification received:", payload);
-  //           new Notification(payload.notification.title, {
-  //             body: payload.notification.body,
-  //             icon: "/assets/notification.png",
-  //           });
-  //         });
-  //       }
-  //     });
-  //   }
-
-  // }, []);
-
-  // const sendNotification = async (message:String) => {
-  //   alert("send fn called ====>")
-  //   const fcmToken = localStorage.getItem("fcm_token");
-  //   alert(JSON.stringify(fcmToken))
-
-  //   if (!fcmToken) {
-  //     alert("FCM token not found! Please enable notifications.");
-  //     return;
-  //   }
-
-  //   const response = await fetch("/api/sendNotification", {
-  //     method: "POST",
-  //     headers: { "Content-Type": "application/json" },
-  //     body: JSON.stringify({
-  //       fcmToken: fcmToken,
-  //       title: "IBU Expense Tracker Alert!",
-  //       body: message,
-  //     }),
-  //   });
-
-  //   const data = await response.json();
-  //   console.log("Notification Response:", data);
-  // };
+  
 
   return (
     <div className="bg-[#ffffff]">

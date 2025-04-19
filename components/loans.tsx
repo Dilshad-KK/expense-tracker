@@ -126,10 +126,12 @@ const Loans = () => {
                                                     </div>
                                                 </div>
                                                 <div className='flex items-center justify-end'>
-                                                    {loan?.status === 'paid' ?
-                                                        <div className='bg-[#a7fac5] rounded-[12px] text-[10px] py-1 px-3 flex items-center justify-center uppercase text-[#345c42] font-poppinsMed'>{loan?.status}</div>
-                                                        :
-                                                        <div className='bg-[#fbe2de] rounded-[12px] text-[10px] py-1 px-3 flex items-center justify-center uppercase text-[#8f4d43] font-poppinsMed'>{loan?.status}</div>}
+                                                    <div className='flex items-center justify-end'>
+                                                        {loan?.times === Number(loan?.total_insts) ?
+                                                            <div className='bg-[#a7fac5] rounded-[12px] text-[10px] py-1 px-3 flex items-center justify-center uppercase text-[#345c42] font-poppinsMed'>paid</div>
+                                                            :
+                                                            <div className='bg-[#fbe2de] rounded-[12px] text-[10px] py-1 px-3 flex items-center justify-center uppercase text-[#8f4d43] font-poppinsMed'>pending</div>}
+                                                    </div>
                                                 </div>
                                             </Link>
                                         </div>
