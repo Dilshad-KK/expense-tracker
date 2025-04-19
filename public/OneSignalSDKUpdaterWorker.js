@@ -1,1 +1,0 @@
-importScripts('https://cdn.onesignal.com/sdks/web/v15/OneSignalSDKWorker.js');

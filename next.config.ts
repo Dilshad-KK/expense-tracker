@@ -2,7 +2,7 @@
 import withPWA from 'next-pwa';
 
 const nextConfig = {
-  reactStrictMode: true,
+  reactStrictMode: false,
 };
 
 const pwaConfig = withPWA({
