@@ -3,9 +3,9 @@ export const initOneSignal = async () => {
   
     await OneSignal.init({
       appId: '00b19587-74cb-4d19-931d-e74f5a20e8a1',
+      serviceWorkerPath: '/OneSignalSDKWorker.js',
+      serviceWorkerUpdaterPath: '/OneSignalSDKUpdaterWorker.js',
       allowLocalhostAsSecureOrigin: true,
-      autoResubscribe: true,
-  
       notifyButton: {
         enable: true,
         prenotify: true,
@@ -27,24 +27,7 @@ export const initOneSignal = async () => {
           'dialog.blocked.message': 'Follow these instructions to allow notifications:',
         },
       },
-  
-      promptOptions: {
-        slidedown: {
-          prompts: [
-            {
-              type: 'push',
-              autoPrompt: false, // set to false to manually control it
-              delay: {
-                timeDelay: 0,
-                pageViews: 1,
-              },
-              categories: [], // Required to avoid TS errors
-            },
-          ],
-        },
-      },
     });
   
-    // Trigger prompt manually
     OneSignal.Slidedown.promptPush();
   };
