@@ -1,4 +1,7 @@
-export const initOneSignal = async () => {
+
+
+
+  export const initOneSignal = async () => {
     const OneSignal = (await import('react-onesignal')).default;
   
     await OneSignal.init({
@@ -27,7 +30,6 @@ export const initOneSignal = async () => {
       allowLocalhostAsSecureOrigin: true,
     });
   
-    if (OneSignal) {
-        (window as any).OneSignal?.showSlidedownPrompt();
-    }
+    // ✅ Use the correct method for the new SDK
+    await OneSignal.Slidedown.promptPush();
   };
