@@ -1,4 +1,3 @@
-
 export const initOneSignal = async () => {
     const OneSignal = (await import('react-onesignal')).default;
   
@@ -28,5 +27,7 @@ export const initOneSignal = async () => {
       allowLocalhostAsSecureOrigin: true,
     });
   
-    (window as any).OneSignal?.showSlidedownPrompt();
+    if (OneSignal) {
+        (window as any).OneSignal?.showSlidedownPrompt();
+    }
   };
