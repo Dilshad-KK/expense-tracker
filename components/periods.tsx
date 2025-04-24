@@ -46,7 +46,7 @@ const Periods = () => {
 
         return {
             daysLeft,
-            expectedDate: nextPeriodDate.format("YYYY-MM-DD")
+            expectedDate: nextPeriodDate.format("MMM Do YY")
         };
     };
 
@@ -73,7 +73,7 @@ const Periods = () => {
                                         <MdWaterDrop className='text-[24px] text-[#fc3f3f]' />
                                     </div>
                                     <div className='flex flex-col items-start justify-center'>
-                                        <span className='text-[12px] text-black font-poppinsMed mb-1'>Period Expected In {getPeriodInfo().daysLeft} days</span>
+                                        <span className='text-[12px] text-black font-poppinsMed mb-1'>Next Period Expected In {getPeriodInfo().daysLeft} days</span>
                                         <span className='text-[10px] text-[#198720] font-poppinsMed mb-1'>Last period was on {moment(periods[0]?.last_period_date)?.format("MMM Do YY")}</span>
                                         <span className='text-[10px] text-[#1b569e] font-poppinsMed mb-1'>Next Period Expecting On {getPeriodInfo().expectedDate}</span>
                                     </div>
