@@ -32,12 +32,23 @@ const Periods = () => {
         }
     }
 
-    const getPeriodDays = () => {
+    const getPeriodInfo = () => {
         const today = moment();
-        const nextPeriodDate = moment(periods[0]?.last_period_date).add(periods[0]?.cycle_length, "days");
+        const lastPeriodDate = moment(periods[0]?.last_period_date);
+        const cycleLength = periods[0]?.cycle_length;
+
+        if (!lastPeriodDate.isValid() || !cycleLength) {
+            return { daysLeft: null, expectedDate: null };
+        }
+
+        const nextPeriodDate = lastPeriodDate.clone().add(cycleLength, "days");
         const daysLeft = nextPeriodDate.diff(today, "days");
-        return daysLeft
-    }
+
+        return {
+            daysLeft,
+            expectedDate: nextPeriodDate.format("YYYY-MM-DD")
+        };
+    };
 
     return (
         <>
@@ -62,9 +73,9 @@ const Periods = () => {
                                         <MdWaterDrop className='text-[24px] text-[#fc3f3f]' />
                                     </div>
                                     <div className='flex flex-col items-start justify-center'>
-                                        <span className='text-[12px] text-black font-poppinsMed mb-1'>Period Expected In</span>
-                                        <span className='text-[10px] text-[#858585] font-poppinsMed mb-1'>{getPeriodDays()} days</span>
-                                        <span className='text-[10px] text-[#7bb3f8] font-poppinsMed mb-1'>Last period was on {moment(periods[0]?.last_period_date)?.format("MMM Do YY")}</span>
+                                        <span className='text-[12px] text-black font-poppinsMed mb-1'>Period Expected In {getPeriodInfo().daysLeft} days</span>
+                                        <span className='text-[10px] text-[#198720] font-poppinsMed mb-1'>Last period was on {moment(periods[0]?.last_period_date)?.format("MMM Do YY")}</span>
+                                        <span className='text-[10px] text-[#1b569e] font-poppinsMed mb-1'>Next Period Expecting On {getPeriodInfo().expectedDate}</span>
                                     </div>
                                 </div>
                             </Link>
