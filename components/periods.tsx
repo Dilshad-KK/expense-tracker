@@ -73,11 +73,11 @@ const Periods = () => {
                             >
                                 <div className="absolute inset-0 bg-[url('/assets/period.jpg')] bg-cover bg-center z-0" />
 
-                                <div className="absolute inset-0 backdrop-blur-md bg-white/30 z-10" />
+                                <div className="absolute inset-0 backdrop-blur-md bg-white/70 z-10" />
 
                                 <div className="relative z-20 text-black w-full">
                                     <div className='flex flex-row items-center justify-start'>
-                                        <div className='bg-[#fdeded] h-[40px] w-[40px] rounded-md flex flex-row items-center justify-center mr-[16px]'>
+                                        <div className='bg-[#fff7f7] border-[1px] border-solid border-[#f8d5d5f0] h-[50px] w-[50px] rounded-lg flex flex-row items-center justify-center mr-[16px]'>
                                             <MdWaterDrop className='text-[24px] text-[#fc3f3f]  animate-bounce' />
                                         </div>
                                         <div className='flex flex-col items-start justify-center'>
