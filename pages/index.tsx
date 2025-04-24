@@ -64,7 +64,7 @@ const Home = () => {
       <div className='min-h-screen px-4 py-8'>
         {/* <CountdownTimer /> */}
         <h3 className='text-left mb-3 text-black text-[14px] font-poppinsBold'>Transactions</h3>
-        <div className='mb-8 flex justify-between w-full bg-[#ffffff] p-4 rounded-[8px] shadow-md'>
+        <div className='mb-6 flex justify-between w-full bg-[#ffffff] p-4 rounded-[8px] shadow-md'>
           <Link href={"/ibuexpenses"} className='flex flex-col items-center justify-center'>
             <div className='bg-[#f0f6fb] h-[60px] w-[60px] rounded-full flex items-center justify-center mb-[8px]'>
               <img src='/assets/icons/girl.png' className='h-[40px]' />
