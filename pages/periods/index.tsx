@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import GoBack from "../../components/gobackSecond";
 import moment from "moment";
+import Link from "next/link";
+import { IoPencil } from "react-icons/io5";
 
 type PeriodData = {
   id: string;
@@ -89,12 +91,51 @@ export default function HomePage() {
     };
   };
 
-  const getPeriodDays = () => {
+  const getPeriodInfo = () => {
     const today = moment();
-    const nextPeriodDate = moment(data?.last_period_date).add(data?.cycle_length, "days");
+    const lastPeriodDate = moment(data?.last_period_date);
+    const cycleLength = data?.cycle_length;
+
+    if (!lastPeriodDate.isValid() || !cycleLength) {
+      return {
+        daysLeft: null,
+        expectedDate: null,
+        nextThreePeriods: [],
+        text: 'Insufficient data to calculate period'
+      };
+    }
+
+    // Calculate the next period date
+    const nextPeriodDate = lastPeriodDate.clone().add(cycleLength, "days");
     const daysLeft = nextPeriodDate.diff(today, "days");
-    return daysLeft
-  }
+
+    // Prepare the text
+    let text = "";
+    if (daysLeft <= 0) {
+      text = "Next Period Is Expected Today";
+    } else if (daysLeft === 1) {
+      text = "Next Period Is Expected Tomorrow";
+    } else {
+      text = `Next Period Is Expected In ${daysLeft} days`;
+    }
+
+    // Generate the next 3 expected period dates
+    const nextThreePeriods = [];
+    for (let i = 1; i < 4; i++) {
+      const futureDate = lastPeriodDate.clone().add(cycleLength * (i + 1), "days");
+      nextThreePeriods.push(futureDate.format("MMM Do YY"));
+    }
+
+    return {
+      daysLeft,
+      expectedDate: nextPeriodDate.isSameOrBefore(today, 'day')
+        ? today.format("MMM Do YY")
+        : nextPeriodDate.format("MMM Do YY"),
+      nextThreePeriods,
+      text
+    };
+  };
+
 
   return (
     <div className="bg-[#ffffff] min-h-screen relative">
@@ -105,13 +146,18 @@ export default function HomePage() {
           <GoBack />
         </div>
         <span className='text-white z-[2000] font-poppinsBold text-[18px]'>Period Details</span>
+        <Link href="/periods/update" className='text-white font-poppinsBold text-[18px] bg-[#ffffff4d] 
+        h-[30px] w-[30px] rounded-full flex items-center justify-center absolute right-[32px] z-[1000]'>
+          <IoPencil className="text-white text-[14px]" /></Link>
       </div>
-      <div className="w-full text-center">
-        {loading ? 'loading' :
+      <div className="w-full text-center pb-[200px]">
+        {loading ? <div className="flex items-center justify-center min-h-[50vh]">
+          <span className="loading loading-spinner loading-lg text-[#524cff5a]"></span>
+        </div> :
           data && nextDate ? (
-            <div className="flex items-center justify-center flex-col mt-16">
-              <div className="mb-16 shadow-xl h-[300px] w-[300px] bg-white flex items-center justify-center flex-col rounded-full">
-                <div className="text-black/70 font-poppins text-[24px] mb-3">
+            <div className="flex items-center justify-center flex-col mt-8">
+              <div className="mb-6 shadow-xl h-[200px] w-[200px] bg-white flex items-center justify-center flex-col rounded-full">
+                <div className="text-black/60 font-poppins text-[18px] mb-1 mt-8">
                   {getPhaseDetails()?.phase}
                 </div>
 
@@ -122,34 +168,16 @@ export default function HomePage() {
               </div>
 
               <div>
-                <div className="text-black/80">Next Period Expected In {getPeriodDays()} days</div>
-                <button
-                  onClick={() => router.push("/periods/update")}
-                  className="mt-4 w-full bg-pink-400 text-white py-2 rounded-lg hover:bg-pink-500 transition"
-                >
-                  ✏️ Update Details
-                </button>
+                <div className="text-black/80 text-[14px] mb-1">{getPeriodInfo()?.text}</div>
+                <div className="text-blue-500 font-poppinsMed text-[14px] mb-4">{getPeriodInfo()?.expectedDate}</div>
               </div>
-              {/* <p className="text-lg mb-2 text-pink-800">
-                🩸 Your next period is expected on <span className="font-bold">{nextDate}</span>
-                {getPhaseDetails()?.phase}
-              </p> */}
-
-              {/* <button
-                onClick={() => router.push("/periods/update")}
-                className="mt-4 w-full bg-pink-400 text-white py-2 rounded-lg hover:bg-pink-500 transition"
-              >
-                ✏️ Update Details
-              </button> */}
-
-              {/* {nextDate === today && (
-                <button
-                  onClick={handleConfirmStart}
-                  className="mt-4 w-full bg-green-500 text-white py-2 rounded-lg hover:bg-green-600 transition"
-                >
-                  ✅ Period Started Today
-                </button>
-              )} */}
+              <div className="h-[1px] bg-[#cccccc4c] w-full my-3" />
+              <div>
+                <div className="text-black mb-3 text-[14px]">Upcoming Periods</div>
+                {getPeriodInfo()?.nextThreePeriods?.map((item, index) => (
+                  <div key={index} className="text-green-800 bg-green-200 px-2 py-1 rounded-md mb-2 text-[12px]">{item}</div>
+                ))}
+              </div>
             </div>
           ) : (
             <>

@@ -4,7 +4,7 @@ import Link from 'next/link';
 import moment from 'moment';
 
 type Discussion = {
-    id:number;
+    id: number;
     message: string;
     status: string;
     user: string;
@@ -71,7 +71,7 @@ const Discussions = () => {
                                                         <span className='text-[18px] text-white font-poppinsMed'>{item?.user === 'Dilshad' ? 'D' : 'S'}</span>
                                                     </div>
                                                     <div>
-                                                        <div className='flex items-center justify-start'>
+                                                        <div className='flex items-center justify-start mt-[-8px]'>
                                                             <span className='mr-1 text-[10px] text-slate-600'>{item?.user}</span>
                                                             <span className='mr-1 mb-2 text-[16px] text-slate-600'>.</span>
                                                             <span className='text-[10px] text-slate-600 mr-2'>{moment(item?.created_at).fromNow().replace(/^\w/, c => c.toUpperCase())}</span>
@@ -82,11 +82,9 @@ const Discussions = () => {
                                                                 <div className='bg-[#a7fac5] rounded-[12px] text-[8px] py-1 px-3 flex items-center justify-center uppercase text-[#345c42] font-poppinsMed'>{item?.status}</div>
                                                             }
                                                         </div>
-                                                        <span className='text-black/60 text-[12px]'>{item?.message?.slice(0, 25)}{item?.message?.length >= 25 ? <span className='text-[#050a1d8e] text-[10px]'>...</span> : ''}</span>
+                                                        <div className='text-black/60 text-[12px] mt-[-3px]'>{item?.message?.slice(0, 25)}{item?.message?.length >= 25 ? <span className='text-[#050a1d8e] text-[10px]'>...</span> : ''}</div>
                                                     </div>
-
                                                 </div>
-
                                             </Link>
                                         </div>
                                     ))

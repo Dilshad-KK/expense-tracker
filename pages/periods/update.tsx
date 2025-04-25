@@ -51,34 +51,34 @@ export default function UpdatePage() {
         <span className='text-white z-[2000] font-poppinsBold text-[18px]'>Update Period Details</span>
       </div>
       <div className="flex items-center justify-center h-full pt-24">
-        <div className="bg-white shadow-xl rounded-2xl p-6 max-w-md w-full">
+        <div className="bg-white rounded-2xl p-6 max-w-md w-full">
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-pink-900 mb-1">Cycle Length (days)</label>
+              <label className="block text-sm font-medium text-[#0f0d49] mb-1">Cycle Length (days)</label>
               <input
                 type="number"
                 value={cycle}
                 onChange={(e) => setCycle(Number(e.target.value))}
                 min={1}
-                className="w-full bg-white text-black border border-pink-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-pink-400"
+                className="input text-black/60 mb-2 border-[1px] border-solid border-[#d3d3fe] w-full p-4 rounded-[8px] bg-[#f3f3fd] placeholder:text-[12px]"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-pink-900 mb-1">Last Period Start Date</label>
+              <label className="block text-sm font-medium text-[#0f0d49] mb-1">Last Period Start Date</label>
               <input
                 type="date"
                 value={lastDate}
                 onChange={(e) => setLastDate(e.target.value)}
-                className="w-full bg-white text-black border border-pink-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-pink-400"
+                className="input text-black/60 mb-2 border-[1px] border-solid border-[#d3d3fe] w-full p-4 rounded-[8px] bg-[#f3f3fd] placeholder:text-[12px]"
               />
             </div>
 
             <button
               onClick={handleSave}
-              className="w-full bg-pink-500 text-white py-2 rounded-lg hover:bg-pink-600"
+              className="btn bg-[#514cff] text-white border-none text-[12px] my-[16px] w-full"
             >
-              💾 Save & Go Back
+              Save & Go Back
             </button>
           </div>
         </div>

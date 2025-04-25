@@ -88,22 +88,6 @@ const Periods = () => {
                                     </div>
                                 </div>
                             </Link>
-                            {/* <Link href={"/periods"} className='mb-6 flex justify-between w-full bg-[#ffffff] p-4 rounded-[8px] shadow-md' style={{
-                                backgroundImage: "url('/assets/period.jpg')",
-                                backgroundSize: "cover",
-                                backgroundPosition: "center"
-                            }}>
-                                <div className='flex flex-row items-center justify-start'>
-                                    <div className='bg-[#fdeded] h-[40px] w-[40px] rounded-md flex flex-row items-center justify-center mr-[16px]'>
-                                        <MdWaterDrop className='text-[24px] text-[#fc3f3f]' />
-                                    </div>
-                                    <div className='flex flex-col items-start justify-center'>
-                                        <span className='text-[12px] text-black font-poppinsMed mb-1'>Next Period Expected In</span>
-                                        <span className='text-[10px] text-[#1b569e] font-poppinsMed mb-1'>{getPeriodInfo().daysLeft} days - {getPeriodInfo().expectedDate}</span>
-                                        <span className='text-[10px] text-[#198720] font-poppinsMed mb-1'>Last period was on {moment(periods[0]?.last_period_date)?.format("MMM Do YY")}</span>
-                                    </div>
-                                </div>
-                            </Link> */}
                         </>
                 }
             </div>
