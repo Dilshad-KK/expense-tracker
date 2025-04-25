@@ -121,7 +121,7 @@ export default function HomePage() {
 
     // Generate the next 3 expected period dates
     const nextThreePeriods = [];
-    for (let i = 1; i < 4; i++) {
+    for (let i = 0; i < 4; i++) {
       const futureDate = lastPeriodDate.clone().add(cycleLength * (i + 1), "days");
       nextThreePeriods.push(futureDate.format("MMM Do YY"));
     }
@@ -132,7 +132,8 @@ export default function HomePage() {
         ? today.format("MMM Do YY")
         : nextPeriodDate.format("MMM Do YY"),
       nextThreePeriods,
-      text
+      text,
+      lastPeriodDate
     };
   };
 
@@ -172,12 +173,13 @@ export default function HomePage() {
                 <div className="text-blue-500 font-poppinsMed text-[14px] mb-4">{getPeriodInfo()?.expectedDate}</div>
               </div>
               <div className="h-[1px] bg-[#cccccc4c] w-full my-3" />
-              <div>
-                <div className="text-black mb-3 text-[14px]">Upcoming Periods</div>
-                {getPeriodInfo()?.nextThreePeriods?.map((item, index) => (
-                  <div key={index} className="text-green-800 bg-green-200 px-2 py-1 rounded-md mb-2 text-[12px]">{item}</div>
-                ))}
-              </div>
+              <div className="text-black mb-3 text-[14px]">Last Period</div>
+              <div className="text-green-800 bg-green-200 px-6 py-1 rounded-md mb-2 text-[12px]">{getPeriodInfo()?.lastPeriodDate?.format("MMM Do YY")}</div>
+              <div className="h-[1px] bg-[#cccccc4c] w-full my-3" />
+              <div className="text-black mb-3 text-[14px]">Upcoming Periods</div>
+              {getPeriodInfo()?.nextThreePeriods?.map((item, index) => (
+                <div key={index} className="text-green-800 bg-green-200 px-6 py-1 rounded-md mb-2 text-[12px]">{item}</div>
+              ))}
             </div>
           ) : (
             <>
