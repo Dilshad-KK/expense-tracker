@@ -4,6 +4,7 @@ import GoBack from "../../components/gobackSecond";
 import moment from "moment";
 import Link from "next/link";
 import { IoPencil } from "react-icons/io5";
+import { HiSparkles } from "react-icons/hi2";
 
 type PeriodData = {
   id: string;
@@ -14,16 +15,12 @@ type PeriodData = {
 export default function HomePage() {
   const [data, setData] = useState<PeriodData | null>(null);
   const [nextDate, setNextDate] = useState<string | null>(null);
-  const [today, setToday] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
-      const todayStr = new Date().toISOString().split("T")[0];
-      setToday(todayStr);
-
       const res = await fetch("/api/periods");
       const json = await res.json();
       if (json?.length > 0) {
@@ -123,7 +120,7 @@ export default function HomePage() {
     const nextThreePeriods = [];
     for (let i = 0; i < 4; i++) {
       const futureDate = lastPeriodDate.clone().add(cycleLength * (i + 1), "days");
-      nextThreePeriods.push(futureDate.format("MMM Do YY"));
+      nextThreePeriods.push(futureDate);
     }
 
     return {
@@ -168,18 +165,33 @@ export default function HomePage() {
                 </div>
               </div>
 
-              <div>
+              {/* <div>
                 <div className="text-black/80 text-[14px] mb-1">{getPeriodInfo()?.text}</div>
                 <div className="text-blue-500 font-poppinsMed text-[14px] mb-4">{getPeriodInfo()?.expectedDate}</div>
               </div>
               <div className="h-[1px] bg-[#cccccc4c] w-full my-3" />
               <div className="text-black mb-3 text-[14px]">Last Period</div>
-              <div className="text-green-800 bg-green-200 px-6 py-1 rounded-md mb-2 text-[12px]">{getPeriodInfo()?.lastPeriodDate?.format("MMM Do YY")}</div>
-              <div className="h-[1px] bg-[#cccccc4c] w-full my-3" />
-              <div className="text-black mb-3 text-[14px]">Upcoming Periods</div>
-              {getPeriodInfo()?.nextThreePeriods?.map((item, index) => (
-                <div key={index} className="text-green-800 bg-green-200 px-6 py-1 rounded-md mb-2 text-[12px]">{item}</div>
-              ))}
+              <div className="text-green-800 bg-green-200 px-6 py-1 rounded-md mb-2 text-[12px] w-[160px]">{getPeriodInfo()?.lastPeriodDate?.format("MMM Do YY")}</div>
+              <div className="h-[1px] bg-[#cccccc4c] w-full my-3" /> */}
+              <div className="text-black text-[14px] font-poppinsMed mb-4">Upcoming Periods</div>
+              <div className="flex justify-between w-[300px] mb-4">
+                {getPeriodInfo()?.nextThreePeriods?.map((item, index) => (
+                  // <div key={index} className="text-green-800 bg-green-200 px-6 py-1 rounded-md mb-2 text-[12px] w-[160px]">{item}</div>
+                  <div className='bg-[#a5a5fe2d] rounded-[12px] h-[60px] w-[60px] flex items-center justify-center flex-col' key={index}>
+                    <span className='text-black/80 text-[12px] font-poppinsMed'>{moment(item).format("DD")}</span>
+                    <span className='text-black/80 text-[10px] uppercase font-poppinsMed'>{moment(item).format("MMM")}</span>
+                    <span className='text-black/80 text-[8px] uppercase font-poppinsMed'>{moment(item).format("YYYY")}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="text-green-800 w-[340px] bg-[#d9fae4] py-4 px-8 text-[14px] mb-2 rounded-md border-[1px] border-solid border-[#adf4c6] flex items-center justify-center">
+                <HiSparkles className="mr-2 text-[16px]" />
+                {getPeriodInfo()?.text}
+              </div>
+              <div className="text-[#ad219a] w-[340px] bg-[#fcf4fb] py-4 px-8 text-[14px] mb-1 rounded-md border-[1px] border-solid border-[#fed9f9] flex items-center justify-center">
+                <HiSparkles className="mr-2 text-[16px]" />
+                Last period was on {getPeriodInfo()?.lastPeriodDate?.format("MMM Do YY")}
+              </div> 
             </div>
           ) : (
             <>
