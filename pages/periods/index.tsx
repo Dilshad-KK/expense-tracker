@@ -72,13 +72,13 @@ export default function HomePage() {
     let phase = "";
 
     if (currentDayInCycle >= 0 && currentDayInCycle <= 5) {
-      phase = "Menstrual Phase";
+      phase = "Menstruation";
     } else if (currentDayInCycle >= 6 && currentDayInCycle <= 13) {
-      phase = "Follicular Phase";
+      phase = "Follicular";
     } else if (currentDayInCycle >= 14 && currentDayInCycle <= 16) {
-      phase = "Ovulation Phase";
+      phase = "Ovulation";
     } else {
-      phase = "Luteal Phase";
+      phase = "Luteal";
     }
 
     return {
@@ -153,8 +153,30 @@ export default function HomePage() {
           <span className="loading loading-spinner loading-lg text-[#524cff5a]"></span>
         </div> :
           data && nextDate ? (
-            <div className="flex items-center justify-center flex-col mt-8">
-              <div className="mb-6 shadow-xl h-[200px] w-[200px] bg-white flex items-center justify-center flex-col rounded-full">
+            <div className="flex items-center justify-center flex-col mt-16">
+              <div className="mb-2 flex">
+                <div className="flex flex-col bg-[#edf9f9] px-4 py-2 rounded-md items-start justify-center border-[1px] border-solid border-[#9ebfbf6f] mr-2">
+                  <div className="text-[12px] text-[#177777] font-poppinsMed">Cycle Length</div>
+                  <div className="text-[16px] text-[#177777] font-poppinsMed"> {data?.cycle_length}</div>
+                </div>
+                <div className="flex flex-col bg-[#e3fcec65] px-4 py-2 rounded-md items-start justify-center border-[1px] border-solid border-[#adf4c6] mr-2">
+                  <div className="text-[12px] text-[#166534] font-poppins">Phase</div>
+                  <div className="text-[14px] text-[#166534] font-poppinsMed"> {getPhaseDetails()?.phase}</div>
+                </div>
+                <div className="flex flex-col bg-[#fefdf7] px-4 py-2 rounded-md items-start justify-center border-[1px] border-solid border-[#f8e3b3]">
+                  <div className="text-[12px] text-[#f8bf2d] font-poppinsMed">Day</div>
+                  <div className="text-[16px] text-[#8a6a17]"> {getPhaseDetails()?.daysSinceLastPeriod}</div>
+                </div>
+                {/* <div className="flex flex-col bg-[#fefdf7] px-3 py-2 rounded-md items-start justify-center border-[1px] border-solid border-[#fbf0d6]">
+                  <div className="text-[14px] text-[#f8bf2d] font-poppinsMed">Day</div>
+                  <div className="text-[12px] text-[#8a6a17]"> {getPhaseDetails()?.daysSinceLastPeriod}</div>
+                </div> */}
+              </div>
+
+              <div className="h-[1px] bg-[#cccccc4c] w-full my-8" />
+
+
+              {/* <div className="mb-6 shadow-xl h-[200px] w-[200px] bg-white flex items-center justify-center flex-col rounded-full">
                 <div className="text-black/60 font-poppins text-[18px] mb-1 mt-8">
                   {getPhaseDetails()?.phase}
                 </div>
@@ -163,7 +185,7 @@ export default function HomePage() {
                   <div className="text-black/80 text-[12px] mb-[-8px]">Day</div>
                   <div className="text-black/80 text-[48px] font-poppinsMed">{getPhaseDetails()?.daysSinceLastPeriod}</div>
                 </div>
-              </div>
+              </div> */}
 
               {/* <div>
                 <div className="text-black/80 text-[14px] mb-1">{getPeriodInfo()?.text}</div>
@@ -184,6 +206,7 @@ export default function HomePage() {
                   </div>
                 ))}
               </div>
+              <div className="h-[1px] bg-[#cccccc4c] w-full my-8" />
               <div className="text-green-800 w-[340px] bg-[#d9fae4] py-4 px-8 text-[14px] mb-2 rounded-md border-[1px] border-solid border-[#adf4c6] flex items-center justify-center">
                 <HiSparkles className="mr-2 text-[16px]" />
                 {getPeriodInfo()?.text}
@@ -191,7 +214,7 @@ export default function HomePage() {
               <div className="text-[#ad219a] w-[340px] bg-[#fcf4fb] py-4 px-8 text-[14px] mb-1 rounded-md border-[1px] border-solid border-[#fed9f9] flex items-center justify-center">
                 <HiSparkles className="mr-2 text-[16px]" />
                 Last period was on {getPeriodInfo()?.lastPeriodDate?.format("MMM Do YY")}
-              </div> 
+              </div>
             </div>
           ) : (
             <>
