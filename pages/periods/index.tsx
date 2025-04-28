@@ -165,40 +165,15 @@ export default function HomePage() {
                 </div>
                 <div className="flex flex-col bg-[#fefdf7] px-4 py-2 rounded-md items-start justify-center border-[1px] border-solid border-[#f8e3b3]">
                   <div className="text-[12px] text-[#f8bf2d] font-poppinsMed">Day</div>
-                  <div className="text-[16px] text-[#8a6a17]"> {getPhaseDetails()?.daysSinceLastPeriod}</div>
+                  <div className="text-[16px] text-[#8a6a17] font-poppinsMed"> {getPhaseDetails()?.daysSinceLastPeriod}</div>
                 </div>
-                {/* <div className="flex flex-col bg-[#fefdf7] px-3 py-2 rounded-md items-start justify-center border-[1px] border-solid border-[#fbf0d6]">
-                  <div className="text-[14px] text-[#f8bf2d] font-poppinsMed">Day</div>
-                  <div className="text-[12px] text-[#8a6a17]"> {getPhaseDetails()?.daysSinceLastPeriod}</div>
-                </div> */}
               </div>
 
               <div className="h-[1px] bg-[#cccccc4c] w-full my-8" />
 
-
-              {/* <div className="mb-6 shadow-xl h-[200px] w-[200px] bg-white flex items-center justify-center flex-col rounded-full">
-                <div className="text-black/60 font-poppins text-[18px] mb-1 mt-8">
-                  {getPhaseDetails()?.phase}
-                </div>
-
-                <div className="flex flex-col">
-                  <div className="text-black/80 text-[12px] mb-[-8px]">Day</div>
-                  <div className="text-black/80 text-[48px] font-poppinsMed">{getPhaseDetails()?.daysSinceLastPeriod}</div>
-                </div>
-              </div> */}
-
-              {/* <div>
-                <div className="text-black/80 text-[14px] mb-1">{getPeriodInfo()?.text}</div>
-                <div className="text-blue-500 font-poppinsMed text-[14px] mb-4">{getPeriodInfo()?.expectedDate}</div>
-              </div>
-              <div className="h-[1px] bg-[#cccccc4c] w-full my-3" />
-              <div className="text-black mb-3 text-[14px]">Last Period</div>
-              <div className="text-green-800 bg-green-200 px-6 py-1 rounded-md mb-2 text-[12px] w-[160px]">{getPeriodInfo()?.lastPeriodDate?.format("MMM Do YY")}</div>
-              <div className="h-[1px] bg-[#cccccc4c] w-full my-3" /> */}
               <div className="text-black text-[14px] font-poppinsMed mb-4">Upcoming Periods</div>
               <div className="flex justify-between w-[300px] mb-4">
                 {getPeriodInfo()?.nextThreePeriods?.map((item, index) => (
-                  // <div key={index} className="text-green-800 bg-green-200 px-6 py-1 rounded-md mb-2 text-[12px] w-[160px]">{item}</div>
                   <div className='bg-[#a5a5fe2d] rounded-[12px] h-[60px] w-[60px] flex items-center justify-center flex-col' key={index}>
                     <span className='text-black/80 text-[12px] font-poppinsMed'>{moment(item).format("DD")}</span>
                     <span className='text-black/80 text-[10px] uppercase font-poppinsMed'>{moment(item).format("MMM")}</span>
