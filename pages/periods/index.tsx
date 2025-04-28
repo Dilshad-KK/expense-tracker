@@ -15,7 +15,7 @@ type PeriodData = {
 export default function HomePage() {
   const [data, setData] = useState<PeriodData | null>(null);
   const [nextDate, setNextDate] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
