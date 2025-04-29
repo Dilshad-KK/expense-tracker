@@ -45,8 +45,8 @@ const Discussions = () => {
     return (
         <>
             <div className='flex justify-between'>
-                <h3 className='text-left mb-3 text-black text-[14px] font-poppinsBold'>Discussions</h3>
-                <Link href={"/alldiscussions"} className='text-left mb-3 text-[#4a99fb] text-[12px] font-poppinsMed cursor-pointer'>View All</Link>
+                <h3 className='text-left mb-4 text-black text-[16px] font-poppinsMed'>Discussions</h3>
+                <Link href={"/alldiscussions"} className='text-left mb-4 text-[#4a99fb] text-[12px] font-poppinsMed cursor-pointer'>View All</Link>
             </div>
             <div>
                 {
@@ -65,7 +65,7 @@ const Discussions = () => {
                                 {
                                     discussions.map((item, key) => (
                                         <div key={key}>
-                                            <Link href={`/alldiscussions/discdetails/${item?.id}`} className='bg-white px-4 py-4 mb-6 mx-1 rounded-[12px] flex justify-between'>
+                                            <Link href={`/alldiscussions/discdetails/${item?.id}`} className='bg-white px-4 py-4 mb-6 mx-1 rounded-[12px] flex justify-between border-[1px] border-solid border-[#cccccc5e]'>
                                                 <div className='flex items-center justify-center'>
                                                     <div className={`h-[40px] w-[40px] ${item?.user === 'Dilshad' ? 'bg-[#126581]' : 'bg-[#8e156a]'}  rounded-full flex items-center justify-center mr-4 flex-shrink-0`}>
                                                         <span className='text-[18px] text-white font-poppinsMed'>{item?.user === 'Dilshad' ? 'D' : 'S'}</span>

@@ -93,8 +93,8 @@ const Loans = () => {
     return (
         <>
             <div className='flex justify-between'>
-                <h3 className='text-left mb-3 text-black text-[14px] font-poppinsBold'>Loans</h3>
-                <Link href={"/allloans"} className='text-left mb-3 text-[#4a99fb] text-[12px] font-poppinsMed cursor-pointer'>View All</Link>
+                <h3 className='text-left mb-4 text-black text-[16px] font-poppinsMed'>Loans</h3>
+                <Link href={"/allloans"} className='text-left mb-4 text-[#4a99fb] text-[12px] font-poppinsMed cursor-pointer'>View All</Link>
             </div>
             <div>
                 {
@@ -112,7 +112,7 @@ const Loans = () => {
                                 {
                                     loans.map((loan, key) => (
                                         <div>
-                                            <Link href={`/allloans/loandetails/${loan.id}`} key={key} className='bg-white px-4 py-4 mb-6 mx-1 rounded-[12px] flex justify-between'>
+                                            <Link href={`/allloans/loandetails/${loan.id}`} key={key} className='bg-white px-4 py-4 mb-6 mx-1 rounded-[12px] flex justify-between border-[1px] border-solid border-[#cccccc5e]'>
                                                 <div className='flex items-center'>
                                                     <div className='bg-[#a5a5fe2d] rounded-[12px] h-[60px] w-[60px] flex items-center justify-center flex-col mr-4'>
                                                         <span className='text-black/80 text-[12px] font-poppinsMed'>{moment(loan?.date_started).format("DD")}</span>
