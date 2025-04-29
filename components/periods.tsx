@@ -80,7 +80,7 @@ const getPeriodInfo = () => {
     return (
         <>
             <div className='flex justify-between'>
-                <h3 className='text-left mb-3 text-black text-[14px] font-poppinsBold'>Menstrual Cycle</h3>
+                <h3 className='text-left mb-4 text-black text-[16px] font-poppinsMed'>Menstrual Cycle</h3>
             </div>
             <div>
                 {
@@ -96,15 +96,13 @@ const getPeriodInfo = () => {
                         <>
                             <Link
                                 href="/periods"
-                                className="relative mb-6 flex justify-between items-center w-full p-4 rounded-[8px] shadow-md overflow-hidden"
+                                className="relative mb-6 flex justify-between items-center w-full p-4 rounded-[8px] overflow-hidden bg-white px-4 py-4 border-[1px] border-solid border-[#cccccc5e]"
                             >
-                                <div className="absolute inset-0 bg-[url('/assets/period.jpg')] bg-cover bg-center z-0" />
 
-                                <div className="absolute inset-0 backdrop-blur-md bg-white/80 z-10" />
 
                                 <div className="relative z-20 text-black w-full">
                                     <div className='flex flex-row items-center justify-start'>
-                                        <div className='bg-[#fff7f7] border-[1px] border-solid border-[#f8d5d5f0] h-[50px] w-[50px] rounded-lg flex flex-row items-center justify-center mr-[16px]'>
+                                        <div className='bg-[#fcfbfb] border-[1px] border-solid border-[#fdefeff0] h-[50px] w-[50px] rounded-lg flex flex-row items-center justify-center mr-[16px]'>
                                             <MdWaterDrop className='text-[24px] text-[#fc3f3f]  animate-bounce' />
                                         </div>
                                         <div className='flex flex-col items-start justify-center'>

@@ -82,7 +82,7 @@ const Discussions = () => {
                                                                 <div className='bg-[#a7fac5] rounded-[12px] text-[8px] py-1 px-3 flex items-center justify-center uppercase text-[#345c42] font-poppinsMed'>{item?.status}</div>
                                                             }
                                                         </div>
-                                                        <div className='text-black/60 text-[12px] mt-[-3px]'>{item?.message?.slice(0, 25)}{item?.message?.length >= 25 ? <span className='text-[#050a1d8e] text-[10px]'>...</span> : ''}</div>
+                                                        <div className='text-black/60 text-[12px]'>{item?.message?.slice(0, 25)}{item?.message?.length >= 25 ? <span className='text-[#050a1d8e] text-[10px]'>...</span> : ''}</div>
                                                     </div>
                                                 </div>
                                             </Link>
