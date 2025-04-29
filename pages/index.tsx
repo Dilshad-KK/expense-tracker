@@ -93,7 +93,7 @@ const Home = () => {
             <div className='font-poppinsMed text-[12px] text-black/70 text-center'>LOANS</div>
           </Link>
         </div>
-        <div className='flex mb-8 justify-between'>
+        <div className='flex justify-between'>
           <Link className='flex items-center justify-center flex-col' href={"/alldiscussions"}>
             <div className='h-[60px] w-[60px] flex items-center justify-center bg-[#fbf0fa] mb-2 rounded-[14px]'>
               <HiOutlineChatBubbleBottomCenter className='text-[26px] text-[#560f5497]' />
@@ -119,6 +119,7 @@ const Home = () => {
             <div className='font-poppinsMed text-[12px] text-black/70 text-center'>SAVINGS</div>
           </Link>
         </div>
+        <div className="h-[1px] bg-[#cccccc4c] w-full my-8" />
         <Loans />
         <Discussions />
         {/* <Periods />  */}
