@@ -78,7 +78,7 @@ const getPeriodInfo = () => {
   };
 
     return (
-        <>
+        <div className='pb-[100px]'>
             <div className='flex justify-between'>
                 <h3 className='text-left mb-4 text-black text-[16px] font-poppinsMed'>Menstrual Cycle</h3>
             </div>
@@ -116,7 +116,7 @@ const getPeriodInfo = () => {
                         </>
                 }
             </div>
-        </>
+        </div>
     )
 }
 
