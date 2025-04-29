@@ -93,7 +93,7 @@ const Home = () => {
             <div className='font-poppinsMed text-[12px] text-black/70 text-center'>LOANS</div>
           </Link>
         </div>
-        <div className='flex mb-16 justify-between'>
+        <div className='flex mb-8 justify-between'>
           <Link className='flex items-center justify-center flex-col' href={"/alldiscussions"}>
             <div className='h-[60px] w-[60px] flex items-center justify-center bg-[#fbf0fa] mb-2 rounded-[14px]'>
               <HiOutlineChatBubbleBottomCenter className='text-[26px] text-[#560f5497]' />
