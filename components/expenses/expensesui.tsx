@@ -118,7 +118,7 @@ export default function ExpensesUi(props: UserType) {
     setClosingBalance(parseFloat(cbalance.toFixed(2)));
   }
 
-  
+
 
   return (
     <div className="bg-[#ffffff]">
@@ -143,57 +143,51 @@ export default function ExpensesUi(props: UserType) {
 
           :
           expenses?.length > 0 ?
-            Object?.keys(grouped)?.map(item => (
-              <>
-                <div className="mb-4 px-4 py-3 rounded-[4px] flex items-center justify-between border-solid border-[1px] 
+            <>
+              <div className="mb-4 px-4 py-3 rounded-[4px] flex items-center justify-between border-solid border-[1px] 
                 border-[#ddddf6] bg-[#f4f4fa]">
-                  <div>
-                    <div className="text-[12px] text-black/70 font-poppinsMed mb-1">Total Expense</div>
-                    <div className="text-[10px] text-black/60">{currency}&nbsp;{totalExpense}</div>
-                  </div>
-                  <div>
-                    <div className="text-[12px] text-black/70 font-poppinsMed mb-1">Total Deposit</div>
-                    <div className="text-[10px] text-black/60">{currency}&nbsp;{totalDeposit}</div>
-                  </div>
-                  <div>
-                    <div className="text-[12px] text-black/70 font-poppinsMed mb-1">Closing Balance</div>
-                    <div className="text-[10px] text-black/60">{currency}&nbsp;{closingBalance}</div>
-                  </div>
-                  {/* <table className="table table-xs mb-4">
-                    <tbody>
-                      <tr>
-                        <th className="text-[8px] text-[#000000d3] border-solid border-[1px] border-[#c6c6fc]">Total Expense : {totalExpense}</th>
-                        <th className="text-[8px] text-[#000000] border-solid border-[1px] border-[#c6c6fc]">Total Deposit : {totalDeposit}</th>
-                        <th className="text-[8px] text-[#000000] border-solid border-[1px] border-[#c6c6fc]">Closing Balance : {closingBalance}</th>
-                      </tr>
-                    </tbody>
-                  </table> */}
+                <div>
+                  <div className="text-[12px] text-black/70 font-poppinsMed mb-1">Total Expense</div>
+                  <div className="text-[10px] text-black/60">{currency}&nbsp;{totalExpense}</div>
                 </div>
-                <div className="text-black/80 font-poppinsMed text-[14px] mb-3">
-                  {item}
+                <div>
+                  <div className="text-[12px] text-black/70 font-poppinsMed mb-1">Total Deposit</div>
+                  <div className="text-[10px] text-black/60">{currency}&nbsp;{totalDeposit}</div>
                 </div>
+                <div>
+                  <div className="text-[12px] text-black/70 font-poppinsMed mb-1">Closing Balance</div>
+                  <div className="text-[10px] text-black/60">{currency}&nbsp;{closingBalance}</div>
+                </div>
+              </div>
+              {Object?.keys(grouped)?.map(item => (
+                <>
 
-                {grouped[item]?.map(item => (
-                  <Link href={`${detailshref}${item?.id}`} className="mb-4 flex items-center">
-                    <div className="flex flex-col items-center justify-start bg-white w-[30px] ml-[-4px] mr-3">
-                      <span className="text-[12px] text-black/70">{moment(item?.created_at).format("MMM")}</span>
-                      <span className="text-[12px] text-black/70">{moment(item?.created_at).format("DD")}</span>
-                    </div>
-                    <div className="bg-[#e9f7ed] p-3 mr-3 flex-shrink-0">
-                      <img src={getCategoryIcon(item?.note)} className="h-[20px] opacity-70" />
-                    </div>
-                    <div className="max-w-[200px]">
-                      <div className="text-black/70 text-[12px] mb-1">{item?.note}</div>
-                      <div className="text-black/50 text-[10px]">{item?.type}</div>
-                    </div>
-                    <div className="flex flex-1 items-end justify-center flex-col flex-shrink-0">
-                      <div className={`text-[8px] font-poppinsMed ${item?.type === 'Withdrawal' ? 'text-[#e7632b]' : 'text-[#1b987b]'}`}>{item?.type === 'Withdrawal' ? 'You Paid' : 'You Received'}</div>
-                      <div className={`text-[12px] font-poppinsMed ${item?.type === 'Withdrawal' ? 'text-[#e7632b]' : 'text-[#1b987b]'}`}>{currency}&nbsp;{item?.amount}</div>
-                    </div>
-                  </Link>
-                ))}
-              </>
-            ))
+                  <div className="text-black/80 font-poppinsMed text-[14px] mb-3">
+                    {item}
+                  </div>
+
+                  {grouped[item]?.map(item => (
+                    <Link href={`${detailshref}${item?.id}`} className="mb-4 flex items-center">
+                      <div className="flex flex-col items-center justify-start bg-white w-[30px] ml-[-4px] mr-3">
+                        <span className="text-[12px] text-black/70">{moment(item?.created_at).format("MMM")}</span>
+                        <span className="text-[12px] text-black/70">{moment(item?.created_at).format("DD")}</span>
+                      </div>
+                      <div className="bg-[#e9f7ed] p-3 mr-3 flex-shrink-0">
+                        <img src={getCategoryIcon(item?.note)} className="h-[20px] opacity-70" />
+                      </div>
+                      <div className="max-w-[200px]">
+                        <div className="text-black/70 text-[12px] mb-1">{item?.note}</div>
+                        <div className="text-black/50 text-[10px]">{item?.type}</div>
+                      </div>
+                      <div className="flex flex-1 items-end justify-center flex-col flex-shrink-0">
+                        <div className={`text-[8px] font-poppinsMed ${item?.type === 'Withdrawal' ? 'text-[#e7632b]' : 'text-[#1b987b]'}`}>{item?.type === 'Withdrawal' ? 'You Paid' : 'You Received'}</div>
+                        <div className={`text-[12px] font-poppinsMed ${item?.type === 'Withdrawal' ? 'text-[#e7632b]' : 'text-[#1b987b]'}`}>{currency}&nbsp;{item?.amount}</div>
+                      </div>
+                    </Link>
+                  ))}
+                </>
+              ))}
+            </>
             :
             <div className="flex items-center justify-center mt-16 text-gray-400 flex-col">
               <img src="/assets/empty.png" className="h-[70px] mb-4" />
