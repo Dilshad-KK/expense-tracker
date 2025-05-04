@@ -5,7 +5,7 @@ import { PiBankLight } from "react-icons/pi";
 import { HiOutlineChatBubbleBottomCenter } from "react-icons/hi2";
 import { IoIosFemale } from "react-icons/io";
 import { BsGraphUp } from "react-icons/bs";
-
+import { PiListPlusLight } from "react-icons/pi";
 
 const Categories = () => {
     return (
@@ -50,11 +50,11 @@ const Categories = () => {
                     </div>
                     <div className='font-poppinsMed text-[12px] text-black/70 text-center'>PERIODS</div>
                 </Link>
-                <Link className='flex items-center justify-center flex-col' href="/">
-                    <div className='h-[60px] w-[60px] flex items-center justify-center bg-[#edf2fa] mb-2 rounded-[14px]'>
-                        <BsGraphUp className='text-[26px] text-[#6ea2f7]' />
+                <Link className='flex items-center justify-center flex-col' href="/checklist">
+                    <div className='h-[60px] w-[60px] flex items-center justify-center bg-[#ecf1fb] mb-2 rounded-[14px]'>
+                        <PiListPlusLight className='text-[26px] text-[#4b8ffc]' />
                     </div>
-                    <div className='font-poppinsMed text-[12px] text-black/70 text-center'>BUDGET</div>
+                    <div className='font-poppinsMed text-[12px] text-black/70 text-center'>CHECKLISTS</div>
                 </Link>
                 <Link className='flex items-center justify-center flex-col' href={"/"}>
                     <div className='h-[60px] w-[60px] flex items-center justify-center bg-[#ecfbea] mb-2 rounded-[14px]'>

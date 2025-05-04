@@ -13,18 +13,31 @@ type ExpenseEntry = {
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === "GET") {
-    // Fetch expenses
-      const { id } = req.query;
-      let query = supabase
-        .from("ibuexpenses")
-        .select("*")
-        .order("created_at", { ascending: false })
-      if (id) {
-        query = query.eq("id", id)
-      }
-      const { data, error } = await query;
+    const { id, filter } = req.query;
+
+    let query = supabase
+      .from("ibuexpenses")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    // Filter by ID (if provided)
+    if (id) {
+      query = query.eq("id", id);
+    }
+
+    // Filter by date (if filter param is provided)
+    if (filter === "thisMonth") {
+      const startOfMonth = moment().startOf("month").toISOString();
+      query = query.gte("created_at", startOfMonth);
+    } else if (filter === "last3Months") {
+      const threeMonthsAgo = moment().subtract(3, "months").startOf("day").toISOString();
+      query = query.gte("created_at", threeMonthsAgo);
+    }
+
+    const { data, error } = await query;
 
     if (error) return res.status(500).json({ error: error.message });
+
     const grouped: Record<string, ExpenseEntry[]> = {};
 
     data.forEach((entry) => {
@@ -38,7 +51,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         note: entry.note,
         type: entry.type,
         balance: entry.balance,
-        created_at: entry.created_at
+        created_at: entry.created_at,
       });
     });
 

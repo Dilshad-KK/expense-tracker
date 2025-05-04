@@ -22,8 +22,6 @@ interface UserType {
 
 type GroupedExpenses = Record<string, Expense[]>;
 
-
-
 export default function ExpensesUi(props: UserType) {
 
   const [expenses, setExpenses] = useState<Expense[]>([]);
@@ -32,6 +30,7 @@ export default function ExpensesUi(props: UserType) {
   const [totalExpense, setTotalExpense] = useState(0);
   const [totalDeposit, setTotalDeposit] = useState(0);
   const [closingBalance, setClosingBalance] = useState(0);
+  // const [active, setActive] = useState("All");
 
   let apiPath = '';
   let formTitle = '';
@@ -62,12 +61,12 @@ export default function ExpensesUi(props: UserType) {
   }
 
   useEffect(() => {
-    fetchExpenses();
+    fetchExpenses("all");
   }, []);
 
-  async function fetchExpenses() {
+  async function fetchExpenses(option: string) {
     setLoading(true);
-    const res = await fetch(apiPath);
+    const res = await fetch(`${apiPath}?filter=${option}`);
     const result = await res.json();
     const data = Object.values(result.grouped).flat() as Expense[];
     setGrouped(result.grouped)
@@ -77,6 +76,14 @@ export default function ExpensesUi(props: UserType) {
     setClosingBalances(data);
     setLoading(false);
   }
+
+  // const handleFilter = (option: string) => {
+  //   setActive(option);
+  //   let optionString = "all";
+  //   option === "Last Three Months" ? optionString = "last3Months" :
+  //     option === "This Month" ? optionString = "thisMonth" : option === "all"
+  //   fetchExpenses(optionString)
+  // }
 
   function setTotalExpenses(expenses: Expense[]) {
     let total = 0
@@ -142,10 +149,17 @@ export default function ExpensesUi(props: UserType) {
           ))
 
           :
+
           expenses?.length > 0 ?
             <>
-              <div className="mb-4 px-4 py-3 rounded-[4px] flex items-center justify-between border-solid border-[1px] 
-                border-[#ddddf6] bg-[#f4f4fa]">
+              {/* <div className="flex justify-center items-center w-full mb-6">
+                {["All", "This Month", "Last Three Months"]?.map((option: string) => (
+                  <div className={`${option === active ? 'bg-[#514cff] text-white' : 'bg-slate-200 text-black/70'} mx-2  py-2 px-4 rounded-[12px] text-[12px] `}
+                    onClick={() => { handleFilter(option) }}>{option}</div>
+                ))}
+              </div> */}
+              <div className="mb-8 px-4 py-3 rounded-[4px] flex items-center justify-between border-solid border-[1px] 
+                border-[#ddddf6] bg-[#ffffff]">
                 <div>
                   <div className="text-[12px] text-black/70 font-poppinsMed mb-1">Total Expense</div>
                   <div className="text-[10px] text-black/60">{currency}&nbsp;{totalExpense}</div>
@@ -160,9 +174,9 @@ export default function ExpensesUi(props: UserType) {
                 </div>
               </div>
               {Object?.keys(grouped)?.map(item => (
-                <>
+                <div className="mb-6">
 
-                  <div className="text-black/80 font-poppinsMed text-[14px] mb-3">
+                  <div className="text-black/80 font-poppinsMed text-[14px] mb-4">
                     {item}
                   </div>
 
@@ -185,7 +199,7 @@ export default function ExpensesUi(props: UserType) {
                       </div>
                     </Link>
                   ))}
-                </>
+                </div>
               ))}
             </>
             :
