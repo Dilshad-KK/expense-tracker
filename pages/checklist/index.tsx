@@ -4,7 +4,7 @@ import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 import { FaPlus } from "react-icons/fa6";
 import { IoMdCheckmark } from "react-icons/io";
-
+import { MdOutlineDeleteOutline } from "react-icons/md";
 
 interface Checklist {
     id: number,
@@ -55,6 +55,7 @@ const CheckList = () => {
     const [checklist, setChecklist] = useState<Checklist[]>([]);
     const [active, setActive] = useState("");
     const [options, setOptions] = useState<string[]>([])
+    const [showSuccessMessage, setShowSuccessMessage] = useState("");
 
     async function fetchChecklist(user: string) {
         setLoading(true);
@@ -70,7 +71,7 @@ const CheckList = () => {
         }
     }
 
-    const handleUpdateChecklist = async (key: number, checked: boolean, id: number) => {
+    const handleUpdateChecklist = async (key: number, checked: boolean, id: number, user : string) => {
         try {
             setCheckActiveKey(key);
             setCheckLoading(true);
@@ -94,11 +95,13 @@ const CheckList = () => {
             }
             const response = await fetch('/api/checklist');
             const data: Checklist[] = await response.json();
-            setChecklist(data);
+            setChecklist(data?.filter(item => item?.user === user));
             setCheckLoading(false);
+            setCheckActiveKey(-1);
         } catch (err) {
             console.error("Unexpected error:", err);
             setCheckLoading(false);
+            setCheckActiveKey(-1);
         }
     };
 
@@ -110,7 +113,27 @@ const CheckList = () => {
 
 
 
+    const handleDelete = async (id: number, key: number, user: string) => {
+        setCheckLoading(true);
+        setCheckActiveKey(key);
+        const response = await fetch(`/api/checklist?id=${id}`, {
+            method: "DELETE",
+        });
 
+        const data = await response.json();
+        console.log(data);
+
+        if (response.ok) {
+            fetchChecklist(user)
+            setCheckLoading(false);
+            setCheckActiveKey(-1);
+            setShowSuccessMessage("Item Deleted Successfully...!");
+        } else {
+            alert(`Error: ${data.error}`);
+            setCheckLoading(false);
+            setCheckActiveKey(-1);
+        }
+    }
 
 
 
@@ -152,7 +175,7 @@ const CheckList = () => {
                                                 <span className='text-black/80 text-[8px] uppercase font-poppinsMed'>{moment(item?.created_at).format("YYYY")}</span>
                                             </div>
                                             <div className='flex flex-grow flex-col items-start justify-center'>
-                                                <div className='text-base text-black/80 mb-2'>
+                                                <div className='text-[14px] text-black/80 mb-2'>
                                                     {item?.title}
                                                 </div>
                                                 <div className={`${item?.priority === 'low' ? 'text-[#27ca63] bg-[#f2faf5] '
@@ -164,11 +187,14 @@ const CheckList = () => {
                                             <div className='flex items-center justify-end w-[50px]'>
                                                 <div className={`${item?.checked ? 'bg-green-400' : 'bg-white border-[1px] border-solid border-[#4ade80]'} h-[30px] w-[30px] rounded-full flex items-center justify-center cursor-pointer`}
                                                     onClick={() => {
-                                                        handleUpdateChecklist(key, !item?.checked, item?.id)
+                                                        handleUpdateChecklist(key, !item?.checked, item?.id , item?.user)
                                                     }}
                                                 >
                                                     {checkeLoading && ckeckActiveKey === key ? <span className={`loading loading-ring loading-md ${item?.checked ? 'text-white' : ''}`}></span> : item?.checked ? <IoMdCheckmark className='text-white' /> : null}
                                                 </div>
+                                            </div>
+                                            <div className='flex items-center justify-end w-[40px]'>
+                                                <MdOutlineDeleteOutline className='text-[26px] text-[#f99a9a] cursor-pointer' onClick={() => { handleDelete(item?.id, key, item?.user) }} />
                                             </div>
                                         </div>
                                     ))
@@ -187,7 +213,7 @@ const CheckList = () => {
                                                 <span className='text-black/80 text-[8px] uppercase font-poppinsMed'>{moment(item?.created_at).format("YYYY")}</span>
                                             </div>
                                             <div className='flex flex-grow flex-col items-start justify-center'>
-                                                <div className='text-base text-black/80 mb-2'>
+                                                <div className='text-[14px] text-black/80 mb-2'>
                                                     {item?.title}
                                                 </div>
                                                 <div className={`${item?.priority === 'low' ? 'text-[#27ca63] bg-[#f2faf5] '
@@ -199,11 +225,14 @@ const CheckList = () => {
                                             <div className='flex items-center justify-end w-[50px]'>
                                                 <div className={`${item?.checked ? 'bg-green-400' : 'bg-white border-[1px] border-solid border-[#4ade80]'} h-[30px] w-[30px] rounded-full flex items-center justify-center cursor-pointer`}
                                                     onClick={() => {
-                                                        handleUpdateChecklist(key, !item?.checked, item?.id)
+                                                        handleUpdateChecklist(key, !item?.checked, item?.id, item?.user)
                                                     }}
                                                 >
                                                     {checkeLoading && ckeckActiveKey === key ? <span className={`loading loading-ring loading-md ${item?.checked ? 'text-white' : ''}`}></span> : item?.checked ? <IoMdCheckmark className='text-white' /> : null}
                                                 </div>
+                                            </div>
+                                            <div className='flex items-center justify-end w-[40px]'>
+                                                <MdOutlineDeleteOutline className='text-[26px] text-[#f99a9a] cursor-pointer' onClick={() => { handleDelete(item?.id, key, item?.user) }} />
                                             </div>
                                         </div>
                                     ))
