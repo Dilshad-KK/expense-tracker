@@ -71,7 +71,7 @@ const CheckList = () => {
         }
     }
 
-    const handleUpdateChecklist = async (key: number, checked: boolean, id: number, user : string) => {
+    const handleUpdateChecklist = async (key: number, checked: boolean, id: number, user: string) => {
         try {
             setCheckActiveKey(key);
             setCheckLoading(true);
@@ -175,19 +175,19 @@ const CheckList = () => {
                                                 <span className='text-black/80 text-[8px] uppercase font-poppinsMed'>{moment(item?.created_at).format("YYYY")}</span>
                                             </div>
                                             <div className='flex flex-grow flex-col items-start justify-center'>
-                                                <div className='text-[14px] text-black/80 mb-2'>
+                                                <div className='text-[12px] text-black/80 mb-2'>
                                                     {item?.title}
                                                 </div>
                                                 <div className={`${item?.priority === 'low' ? 'text-[#27ca63] bg-[#f2faf5] '
                                                     : item?.priority === 'medium' ? 'text-[#ca9c27] bg-[#f8f5eb]'
-                                                        : 'text-[#ca3227] bg-[#fdf8f8]'} text-[12px] rounded-[4px] px-2 py-1`}>
+                                                        : 'text-[#ca3227] bg-[#fdf8f8]'} text-[10px] rounded-[4px] px-2 py-1`}>
                                                     {item?.priority === 'low' ? 'Low' : item?.priority === 'medium' ? 'Medium' : 'High'}
                                                 </div>
                                             </div>
                                             <div className='flex items-center justify-end w-[50px]'>
                                                 <div className={`${item?.checked ? 'bg-green-400' : 'bg-white border-[1px] border-solid border-[#4ade80]'} h-[30px] w-[30px] rounded-full flex items-center justify-center cursor-pointer`}
                                                     onClick={() => {
-                                                        handleUpdateChecklist(key, !item?.checked, item?.id , item?.user)
+                                                        handleUpdateChecklist(key, !item?.checked, item?.id, item?.user)
                                                     }}
                                                 >
                                                     {checkeLoading && ckeckActiveKey === key ? <span className={`loading loading-ring loading-md ${item?.checked ? 'text-white' : ''}`}></span> : item?.checked ? <IoMdCheckmark className='text-white' /> : null}
@@ -213,12 +213,12 @@ const CheckList = () => {
                                                 <span className='text-black/80 text-[8px] uppercase font-poppinsMed'>{moment(item?.created_at).format("YYYY")}</span>
                                             </div>
                                             <div className='flex flex-grow flex-col items-start justify-center'>
-                                                <div className='text-[14px] text-black/80 mb-2'>
+                                                <div className='text-[12px] text-black/80 mb-2'>
                                                     {item?.title}
                                                 </div>
                                                 <div className={`${item?.priority === 'low' ? 'text-[#27ca63] bg-[#f2faf5] '
                                                     : item?.priority === 'medium' ? 'text-[#ca9c27] bg-[#f8f5eb]'
-                                                        : 'text-[#ca3227] bg-[#fdf8f8]'} text-[12px] rounded-[4px] px-2 py-1`}>
+                                                        : 'text-[#ca3227] bg-[#fdf8f8]'} text-[10px] rounded-[4px] px-2 py-1`}>
                                                     {item?.priority === 'low' ? 'Low' : item?.priority === 'medium' ? 'Medium' : 'High'}
                                                 </div>
                                             </div>
