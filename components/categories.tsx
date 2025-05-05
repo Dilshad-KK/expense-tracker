@@ -4,7 +4,7 @@ import { CiReceipt } from "react-icons/ci";
 import { PiBankLight } from "react-icons/pi";
 import { HiOutlineChatBubbleBottomCenter } from "react-icons/hi2";
 import { IoIosFemale } from "react-icons/io";
-import { BsGraphUp } from "react-icons/bs";
+import { BsGem } from "react-icons/bs";
 import { PiListPlusLight } from "react-icons/pi";
 
 const Categories = () => {
@@ -56,11 +56,11 @@ const Categories = () => {
                     </div>
                     <div className='font-poppinsMed text-[12px] text-black/70 text-center'>CHECKLISTS</div>
                 </Link>
-                <Link className='flex items-center justify-center flex-col' href={"/"}>
-                    <div className='h-[60px] w-[60px] flex items-center justify-center bg-[#ecfbea] mb-2 rounded-[14px]'>
-                        <PiBankLight className='text-[26px] text-[#269018]' />
+                <Link className='flex items-center justify-center flex-col' href={"/milestones"}>
+                    <div className='h-[60px] w-[60px] flex items-center justify-center bg-[#f3f9f2] mb-2 rounded-[14px]'>
+                        <BsGem className='text-[26px] text-[#98e88d]' />
                     </div>
-                    <div className='font-poppinsMed text-[12px] text-black/70 text-center'>SAVINGS</div>
+                    <div className='font-poppinsMed text-[12px] text-black/70 text-center'>MILESTONES</div>
                 </Link>
             </div>
         </>
