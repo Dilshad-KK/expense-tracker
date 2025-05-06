@@ -148,7 +148,7 @@ const CheckList = () => {
                                 <span className='text-black/80 text-[8px] uppercase font-poppinsMed'>{moment(item?.created_at).format("YYYY")}</span>
                             </div> */}
                             <div className='flex flex-grow flex-col items-start justify-center'>
-                                <div className='text-[12px] text-black/80 mb-2'>
+                                <div className='text-[12px] text-black/70 mb-3'>
                                     {item?.title}
                                 </div>
                                 <div className='flex'>
@@ -157,25 +157,25 @@ const CheckList = () => {
                                             : 'text-[#ca3227] bg-[#fdf8f8]'} text-[10px] rounded-[4px] px-2 py-1 mr-3`}>
                                         {item?.priority === 'low' ? 'Low' : item?.priority === 'medium' ? 'Medium' : 'High'}
                                     </div>
-                                    <div className='bg-[#a5a5a512] flex items-center justify-center px-3 py-1 rounded-[4px] text-black/60 '>
-                                            <span className='text-[10px] mr-1'>{moment(item?.created_at).format("DD")}</span>
-                                            <span className='text-[10px] mr-1'>{moment(item?.created_at).format("MMM")}</span>
-                                            <span className='text-[10px] mr-1'>{moment(item?.created_at).format("YYYY")}</span>
+                                    <div className='bg-[#a5a5a512] flex items-center justify-center px-3 py-1 rounded-[4px] text-black/60 mr-3'>
+                                        <span className='text-[10px] mr-1'>{moment(item?.created_at).format("DD")}</span>
+                                        <span className='text-[10px] mr-1'>{moment(item?.created_at).format("MMM")}</span>
+                                        <span className='text-[10px] mr-1'>{moment(item?.created_at).format("YYYY")}</span>
+                                    </div>
+                                    <div className='bg-[#fdf8f8] text-[10px] flex items-center justify-center px-3 py-1 rounded-[4px] text-[#ca3227] cursor-pointer' onClick={() => { handleDelete(item?.id, key, item?.user) }}>
+                                        Delete
                                     </div>
                                 </div>
 
                             </div>
                             <div className='flex items-center justify-end w-[50px] flex-shrink-0'>
-                                <div className={`${item?.checked ? 'bg-green-400' : 'bg-white border-[1px] border-solid border-[#4ade80]'} h-[30px] w-[30px] rounded-full flex items-center justify-center cursor-pointer`}
+                                <div className={`${item?.checked ? 'bg-green-400' : 'bg-white border-[1px] border-solid border-[#4ade80]'} h-[20px] w-[20px] rounded-full flex items-center justify-center cursor-pointer`}
                                     onClick={() => {
                                         handleUpdateChecklist(key, !item?.checked, item?.id, item?.user)
                                     }}
                                 >
                                     {checkeLoading && ckeckActiveKey === String(item?.id) ? <span className={`loading loading-ring loading-md ${item?.checked ? 'text-white' : ''}`}></span> : item?.checked ? <IoMdCheckmark className='text-white' /> : null}
                                 </div>
-                            </div>
-                            <div className='flex items-center justify-end w-[40px] flex-shrink-0'>
-                                <MdOutlineDeleteOutline className='text-[26px] text-[#f99a9a] cursor-pointer' onClick={() => { handleDelete(item?.id, key, item?.user) }} />
                             </div>
                         </div>
                     ))
