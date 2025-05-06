@@ -142,20 +142,28 @@ const CheckList = () => {
                     checklist?.filter(item => checked ? item?.checked === true : item?.checked === false).map?.((item, key) => (
 
                         <div key={key} className='bg-white px-4 py-4 my-3 rounded-[12px] flex justify-between items-center'>
-                            <div className='bg-[#a5a5fe2d] rounded-[12px] h-[60px] w-[60px] flex items-center justify-center flex-col mr-4 flex-shrink-0'>
+                            {/* <div className='bg-[#a5a5fe2d] rounded-[12px] h-[60px] w-[60px] flex items-center justify-center flex-col mr-4 flex-shrink-0'>
                                 <span className='text-black/80 text-[12px] font-poppinsMed'>{moment(item?.created_at).format("DD")}</span>
                                 <span className='text-black/80 text-[10px] uppercase font-poppinsMed'>{moment(item?.created_at).format("MMM")}</span>
                                 <span className='text-black/80 text-[8px] uppercase font-poppinsMed'>{moment(item?.created_at).format("YYYY")}</span>
-                            </div>
+                            </div> */}
                             <div className='flex flex-grow flex-col items-start justify-center'>
                                 <div className='text-[12px] text-black/80 mb-2'>
                                     {item?.title}
                                 </div>
-                                <div className={`${item?.priority === 'low' ? 'text-[#27ca63] bg-[#f2faf5] '
-                                    : item?.priority === 'medium' ? 'text-[#ca9c27] bg-[#f8f5eb]'
-                                        : 'text-[#ca3227] bg-[#fdf8f8]'} text-[10px] rounded-[4px] px-2 py-1`}>
-                                    {item?.priority === 'low' ? 'Low' : item?.priority === 'medium' ? 'Medium' : 'High'}
+                                <div className='flex'>
+                                    <div className={`${item?.priority === 'low' ? 'text-[#27ca63] bg-[#f2faf5] '
+                                        : item?.priority === 'medium' ? 'text-[#ca9c27] bg-[#f8f5eb]'
+                                            : 'text-[#ca3227] bg-[#fdf8f8]'} text-[10px] rounded-[4px] px-2 py-1 mr-3`}>
+                                        {item?.priority === 'low' ? 'Low' : item?.priority === 'medium' ? 'Medium' : 'High'}
+                                    </div>
+                                    <div className='bg-[#a5a5a512] flex items-center justify-center px-3 py-1 rounded-[4px] text-black/60 '>
+                                            <span className='text-[10px] mr-1'>{moment(item?.created_at).format("DD")}</span>
+                                            <span className='text-[10px] mr-1'>{moment(item?.created_at).format("MMM")}</span>
+                                            <span className='text-[10px] mr-1'>{moment(item?.created_at).format("YYYY")}</span>
+                                    </div>
                                 </div>
+
                             </div>
                             <div className='flex items-center justify-end w-[50px] flex-shrink-0'>
                                 <div className={`${item?.checked ? 'bg-green-400' : 'bg-white border-[1px] border-solid border-[#4ade80]'} h-[30px] w-[30px] rounded-full flex items-center justify-center cursor-pointer`}
