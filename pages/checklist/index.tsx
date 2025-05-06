@@ -188,7 +188,7 @@ const CheckList = () => {
 
     return (
         <div className='bg-[#e8e8fd] min-h-screen relative'>
-            <CommonHeader title="Checklist" />
+            <CommonHeader title="CHECKLIST" />
             <div className='px-4 pt-4 pb-[150px]'>
                 {loading || options?.length === 0 ?
                     <div>
@@ -206,7 +206,7 @@ const CheckList = () => {
                     <>
                         <div className="flex justify-center items-center w-full mb-6 mt-3">
                             {options?.length ? options?.map((option: string) => (
-                                <div className={`${option === active ? 'bg-[#514cff] text-white' : 'bg-[#ecf1f9] text-black/70 border border-solid border-[#8bb7fc]'} mx-2  py-2 px-4 rounded-[8px] text-[12px] `}
+                                <div className={`${option === active ? 'bg-[#514cff] text-white' : 'bg-[#ffffff91] text-black/80 border border-solid border-[#d3e2f9]'} mx-2  py-2 px-4 rounded-[8px] text-[12px] `}
                                     onClick={() => { handleFilter(option) }}>{option}</div>
                             )) : null}
                         </div>

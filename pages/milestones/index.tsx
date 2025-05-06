@@ -1,5 +1,7 @@
 import CommonHeader from '@/components/commonHeader'
-import React from 'react'
+import React from 'react';
+import { FiPlus } from "react-icons/fi";
+import { FiMinus } from "react-icons/fi";
 
 const Milestones = () => {
     const TaskItems = [
@@ -12,21 +14,38 @@ const Milestones = () => {
         <div className="bg-[#e8e8fd] min-h-screen relative">
             <CommonHeader title='MILESTONES' />
             <div className='px-4 pt-8 pb-[150px]'>
-                <div className='flex items-center justify-center mb-8'>
+                {/* <div className='flex items-center justify-center mb-8'>
                     <div className='mx-2 text-[12px] bg-[#f1f3fc21] border border-solid border-[#bdc9fa] px-3 py-[6px] rounded-[18px] text-black/70'>THIS WEEK</div>
                     <div className='mx-2 text-[12px] bg-[#2747c9] border border-solid border-[#bdc9fa] px-3 py-[6px] rounded-[18px] text-[#f1f3fc] font-poppinsMed'>TODAY</div>
                     <div className='mx-2 text-[12px] bg-[#f1f3fc21] border border-solid border-[#bdc9fa] px-3 py-[6px] rounded-[18px] text-black/70'>THIS MONTH</div>
+                </div> */}
+                <div className='flex items-center justify-center mb-4'>
+                    <progress className="progress progress-success w-100 bg-white mr-2" value="70" max="100"></progress>
+                    <span className='text-[10px] text-black/70'>60%</span>
                 </div>
                 {
                     TaskItems?.map((item) => (
-                        <div className='flex items-center justify-between bg-[#ffffff73] mb-2 px-3 py-2 rounded-[12px]'>
-                            <div className='text-black/60'>{item?.title}</div>
-                            <div className='flex flex-col items-end'>
+                        <div className='flex items-center justify-between bg-[#fffffffa] mb-2 px-3 py-2 rounded-[12px]'>
+                            <div className='flex items-center'> 
                                 <div>
-                                    <span className={`text-[14px] text-[#${item?.color}]`}>{item?.current}/</span>
-                                    <span className={`text-[14px] text-[#${item?.color}] opacity-50`}>{item?.total}</span></div>
-                                <div className='text-[12px]'>{item?.unit}</div>
+                                    <FiMinus className='' style={{ color: `#${item?.color}` }} />
+                                </div>
+                                <div className='text-black/60 text-[12px] ml-3'>{item?.title}</div>
                             </div>
+                            <div className='flex items-center'>
+                                <div className='flex flex-col items-end mr-3'>
+                                    <div>
+                                        <span className='text-[12px]' style={{ color: `#${item.color}` }}>{item?.current}/</span>
+                                        <span className='text-[12px] opacity-70' style={{ color: `#${item.color}` }}>{item?.total}</span>
+                                    </div>
+                                    <div className='text-[10px]'>{item?.unit}</div>
+                                </div>
+                                <div>
+                                    <FiPlus className='' style={{ color: `#${item?.color}` }} />
+                                </div>
+                            </div>
+
+
                         </div>
                     ))
                 }

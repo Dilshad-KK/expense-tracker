@@ -9,7 +9,7 @@ const CommonHeader = (props:{title:string}) => {
             <div className='absolute left-[32px] z-[1000]'>
                 <GoBack />
             </div>
-            <span className='text-white z-[2000] font-semibold text-[18px]'>{props.title}</span>
+            <span className='text-white z-[2000] font-semibold text-[16px]'>{props.title}</span>
         </div>
     )
 }
