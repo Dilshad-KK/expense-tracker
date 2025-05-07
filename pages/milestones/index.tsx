@@ -157,7 +157,30 @@ const Milestones = () => {
 
         }
         else {
-            value = habitLogs?.filter(item => item?.habit_id === habit_id)[0]?.value ? habitLogs?.filter(item => item?.habit_id === habit_id)[0]?.value - 1 : 0
+            if (total > 10) {
+                if (value - 10 < 0) {
+                    value = 0
+                }
+                else {
+                    value -= 10
+                }
+            }
+            else if (total > 5) {
+                if (value - 5 < 0) {
+                    value = 0
+                }
+                else {
+                    value -= 5
+                }
+            }
+            else {
+                if (value - 1 < 0) {
+                    value = 0
+                }
+                else {
+                    value -= 1
+                }
+            }
         }
 
         const response = await fetch("/api/habitlogs", {
