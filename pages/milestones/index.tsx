@@ -20,8 +20,8 @@ interface HabitLogs {
     user_id: string,
 }
 
-interface Tasks extends Habits{
-    current:number
+interface Tasks extends Habits {
+    current: number
 }
 
 const Milestones = () => {
@@ -70,13 +70,6 @@ const Milestones = () => {
         fetchHabitLogs(user);
     }, []);
 
-    const initialTasks = [
-        { title: "Drink Water", total: 0, current: 0, color: '2747c9', unit: "litres" },
-        { title: "Prayers", total: 0, current: 0, color: '00b894', unit: "times" },
-        { title: "Bath", total: 0, current: 0, color: 'd63031', unit: "times" },
-        { title: "Exercise", total: 0, current: 0, color: 'fdcb6e', unit: "mins" },
-    ];
-
     const colors = [
         "2747c9", "00b894", "d63031", "fdcb6e"
     ]
@@ -101,8 +94,8 @@ const Milestones = () => {
     //     tasks.reduce((sum, t) => sum + t.current / t.total, 0) / tasks.length * 100
     // );
 
-    const getLogValue =(id:string)=>{
-        return habitLogs?.filter(item=> item?.habit_id === id)[0]?.value
+    const getLogValue = (id: string) => {
+        return habitLogs?.filter(item => item?.habit_id === id)[0]?.value ? habitLogs?.filter(item => item?.habit_id === id)[0]?.value : 0
     }
 
     async function fetchHabits(option: string) {
@@ -133,25 +126,51 @@ const Milestones = () => {
         }
     }
 
-    async function logHabit(habit_id: string, op: string) {
+    async function logHabit(habit_id: string, op: string, total: number) {
         setLoading(true);
-        let value = 0;
-        if(op === 'inc'){
-            value = habitLogs?.filter(item=> item?.habit_id === habit_id)[0]?.value + 1
+        let value = habitLogs?.filter(item => item?.habit_id === habit_id)[0]?.value || 0;
+        if (op === 'inc') {
+            if (total > 10) {
+                if (value + 10 > total) {
+                    value = total
+                }
+                else {
+                    value += 10
+                }
+            }
+            else if (total > 5) {
+                if (value + 5 > total) {
+                    value = total
+                }
+                else {
+                    value += 5
+                }
+            }
+            else {
+                if (value + 1 > total) {
+                    value = total
+                }
+                else {
+                    value += 1
+                }
+            }
+
         }
-        else{
-            value = habitLogs?.filter(item=> item?.habit_id === habit_id)[0]?.value - 1
+        else {
+            value = habitLogs?.filter(item => item?.habit_id === habit_id)[0]?.value ? habitLogs?.filter(item => item?.habit_id === habit_id)[0]?.value - 1 : 0
         }
-        
+
         const response = await fetch("/api/habitlogs", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ habit_id, value , user_id: user })
+            body: JSON.stringify({ habit_id, value, user_id: user })
         });
 
         const data = await response.json();
-        console.log(data);
-        fetchHabitLogs(user);
+        console.log(data?.data);
+        if (data?.data?.length) {
+            fetchHabitLogs(user);
+        }
         setLoading(false)
     }
 
@@ -172,7 +191,7 @@ const Milestones = () => {
                     <div key={item.title} className='flex items-center justify-between bg-white shadow-sm mb-3 px-4 py-3 rounded-xl'>
                         <div className='flex items-center space-x-3'>
                             <button
-                                onClick={() => logHabit(item?.id,'dec')}
+                                onClick={() => logHabit(item?.id, 'dec', item?.total)}
                             >
                                 <FiMinus size={14} style={{ color: `#${colors[idx % colors?.length]}` }} />
                             </button>
@@ -192,7 +211,7 @@ const Milestones = () => {
                                 <div className='text-[10px] text-black/50'>{item.unit}</div>
                             </div>
                             <button
-                                onClick={() => logHabit(item?.id,'inc')}
+                                onClick={() => logHabit(item?.id, 'inc', item?.total)}
                             >
                                 <FiPlus size={14} style={{ color: `#${colors[idx % colors?.length]}` }} />
                             </button>

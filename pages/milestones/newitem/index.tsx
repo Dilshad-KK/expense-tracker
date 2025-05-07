@@ -53,7 +53,7 @@ const NewItem = () => {
         if (response.ok) {
             setShowSuccessMessage("Item Added Successfully...!");
             setTitle("");
-            setUnit("");
+            setUnit("times");
             setTotal(0);
             setLoading(false);
             setTimeout(() => {

@@ -20,7 +20,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (req.method === "POST") {
         const { habit_id, value, user_id } = req.body;
 
-        if (!habit_id || !value || !user_id) {
+        if (!habit_id || value < 0 || !user_id) {
             return res.status(400).json({ error: "habit_id, value & user_id are required" });
         }
 
@@ -32,10 +32,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             .eq("user_id", user_id)
             .single(); // `.single()` ensures only one record is returned
 
-        if (fetchError) {
-            return res.status(500).json({ error: fetchError.message });
-        }
-
         if (existingHabitLog) {
             // If the log exists, update the record
             const { data: updatedHabitLogsData, error: updateError } = await supabase
@@ -46,22 +42,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 .select("*");
 
             if (updateError) {
-                return res.status(500).json({ error: updateError.message });
+                return res.status(500).json({ error: updateError.message+"here" });
             }
 
-            return res.status(200).json({ message: "habitLogs log item updated", updatedHabitLogsData });
+            return res.status(200).json({ message: "habitLogs log item updated", data:updatedHabitLogsData });
         } else {
             // If the log doesn't exist, insert a new record
             const { data: habitLogsData, error: insertError } = await supabase
                 .from("habit_logs")
                 .insert([{ habit_id, log_date: moment().format('YYYY-MM-DD'), value, user_id }])
-                .select();
+                .select("*");
 
             if (insertError) {
-                return res.status(500).json({ error: insertError.message });
+                return res.status(500).json({ error: insertError.message+"tesy"});
             }
 
-            return res.status(201).json({ message: "habitLogs log item added", habitLogsData });
+            return res.status(201).json({ message: "habitLogs log item added", data:habitLogsData });
         }
     }
 
