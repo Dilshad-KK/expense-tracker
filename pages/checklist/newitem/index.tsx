@@ -60,7 +60,7 @@ const NewItem = () => {
         const response = await fetch('/api/checklist', {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ title, priority, user , checked:false }),
+            body: JSON.stringify({ title, priority, user, checked: false }),
         });
 
         const data = await response.json();
@@ -92,11 +92,19 @@ const NewItem = () => {
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
                     />
-                    <select className="text-black/60 text-base select border-[1px] border-solid border-[#d3d3fe] w-full bg-[#f3f3fd] text-[12px] placeholder:text-[12px]"
+                    <select className="text-black/60 mb-2 text-base select border-[1px] border-solid border-[#d3d3fe] w-full bg-[#f3f3fd] text-[12px] placeholder:text-[12px]"
                         value={priority} onChange={(e) => setPriority(e.target.value)}>
                         <option value="high">High</option>
                         <option value="medium">Medium</option>
                         <option value="low">Low</option>
+                    </select>
+                    <select className="text-black/60 text-base select border-[1px] border-solid border-[#d3d3fe] w-full bg-[#f3f3fd] text-[12px] placeholder:text-[12px]"
+                        value={user} onChange={(e) => setUser(e.target.value)}>
+                        {user === "Shifa Dilshad" ? <option value="Shifa Dilshad">Shifa Dilshad</option> :
+                            <option value="Dilshad">Dilshad</option>}
+                        {user === "Shifa Dilshad" ? <option value="Dilshad">Dilshad</option> :
+                            <option value="Shifa Dilshad">Shifa Dilshad</option>}
+                        <option value="Vacation">Vacation</option>
                     </select>
 
 

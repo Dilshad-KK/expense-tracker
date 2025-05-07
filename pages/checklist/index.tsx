@@ -23,10 +23,10 @@ const CheckList = () => {
         if (cachedUser) {
             if (cachedUser === "Dilshad") {
                 setActive("Dilshad");
-                setOptions(["Dilshad", "Shifa Dilshad"])
+                setOptions(["Dilshad", "Shifa Dilshad" , "Vacation"])
             } else {
                 setActive("Shifa Dilshad");
-                setOptions(["Shifa Dilshad", "Dilshad"])
+                setOptions(["Shifa Dilshad", "Dilshad" , "Vacation"])
             }
             fetchChecklist(cachedUser);
             return;
@@ -38,11 +38,11 @@ const CheckList = () => {
         if (timezone.includes("Asia/Dubai")) {
             user = "Dilshad";
             setActive("Dilshad");
-            setOptions(["Dilshad", "Shifa Dilshad"])
+            setOptions(["Dilshad", "Shifa Dilshad" , "Vacation"])
         } else {
             user = "Shifa Dilshad";
             setActive("Shifa Dilshad");
-            setOptions(["Shifa Dilshad", "Dilshad"])
+            setOptions(["Shifa Dilshad", "Dilshad" , "Vacation"])
         }
 
         localStorage.setItem("userIdentity", user);
@@ -57,13 +57,13 @@ const CheckList = () => {
     const [options, setOptions] = useState<string[]>([])
     const [showSuccessMessage, setShowSuccessMessage] = useState("");
 
-    async function fetchChecklist(user: string) {
+    async function fetchChecklist(option: string) {
         setLoading(true);
 
         try {
             const res = await fetch('/api/checklist');
             const data: Checklist[] = await res.json();
-            setChecklist(data?.filter(item => item?.user === user));
+            setChecklist(data?.filter(item => item?.user === option));
         } catch (error) {
             console.error("Error fetching discussions:", error);
         } finally {
