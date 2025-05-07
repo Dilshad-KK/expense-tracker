@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { FiPlus, FiMinus } from "react-icons/fi";
 import Link from 'next/link';
 import { FaPlus } from "react-icons/fa6";
+import moment from 'moment';
 
 interface Habits {
     id: string,
@@ -33,7 +34,7 @@ const Milestones = () => {
     const [active, setActive] = useState("");
     const [options, setOptions] = useState<string[]>([])
     const [user, setUser] = useState("");
-    const [date,setDate] = useState(new Date().toISOString().split("T")[0]);
+    const [date,setDate] = useState(moment().format('YYYY-MM-DD'));
 
 
     useEffect(() => {
@@ -104,7 +105,7 @@ const Milestones = () => {
     async function fetchHabitLogs(option: string) {
         setLoading(true);
         try {
-            const logs = await fetch(`/api/habitlogs?user_id=${option}&&date=${new Date().toISOString().split("T")[0]}`);
+            const logs = await fetch(`/api/habitlogs?user_id=${option}&&date=${moment().format('YYYY-MM-DD')}`);
             const logData: HabitLogs[] = await logs.json();
             setHabitLogs(logData);
 
@@ -202,14 +203,14 @@ const Milestones = () => {
                 )) : null}
             </div>
             <div className='px-4 pt-8 pb-[200px]'>
-                <div className='flex items-center justify-center mb-6'>
+                {totalProgress >= 0 ? <div className='flex items-center justify-center mb-6'>
                     <div className="flex-1">
                         <div className="w-full h-2 bg-white rounded-full overflow-hidden">
                             <div className="h-full bg-green-500" style={{ width: `${totalProgress}%` }} />
                         </div>
                     </div>
                     <span className='text-[10px] text-black/70 ml-2'>{totalProgress}%</span>
-                </div>
+                </div> : null}
 
                 {habits.map((item, idx) => (
                     <div className='relative shadow-sm mb-3  h-[60px]'>
