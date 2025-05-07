@@ -4,7 +4,6 @@ import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 import { FaPlus } from "react-icons/fa6";
 import { IoMdCheckmark } from "react-icons/io";
-import { MdOutlineDeleteOutline } from "react-icons/md";
 
 interface Checklist {
     id: number,
