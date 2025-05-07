@@ -91,6 +91,7 @@ const NewItem = () => {
                         <option value="minutes">Minutes</option>
                         <option value="hours">Hours</option>
                         <option value="litres">Litres</option>
+                        <option value="day">Day</option>
                     </select>
 
 

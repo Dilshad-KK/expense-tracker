@@ -90,9 +90,13 @@ const Milestones = () => {
     //     });
     // };
 
-    // const totalProgress = Math.floor(
-    //     tasks.reduce((sum, t) => sum + t.current / t.total, 0) / tasks.length * 100
-    // );
+    const totalProgress = Math.floor(
+        habits.reduce((sum, t) => {
+            const log = habitLogs?.find(item => item?.habit_id === t.id);
+            const value = log?.value ?? 0; // use 0 if no log found
+            return sum + value / t.total;
+        }, 0) / habits.length * 100
+    );
 
     const getLogValue = (id: string) => {
         return habitLogs?.filter(item => item?.habit_id === id)[0]?.value ? habitLogs?.filter(item => item?.habit_id === id)[0]?.value : 0
@@ -200,46 +204,51 @@ const Milestones = () => {
     return (
         <div className="bg-[#e8e8fd] min-h-screen relative">
             <CommonHeader title='MILESTONES' />
-            <div className='px-4 pt-8 pb-[150px]'>
-                {/* <div className='flex items-center justify-center mb-6'>
+            <div className='px-4 pt-8 pb-[200px]'>
+                <div className='flex items-center justify-center mb-6'>
                     <div className="flex-1">
                         <div className="w-full h-2 bg-white rounded-full overflow-hidden">
                             <div className="h-full bg-green-500" style={{ width: `${totalProgress}%` }} />
                         </div>
                     </div>
                     <span className='text-[10px] text-black/70 ml-2'>{totalProgress}%</span>
-                </div> */}
+                </div>
 
                 {habits.map((item, idx) => (
-                    <div key={item.title} className='flex items-center justify-between bg-white shadow-sm mb-3 px-4 py-3 rounded-xl'>
-                        <div className='flex items-center space-x-3'>
-                            <button
-                                onClick={() => logHabit(item?.id, 'dec', item?.total)}
-                            >
-                                <FiMinus size={14} style={{ color: `#${colors[idx % colors?.length]}` }} />
-                            </button>
-                            <div className='text-black/70 text-[12px]'>{item.title}</div>
-                        </div>
-
-                        <div className='flex items-center space-x-3'>
-                            <div className='text-right'>
-                                <div>
-                                    <span className='text-[12px] font-medium' style={{ color: `#${colors[idx % colors?.length]}` }}>
-                                        {getLogValue(item?.id)}
-                                    </span>
-                                    <span className='text-[12px] opacity-50' style={{ color: `#${colors[idx % colors?.length]}` }}>
-                                        /{item.total}
-                                    </span>
-                                </div>
-                                <div className='text-[10px] text-black/50'>{item.unit}</div>
+                    <div className='relative shadow-sm mb-3  h-[60px]'>
+                        <div key={item.title} className='flex absolute px-4 py-3 rounded-xl bg-white inset-0 items-center justify-between z-[100]'>
+                            <div className='flex items-center space-x-3'>
+                                <button
+                                    onClick={() => logHabit(item?.id, 'dec', item?.total)}
+                                >
+                                    <FiMinus size={14} style={{ color: `#${colors[idx % colors?.length]}` }} />
+                                </button>
+                                <div className='text-black/70 text-[12px]'>{item.title}</div>
                             </div>
-                            <button
-                                onClick={() => logHabit(item?.id, 'inc', item?.total)}
-                            >
-                                <FiPlus size={14} style={{ color: `#${colors[idx % colors?.length]}` }} />
-                            </button>
+
+                            <div className='flex items-center space-x-3'>
+                                <div className='text-right'>
+                                    <div>
+                                        <span className='text-[12px] font-medium' style={{ color: `#${colors[idx % colors?.length]}` }}>
+                                            {getLogValue(item?.id)}
+                                        </span>
+                                        <span className='text-[12px] opacity-50' style={{ color: `#${colors[idx % colors?.length]}` }}>
+                                            /{item.total}
+                                        </span>
+                                    </div>
+                                    <div className='text-[10px] text-black/50'>{item.unit}</div>
+                                </div>
+                                <button
+                                    onClick={() => logHabit(item?.id, 'inc', item?.total)}
+                                >
+                                    <FiPlus size={14} style={{ color: `#${colors[idx % colors?.length]}` }} />
+                                </button>
+                            </div>
                         </div>
+                        <div className='absolute bottom-[-3px] right-0 left-0 rounded-xl  opacity-[100%] h-[50px] z-[99]'
+                            style={{ backgroundColor: `#${colors[idx % colors?.length]}`, width: `${getLogValue(item?.id) / item?.total * 100}%` }}></div>
                     </div>
+
                 ))}
             </div>
             <Link href={"/milestones/newitem"} className='fixed z-[2000] right-8 bottom-28 bg-[#514cff] h-[50px] w-[50px] rounded-full flex items-center justify-center cursor-pointer'>
