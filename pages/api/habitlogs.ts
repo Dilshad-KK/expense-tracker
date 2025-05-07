@@ -4,10 +4,11 @@ import moment from "moment";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     if (req.method === "GET") {
-        const { user_id } = req.query;
+        const { user_id , date} = req.query;
         let query = supabase
             .from("habit_logs")
             .select("*")
+            .eq("log_date", date);
         if (user_id) {
             query = query.eq("user_id", user_id)
         }

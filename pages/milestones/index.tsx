@@ -33,6 +33,7 @@ const Milestones = () => {
     const [active, setActive] = useState("");
     const [options, setOptions] = useState<string[]>([])
     const [user, setUser] = useState("");
+    const [date,setDate] = useState(new Date().toISOString().split("T")[0]);
 
 
     useEffect(() => {
@@ -103,7 +104,7 @@ const Milestones = () => {
     async function fetchHabitLogs(option: string) {
         setLoading(true);
         try {
-            const logs = await fetch(`/api/habitlogs?user_id=${option}`);
+            const logs = await fetch(`/api/habitlogs?user_id=${option}&&date=${new Date().toISOString().split("T")[0]}`);
             const logData: HabitLogs[] = await logs.json();
             setHabitLogs(logData);
 
