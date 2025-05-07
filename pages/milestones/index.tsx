@@ -74,22 +74,6 @@ const Milestones = () => {
         "2747c9", "00b894", "d63031", "fdcb6e"
     ]
 
-
-
-    // const handleUpdate = (index: any, type: any) => {
-    //     setTasks(prev => {
-    //         return prev.map((task, i) => {
-    //             if (i === index) {
-    //                 const updated = { ...task };
-    //                 if (type === 'inc' && updated.current < updated.total) updated.current += 1;
-    //                 if (type === 'dec' && updated.current > 0) updated.current -= 1;
-    //                 return updated;
-    //             }
-    //             return task;
-    //         });
-    //     });
-    // };
-
     const totalProgress = Math.floor(
         habits.reduce((sum, t) => {
             const log = habitLogs?.find(item => item?.habit_id === t.id);
@@ -190,20 +174,32 @@ const Milestones = () => {
         const response = await fetch("/api/habitlogs", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ habit_id, value, user_id: user })
+            body: JSON.stringify({ habit_id, value, user_id: active })
         });
 
         const data = await response.json();
         console.log(data?.data);
         if (data?.data?.length) {
-            fetchHabitLogs(user);
+            fetchHabitLogs(active);
         }
         setLoading(false)
+    }
+
+    const handleFilter = (option: string) => {
+        setActive(option)
+        fetchHabits(option)
+        fetchHabitLogs(option)
     }
 
     return (
         <div className="bg-[#e8e8fd] min-h-screen relative">
             <CommonHeader title='MILESTONES' />
+            <div className="flex justify-center items-center w-full  mt-8">
+                {options?.length ? options?.map((option: string) => (
+                    <div className={`${option === active ? 'bg-[#514cff] text-white' : 'bg-[#ffffff91] text-black/80 border border-solid border-[#d3e2f9]'} mx-2  py-2 px-4 rounded-[8px] text-[12px] `}
+                        onClick={() => { handleFilter(option) }}>{option}</div>
+                )) : null}
+            </div>
             <div className='px-4 pt-8 pb-[200px]'>
                 <div className='flex items-center justify-center mb-6'>
                     <div className="flex-1">
@@ -245,7 +241,7 @@ const Milestones = () => {
                                 </button>
                             </div>
                         </div>
-                        <div className='absolute bottom-[-3px] right-0 left-0 rounded-xl  opacity-[100%] h-[50px] z-[99]'
+                        <div className='absolute bottom-[-3px] right-0 left-0 rounded-xl  opacity-[70%] h-[50px] z-[99]'
                             style={{ backgroundColor: `#${colors[idx % colors?.length]}`, width: `${getLogValue(item?.id) / item?.total * 100}%` }}></div>
                     </div>
 
