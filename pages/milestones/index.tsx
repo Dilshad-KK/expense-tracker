@@ -35,6 +35,9 @@ const Milestones = () => {
     const [options, setOptions] = useState<string[]>([])
     const [user, setUser] = useState("");
     const [date, setDate] = useState(moment().format('YYYY-MM-DD'));
+    const [incLoading, setIncLoading] = useState(false);
+    const [decLoading, setDecLoading] = useState(false);
+    const [activeHabitKey, setActiveHabitKey] = useState('');
 
 
     useEffect(() => {
@@ -117,9 +120,10 @@ const Milestones = () => {
     }
 
     async function logHabit(habit_id: string, op: string, total: number) {
-        setLoading(true);
         let value = habitLogs?.filter(item => item?.habit_id === habit_id)[0]?.value || 0;
         if (op === 'inc') {
+            setIncLoading(true);
+            setActiveHabitKey(habit_id);
             if (total > 10) {
                 if (value + 10 > total) {
                     value = total
@@ -147,6 +151,8 @@ const Milestones = () => {
 
         }
         else {
+            setDecLoading(true);
+            setActiveHabitKey(habit_id);
             if (total > 10) {
                 if (value - 10 < 0) {
                     value = 0
@@ -182,7 +188,10 @@ const Milestones = () => {
         const data = await response.json();
         console.log(data?.data);
         if (data?.data?.length) {
-            fetchHabitLogs(active);
+            await fetchHabitLogs(active);
+            setIncLoading(false);
+            setDecLoading(false);
+            setActiveHabitKey('');
         }
         setLoading(false)
     }
@@ -218,7 +227,8 @@ const Milestones = () => {
                             <div className='flex items-center space-x-3 h-full'>
                                 <div className='h-full w-[40px] cursor-pointer flex items-center justify-center relative'
                                     onClick={() => logHabit(item?.id, 'dec', item?.total)}>
-                                    <FiMinus className='absolute' size={14} style={{ color: `#${colors[idx % colors?.length]}` }} />
+                                    {decLoading && activeHabitKey === String(item?.id) ?
+                                        <span className={`loading loading-ring loading-md`} style={{ color: `#${colors[idx % colors?.length]}` }}></span> : <FiMinus className='absolute' size={14} style={{ color: `#${colors[idx % colors?.length]}` }} />}
                                     <div className='absolute inset-0 rounded-l-xl opacity-[4%]' style={{ backgroundColor: `#${colors[idx % colors?.length]}` }}></div>
                                 </div>
                                 <div className='text-black/70 text-[12px]'>{item.title}</div>
@@ -238,7 +248,11 @@ const Milestones = () => {
                                 </div>
                                 <div className='h-full w-[40px] cursor-pointer flex items-center justify-center relative'
                                     onClick={() => logHabit(item?.id, 'inc', item?.total)}>
-                                    <FiPlus className='absolute' size={14} style={{ color: `#${colors[idx % colors?.length]}` }} />
+                                    {
+                                        incLoading && activeHabitKey === String(item?.id) ?
+                                            <span className={`loading loading-ring loading-md`} style={{ color: `#${colors[idx % colors?.length]}` }}></span> :
+                                            <FiPlus className='absolute' size={14} style={{ color: `#${colors[idx % colors?.length]}` }} />
+                                    }
                                     <div className='absolute inset-0 rounded-r-xl opacity-[4%]' style={{ backgroundColor: `#${colors[idx % colors?.length]}` }}></div>
                                 </div>
                             </div>
