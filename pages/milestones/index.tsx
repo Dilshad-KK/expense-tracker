@@ -1,5 +1,5 @@
 import CommonHeader from '@/components/commonHeader';
-import React, { act, useEffect, useState } from 'react';
+import React, {  useEffect, useState } from 'react';
 import { FiPlus, FiMinus } from "react-icons/fi";
 import Link from 'next/link';
 import { FaPlus } from "react-icons/fa6";
@@ -106,7 +106,6 @@ const Milestones = () => {
     }
 
     async function fetchHabitLogs(option: string, date: Moment) {
-        setLoading(true);
         try {
             const logs = await fetch(`/api/habitlogs?user_id=${option}&&date=${moment(date).format('YYYY-MM-DD')}`);
             const logData: HabitLogs[] = await logs.json();
@@ -115,7 +114,6 @@ const Milestones = () => {
         } catch (error) {
             console.error("Error fetching Habit Logs:", error);
         } finally {
-            setLoading(false);
         }
     }
 
@@ -182,13 +180,13 @@ const Milestones = () => {
         const response = await fetch("/api/habitlogs", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ habit_id, value, user_id: active })
+            body: JSON.stringify({ habit_id, value, user_id: active , date : activeDate.format('YYYY-MM-DD') })
         });
 
         const data = await response.json();
         console.log(data?.data);
         if (data?.data?.length) {
-            await fetchHabitLogs(active, moment());
+            await fetchHabitLogs(active, activeDate);
             setIncLoading(false);
             setDecLoading(false);
             setActiveHabitKey('');

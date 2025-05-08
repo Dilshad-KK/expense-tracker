@@ -19,9 +19,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     if (req.method === "POST") {
-        const { habit_id, value, user_id } = req.body;
+        const { habit_id, value, user_id ,date} = req.body;
 
-        if (!habit_id || value < 0 || !user_id) {
+        if (!habit_id || value < 0 || !user_id || !date) {
             return res.status(400).json({ error: "habit_id, value & user_id are required" });
         }
 
@@ -31,13 +31,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             .select("*")
             .eq("habit_id", habit_id)
             .eq("user_id", user_id)
+            .eq("log_date",date)
             .single(); // `.single()` ensures only one record is returned
 
         if (existingHabitLog) {
             // If the log exists, update the record
             const { data: updatedHabitLogsData, error: updateError } = await supabase
                 .from("habit_logs")
-                .update({ value, log_date: moment().format('YYYY-MM-DD') })  // Update with new value and log date
+                .update({ value, log_date: date })  // Update with new value and log date
                 .eq("habit_id", habit_id)
                 .eq("user_id", user_id)
                 .select("*");
@@ -51,7 +52,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             // If the log doesn't exist, insert a new record
             const { data: habitLogsData, error: insertError } = await supabase
                 .from("habit_logs")
-                .insert([{ habit_id, log_date: moment().format('YYYY-MM-DD'), value, user_id }])
+                .insert([{ habit_id, log_date: date , value, user_id }])
                 .select("*");
 
             if (insertError) {
