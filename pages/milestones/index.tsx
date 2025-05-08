@@ -1,9 +1,9 @@
 import CommonHeader from '@/components/commonHeader';
-import React, { useEffect, useState } from 'react';
+import React, { act, useEffect, useState } from 'react';
 import { FiPlus, FiMinus } from "react-icons/fi";
 import Link from 'next/link';
 import { FaPlus } from "react-icons/fa6";
-import moment from 'moment';
+import moment, { Moment } from 'moment';
 
 interface Habits {
     id: string,
@@ -34,10 +34,10 @@ const Milestones = () => {
     const [active, setActive] = useState("");
     const [options, setOptions] = useState<string[]>([])
     const [user, setUser] = useState("");
-    const [date, setDate] = useState(moment().format('YYYY-MM-DD'));
     const [incLoading, setIncLoading] = useState(false);
     const [decLoading, setDecLoading] = useState(false);
     const [activeHabitKey, setActiveHabitKey] = useState('');
+    const [activeDate, setActiveDate] = useState(moment())
 
 
     useEffect(() => {
@@ -53,7 +53,7 @@ const Milestones = () => {
             }
             setUser(cachedUser);
             fetchHabits(cachedUser);
-            fetchHabitLogs(cachedUser);
+            fetchHabitLogs(cachedUser, moment());
             return;
         }
 
@@ -72,7 +72,7 @@ const Milestones = () => {
         setUser(user);
         localStorage.setItem("userIdentity", user);
         fetchHabits(user);
-        fetchHabitLogs(user);
+        fetchHabitLogs(user, moment());
     }, []);
 
     const colors = [
@@ -105,10 +105,10 @@ const Milestones = () => {
         }
     }
 
-    async function fetchHabitLogs(option: string) {
+    async function fetchHabitLogs(option: string, date: Moment) {
         setLoading(true);
         try {
-            const logs = await fetch(`/api/habitlogs?user_id=${option}&&date=${moment().format('YYYY-MM-DD')}`);
+            const logs = await fetch(`/api/habitlogs?user_id=${option}&&date=${moment(date).format('YYYY-MM-DD')}`);
             const logData: HabitLogs[] = await logs.json();
             setHabitLogs(logData);
 
@@ -188,7 +188,7 @@ const Milestones = () => {
         const data = await response.json();
         console.log(data?.data);
         if (data?.data?.length) {
-            await fetchHabitLogs(active);
+            await fetchHabitLogs(active, moment());
             setIncLoading(false);
             setDecLoading(false);
             setActiveHabitKey('');
@@ -199,18 +199,44 @@ const Milestones = () => {
     const handleFilter = (option: string) => {
         setActive(option)
         fetchHabits(option)
-        fetchHabitLogs(option)
+        fetchHabitLogs(option, moment())
+        setActiveDate(moment());
+    }
+
+    const days = Array.from({ length: 4 }, (_, i) =>
+        moment().subtract(3, 'days').add(i, 'days')
+    );
+
+    const handleDateChange = async (day: Moment) => {
+        setLoading(true);
+        setActiveDate(day);
+        await fetchHabitLogs(active, day);
+        setLoading(false);
     }
 
     return (
         <div className="bg-[#e8e8fd] min-h-screen relative">
             <CommonHeader title='MILESTONES' />
-            <div className="flex justify-center items-center w-full  mt-8">
+            <div className="flex justify-center items-center w-full  my-8">
                 {options?.length ? options?.map((option: string) => (
                     <div className={`${option === active ? 'bg-[#514cff] text-white' : 'bg-[#ffffff91] text-black/80 border border-solid border-[#d3e2f9]'} mx-2  py-2 px-4 rounded-[8px] text-[12px] `}
                         onClick={() => { handleFilter(option) }}>{option}</div>
                 )) : null}
             </div>
+            <div className='flex items-center justify-center'>
+                {days.map((day, idx) => (
+                    <div className='flex flex-col items-center justify-center'>
+                        <div className='text-[12px] mb-2 text-black/90'>{day.format("ddd")}</div>
+                        <div key={idx} className={`${day.isSame(activeDate, 'day') ? 'bg-[#514cff]' : 'bg-white'}
+                             h-[40px] w-[40px] mx-2 rounded-full flex items-center justify-center cursor-pointer`} onClick={() => {
+                                handleDateChange(day)
+                            }}>
+                            <div className={`text-[12px] ${day.isSame(activeDate, 'day') ? 'text-[#ffffff]' : 'text-black'}`}>{day.format("D")}</div>       {/* Day of month like 7, 8, 9 */}
+                        </div>
+                    </div>
+                ))}
+            </div>
+
             <div className='px-4 pt-8 pb-[200px]'>
                 {totalProgress >= 0 ? <div className='flex items-center justify-center mb-6'>
                     <div className="flex-1">
@@ -221,47 +247,63 @@ const Milestones = () => {
                     <span className='text-[10px] text-black/70 ml-2'>{totalProgress}%</span>
                 </div> : null}
 
-                {habits.map((item, idx) => (
-                    <div className='relative shadow-sm mb-3  h-[60px]'>
-                        <div key={item.title} className='flex absolute rounded-xl bg-white inset-0 items-center justify-between z-[100]'>
-                            <div className='flex items-center space-x-3 h-full'>
-                                <div className='h-full w-[40px] cursor-pointer flex items-center justify-center relative'
-                                    onClick={() => logHabit(item?.id, 'dec', item?.total)}>
-                                    {decLoading && activeHabitKey === String(item?.id) ?
-                                        <span className={`loading loading-ring loading-md`} style={{ color: `#${colors[idx % colors?.length]}` }}></span> : <FiMinus className='absolute' size={14} style={{ color: `#${colors[idx % colors?.length]}` }} />}
-                                    <div className='absolute inset-0 rounded-l-xl opacity-[4%]' style={{ backgroundColor: `#${colors[idx % colors?.length]}` }}></div>
+                {loading ?
+                    <div>
+                        {[1, 2, 3, 4]?.map((key) => (
+                            <div className="h-[50px] w-[100%] bg-white px-4 py-4 my-3 rounded-[12px] flex" key={key}>
+                                <div className='w-full'>
+                                    <div className="skeleton h-2 w-[100%] bg-[#d6d6fc] mb-2"></div>
+                                    <div className="skeleton h-2 w-[100%] bg-[#d6d6fc]"></div>
                                 </div>
-                                <div className='text-black/70 text-[12px]'>{item.title}</div>
                             </div>
+                        ))}
+                    </div> :
 
-                            <div className='flex items-center space-x-3 h-full'>
-                                <div className='text-right'>
-                                    <div>
-                                        <span className='text-[12px] font-medium' style={{ color: `#${colors[idx % colors?.length]}` }}>
-                                            {getLogValue(item?.id)}
-                                        </span>
-                                        <span className='text-[12px] opacity-50' style={{ color: `#${colors[idx % colors?.length]}` }}>
-                                            /{item.total}
-                                        </span>
+                    habits.map((item, idx) => (
+                        <div className='relative shadow-sm mb-3  h-[60px]'>
+                            <div key={item.title} className='flex absolute rounded-xl bg-white inset-0 items-center justify-between z-[100]'>
+                                <div className='flex items-center space-x-3 h-full'>
+                                    <div className='h-full w-[40px] cursor-pointer flex items-center justify-center relative'
+                                        onClick={() => logHabit(item?.id, 'dec', item?.total)}>
+                                        {decLoading && activeHabitKey === String(item?.id) ?
+                                            <span className={`loading loading-ring loading-md`} style={{ color: `#${colors[idx % colors?.length]}` }}></span> : <FiMinus className='absolute' size={14} style={{ color: `#${colors[idx % colors?.length]}` }} />}
+                                        <div className='absolute inset-0 rounded-l-xl opacity-[4%]' style={{ backgroundColor: `#${colors[idx % colors?.length]}` }}></div>
                                     </div>
-                                    <div className='text-[10px] text-black/50'>{item.unit}</div>
+                                    <div className='text-black/70 text-[12px]'>{item.title}</div>
                                 </div>
-                                <div className='h-full w-[40px] cursor-pointer flex items-center justify-center relative'
-                                    onClick={() => logHabit(item?.id, 'inc', item?.total)}>
-                                    {
-                                        incLoading && activeHabitKey === String(item?.id) ?
-                                            <span className={`loading loading-ring loading-md`} style={{ color: `#${colors[idx % colors?.length]}` }}></span> :
-                                            <FiPlus className='absolute' size={14} style={{ color: `#${colors[idx % colors?.length]}` }} />
-                                    }
-                                    <div className='absolute inset-0 rounded-r-xl opacity-[4%]' style={{ backgroundColor: `#${colors[idx % colors?.length]}` }}></div>
+
+                                <div className='flex items-center space-x-3 h-full'>
+                                    <div className='text-right'>
+                                        <div>
+                                            <span className='text-[12px] font-medium' style={{ color: `#${colors[idx % colors?.length]}` }}>
+                                                {getLogValue(item?.id)}
+                                            </span>
+                                            <span className='text-[12px] opacity-50' style={{ color: `#${colors[idx % colors?.length]}` }}>
+                                                /{item.total}
+                                            </span>
+                                        </div>
+                                        <div className='text-[10px] text-black/50'>{item.unit}</div>
+                                    </div>
+                                    <div className='h-full w-[40px] cursor-pointer flex items-center justify-center relative'
+                                        onClick={() => logHabit(item?.id, 'inc', item?.total)}>
+                                        {
+                                            incLoading && activeHabitKey === String(item?.id) ?
+                                                <span className={`loading loading-ring loading-md`} style={{ color: `#${colors[idx % colors?.length]}` }}></span> :
+                                                <FiPlus className='absolute' size={14} style={{ color: `#${colors[idx % colors?.length]}` }} />
+                                        }
+                                        <div className='absolute inset-0 rounded-r-xl opacity-[4%]' style={{ backgroundColor: `#${colors[idx % colors?.length]}` }}></div>
+                                    </div>
                                 </div>
                             </div>
+                            <div className='absolute bottom-[-3px] right-0 left-0 rounded-xl  opacity-[70%] h-[50px] z-[99]'
+                                style={{ backgroundColor: `#${colors[idx % colors?.length]}`, width: `${getLogValue(item?.id) / item?.total * 100}%` }}></div>
                         </div>
-                        <div className='absolute bottom-[-3px] right-0 left-0 rounded-xl  opacity-[70%] h-[50px] z-[99]'
-                            style={{ backgroundColor: `#${colors[idx % colors?.length]}`, width: `${getLogValue(item?.id) / item?.total * 100}%` }}></div>
-                    </div>
 
-                ))}
+                    ))
+
+                }
+
+                { }
             </div>
             <Link href={"/milestones/newitem"} className='fixed z-[2000] right-8 bottom-28 bg-[#514cff] h-[50px] w-[50px] rounded-full flex items-center justify-center cursor-pointer'>
                 <FaPlus className='text-white text-base' />
