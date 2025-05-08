@@ -34,7 +34,7 @@ const Milestones = () => {
     const [active, setActive] = useState("");
     const [options, setOptions] = useState<string[]>([])
     const [user, setUser] = useState("");
-    const [date,setDate] = useState(moment().format('YYYY-MM-DD'));
+    const [date, setDate] = useState(moment().format('YYYY-MM-DD'));
 
 
     useEffect(() => {
@@ -214,17 +214,17 @@ const Milestones = () => {
 
                 {habits.map((item, idx) => (
                     <div className='relative shadow-sm mb-3  h-[60px]'>
-                        <div key={item.title} className='flex absolute px-4 py-3 rounded-xl bg-white inset-0 items-center justify-between z-[100]'>
-                            <div className='flex items-center space-x-3'>
-                                <button
-                                    onClick={() => logHabit(item?.id, 'dec', item?.total)}
-                                >
-                                    <FiMinus size={14} style={{ color: `#${colors[idx % colors?.length]}` }} />
-                                </button>
+                        <div key={item.title} className='flex absolute rounded-xl bg-white inset-0 items-center justify-between z-[100]'>
+                            <div className='flex items-center space-x-3 h-full'>
+                                <div className='h-full w-[40px] cursor-pointer flex items-center justify-center relative'
+                                    onClick={() => logHabit(item?.id, 'dec', item?.total)}>
+                                    <FiMinus className='absolute' size={14} style={{ color: `#${colors[idx % colors?.length]}` }} />
+                                    <div className='absolute inset-0 rounded-l-xl opacity-[4%]' style={{ backgroundColor: `#${colors[idx % colors?.length]}` }}></div>
+                                </div>
                                 <div className='text-black/70 text-[12px]'>{item.title}</div>
                             </div>
 
-                            <div className='flex items-center space-x-3'>
+                            <div className='flex items-center space-x-3 h-full'>
                                 <div className='text-right'>
                                     <div>
                                         <span className='text-[12px] font-medium' style={{ color: `#${colors[idx % colors?.length]}` }}>
@@ -236,11 +236,11 @@ const Milestones = () => {
                                     </div>
                                     <div className='text-[10px] text-black/50'>{item.unit}</div>
                                 </div>
-                                <button
-                                    onClick={() => logHabit(item?.id, 'inc', item?.total)}
-                                >
-                                    <FiPlus size={14} style={{ color: `#${colors[idx % colors?.length]}` }} />
-                                </button>
+                                <div className='h-full w-[40px] cursor-pointer flex items-center justify-center relative'
+                                    onClick={() => logHabit(item?.id, 'inc', item?.total)}>
+                                    <FiPlus className='absolute' size={14} style={{ color: `#${colors[idx % colors?.length]}` }} />
+                                    <div className='absolute inset-0 rounded-r-xl opacity-[4%]' style={{ backgroundColor: `#${colors[idx % colors?.length]}` }}></div>
+                                </div>
                             </div>
                         </div>
                         <div className='absolute bottom-[-3px] right-0 left-0 rounded-xl  opacity-[70%] h-[50px] z-[99]'
