@@ -1,5 +1,5 @@
 import CommonHeader from '@/components/commonHeader';
-import React, {  useEffect, useState } from 'react';
+import React, {  useEffect, useMemo, useState } from 'react';
 import { FiPlus, FiMinus } from "react-icons/fi";
 import Link from 'next/link';
 import { FaPlus } from "react-icons/fa6";
@@ -40,7 +40,7 @@ const Milestones = () => {
     const [activeDate, setActiveDate] = useState(moment())
 
 
-    useEffect(() => {
+    useEffect(()  => {
         const cachedUser = localStorage.getItem("userIdentity");
 
         if (cachedUser) {
@@ -107,7 +107,7 @@ const Milestones = () => {
 
     async function fetchHabitLogs(option: string, date: Moment) {
         try {
-            const logs = await fetch(`/api/habitlogs?user_id=${option}&&date=${moment(date).format('YYYY-MM-DD')}`);
+            const logs = await fetch(`/api/habitlogs?user_id=${option}&date=${moment(date).format('YYYY-MM-DD')}`);
             const logData: HabitLogs[] = await logs.json();
             setHabitLogs(logData);
 
@@ -117,8 +117,18 @@ const Milestones = () => {
         }
     }
 
+    const logMap = useMemo(() => {
+        const map: Record<string, number> = {};
+        habitLogs.forEach(log => {
+          map[log.habit_id] = log.value;
+        });
+        return map;
+      }, [habitLogs]);
+
     async function logHabit(habit_id: string, op: string, total: number) {
-        let value = habitLogs?.filter(item => item?.habit_id === habit_id)[0]?.value || 0;
+        
+        let value = logMap[habit_id] || 0;
+
         if (op === 'inc') {
             setIncLoading(true);
             setActiveHabitKey(habit_id);
@@ -194,10 +204,10 @@ const Milestones = () => {
         setLoading(false)
     }
 
-    const handleFilter = (option: string) => {
+    const handleFilter = async(option: string) => {
         setActive(option)
-        fetchHabits(option)
-        fetchHabitLogs(option, moment())
+        await fetchHabits(option)
+        await fetchHabitLogs(option, moment())
         setActiveDate(moment());
     }
 

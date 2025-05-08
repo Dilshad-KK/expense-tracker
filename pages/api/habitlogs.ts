@@ -38,9 +38,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             // If the log exists, update the record
             const { data: updatedHabitLogsData, error: updateError } = await supabase
                 .from("habit_logs")
-                .update({ value, log_date: date })  // Update with new value and log date
+                .update({ value })  
                 .eq("habit_id", habit_id)
                 .eq("user_id", user_id)
+                .eq("log_date",date)
                 .select("*");
 
             if (updateError) {

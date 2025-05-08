@@ -35,7 +35,7 @@ const NewItem = () => {
 
     async function addChecklistItem() {
         setLoading(true);
-        console.log(title,unit,total,user)
+        console.log(title, unit, total, user)
         if (!title || !unit || !total || !user) {
             alert("All fields are required!");
             setLoading(false);
@@ -92,6 +92,14 @@ const NewItem = () => {
                         <option value="hours">Hours</option>
                         <option value="litres">Litres</option>
                         <option value="day">Day</option>
+                    </select>
+                    <select className="text-black/60 text-base select border-[1px] border-solid border-[#d3d3fe] w-full bg-[#f3f3fd] text-[12px] placeholder:text-[12px]"
+                        value={user} onChange={(e) => setUser(e.target.value)}>
+                        {user === "Shifa Dilshad" ? <option value="Shifa Dilshad">Shifa Dilshad</option> :
+                            <option value="Dilshad">Dilshad</option>}
+                        {user === "Shifa Dilshad" ? <option value="Dilshad">Dilshad</option> :
+                            <option value="Shifa Dilshad">Shifa Dilshad</option>}
+                        <option value="Vacation">Vacation</option>
                     </select>
 
 
