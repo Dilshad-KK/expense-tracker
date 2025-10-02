@@ -10,6 +10,10 @@ const pwaConfig = withPWA({
     dest: 'public',
     register: true,
     skipWaiting: true,
+    // Use a custom service worker (injectManifest mode)
+    swSrc: 'service-worker.js',
+    // Avoid caching Next.js middleware manifest
+    buildExcludes: [/middleware-manifest\.json$/],
   },
 });
 

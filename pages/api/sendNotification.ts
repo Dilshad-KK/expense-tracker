@@ -17,15 +17,29 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(405).json({ error: "Method Not Allowed" });
   }
 
-  const { fcmToken, title, body } = req.body;
+  const { fcmToken, title, body, icon, click_action } = req.body;
 
   if (!fcmToken) {
     return res.status(400).json({ error: "FCM token is required" });
   }
 
-  const message = {
+  // Use data-only payload so the app SW handles display via onBackgroundMessage
+  const message: admin.messaging.Message = {
     token: fcmToken,
-    notification: { title, body },
+    data: {
+      title: title || 'Notification',
+      body: body || '',
+      icon: icon || '/assets/icon-192x192.png',
+      click_action: click_action || '/',
+    },
+    webpush: {
+      headers: {
+        TTL: '2419200',
+      },
+      fcmOptions: {
+        link: click_action || '/',
+      },
+    },
   };
 
   try {
