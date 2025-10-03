@@ -16,6 +16,13 @@ if (!admin.apps.length) {
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method Not Allowed' });
   const { title, body, icon, click_action, image, badge, requireInteraction, vibrate, actions } = req.body || {};
+  // Ensure absolute URLs for assets (FCM rendering may reject/ignore relative paths)
+  const proto = (req.headers['x-forwarded-proto'] as string) || 'https';
+  const host = req.headers.host as string;
+  const origin = `${proto}://${host}`;
+  const toAbs = (u?: string) => (u && u.startsWith('/') ? `${origin}${u}` : u);
+  const iconAbs = toAbs(icon) || `${origin}/assets/icon-192x192.png`;
+  const imageAbs = toAbs(image);
 
   const result: any = { success: true, fcm: null, webpush: null };
 
@@ -47,9 +54,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             data: {
               title: title || 'Notification',
               body: body || '',
-              icon: icon || '/assets/icon-192x192.png',
+              icon: iconAbs,
               click_action: click_action || '/',
-              image: image || '',
+              image: imageAbs || '',
               badge: badge || '',
               requireInteraction: String(!!requireInteraction),
               vibrate: Array.isArray(vibrate) ? JSON.stringify(vibrate) : (vibrate || ''),
@@ -61,8 +68,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
               notification: {
                 title: title || 'Notification',
                 body: body || '',
-                icon: icon || '/assets/icon-192x192.png',
-                image,
+                icon: iconAbs,
+                image: imageAbs,
                 badge,
                 requireInteraction,
                 actions: Array.isArray(actions) ? actions.map((a: any) => ({ action: a.action, title: a.title, icon: a.icon })) : undefined,
@@ -95,9 +102,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         source: 'wp',
         title: title || 'Notification',
         body: body || '',
-        icon: icon || '/assets/icon-192x192.png',
+        icon: iconAbs,
         click_action: click_action || '/',
-        image,
+        image: imageAbs,
         badge,
         requireInteraction,
         vibrate,
