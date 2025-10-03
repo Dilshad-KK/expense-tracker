@@ -75,11 +75,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           });
           fcmSent += response.successCount;
           fcmFailures += response.failureCount;
-          const invalidIdx = response.responses
-            .map((r, idx) => (r.success ? null : idx))
-            .filter((v) => v !== null) as number[];
-          const invalidTokens = invalidIdx.map((j) => chunk[j]).filter(Boolean);
-          if (invalidTokens.length) await supabaseServer.from('fcm_tokens').delete().in('token', invalidTokens);
+          // Only remove tokens that are definitively invalid/unregistered
+          const invalidTokens: string[] = [];
+          response.responses.forEach((r, idx) => {
+            // @ts-ignore - error may be undefined
+            const code = r?.error?.code || r?.error?.errorInfo?.code;
+            if (code === 'messaging/registration-token-not-registered' || code === 'messaging/invalid-registration-token') {
+              invalidTokens.push(chunk[idx]);
+            }
+          });
+          if (invalidTokens.length) {
+            await supabaseServer.from('fcm_tokens').delete().in('token', invalidTokens);
+          }
         }
       }
       result.fcm = { sent: fcmSent, failures: fcmFailures };
