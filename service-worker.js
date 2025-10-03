@@ -52,16 +52,34 @@ try {
 
     // Handle background notification payloads
     messaging.onBackgroundMessage((payload) => {
-      // Prefer data payload for title/body if present; fallback to notification
-      const title = payload?.data?.title || payload?.notification?.title || 'Notification';
-      const body = payload?.data?.body || payload?.notification?.body || '';
-      const icon = payload?.data?.icon || '/assets/icon-192x192.png';
+      const d = payload?.data || {};
+      const n = payload?.notification || {};
+      const title = d.title || n.title || 'Notification';
+      const body = d.body || n.body || '';
+      const icon = d.icon || n.icon || '/assets/icon-192x192.png';
+      const badge = d.badge || n.badge;
+      const image = d.image || n.image;
+      const requireInteraction = (d.requireInteraction || n.requireInteraction) === 'true' || (d.requireInteraction === true);
+      let actions = undefined;
+      try { if (d.actions) actions = JSON.parse(d.actions); } catch {}
+      let vibrate = undefined;
+      try {
+        if (d.vibrate) {
+          vibrate = Array.isArray(d.vibrate) ? d.vibrate : JSON.parse(d.vibrate);
+        }
+      } catch {}
 
-      self.registration.showNotification(title, {
+      const options = {
         body,
         icon,
-        data: payload?.data || {},
-      });
+        badge,
+        image,
+        requireInteraction,
+        vibrate,
+        actions,
+        data: d,
+      };
+      self.registration.showNotification(title, options);
     });
   } else {
     // No config present; FCM disabled in SW
@@ -80,13 +98,13 @@ self.addEventListener('push', (event) => {
     const title = data.title || 'Notification';
     const body = data.body || '';
     const icon = data.icon || '/assets/icon-192x192.png';
-    event.waitUntil(
-      self.registration.showNotification(title, {
-        body,
-        icon,
-        data,
-      })
-    );
+    const badge = data.badge;
+    const image = data.image;
+    const requireInteraction = data.requireInteraction === true || data.requireInteraction === 'true';
+    const actions = data.actions;
+    const vibrate = data.vibrate;
+    const options = { body, icon, badge, image, requireInteraction, actions, vibrate, data };
+    event.waitUntil(self.registration.showNotification(title, options));
   } catch (e) {
     // ignore malformed payloads
   }
@@ -95,7 +113,16 @@ self.addEventListener('push', (event) => {
 // Focus/open a window when the notification is clicked
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
-  const target = event.notification?.data?.click_action || '/';
+  const data = event.notification && event.notification.data ? event.notification.data : {};
+  // If an action button was clicked, prefer its URL if provided
+  let target = data.click_action || '/';
+  if (event.action && data.actions) {
+    try {
+      const actions = Array.isArray(data.actions) ? data.actions : JSON.parse(data.actions);
+      const matched = (actions || []).find((a) => a.action === event.action && a.url);
+      if (matched && matched.url) target = matched.url;
+    } catch {}
+  }
   event.waitUntil((async () => {
     const allClients = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
     for (const client of allClients) {

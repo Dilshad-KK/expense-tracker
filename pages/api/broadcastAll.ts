@@ -15,7 +15,7 @@ if (!admin.apps.length) {
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method Not Allowed' });
-  const { title, body, icon, click_action } = req.body || {};
+  const { title, body, icon, click_action, image, badge, requireInteraction, vibrate, actions } = req.body || {};
 
   const result: any = { success: true, fcm: null, webpush: null };
 
@@ -49,6 +49,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
               body: body || '',
               icon: icon || '/assets/icon-192x192.png',
               click_action: click_action || '/',
+              image: image || '',
+              badge: badge || '',
+              requireInteraction: String(!!requireInteraction),
+              vibrate: Array.isArray(vibrate) ? JSON.stringify(vibrate) : (vibrate || ''),
+              actions: actions ? JSON.stringify(actions) : '',
             },
             webpush: {
               headers: { TTL: '2419200' },
@@ -57,6 +62,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 title: title || 'Notification',
                 body: body || '',
                 icon: icon || '/assets/icon-192x192.png',
+                image,
+                badge,
+                requireInteraction,
+                actions: Array.isArray(actions) ? actions.map((a: any) => ({ action: a.action, title: a.title, icon: a.icon })) : undefined,
               },
             },
           });
@@ -88,6 +97,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         body: body || '',
         icon: icon || '/assets/icon-192x192.png',
         click_action: click_action || '/',
+        image,
+        badge,
+        requireInteraction,
+        vibrate,
+        actions,
       });
       for (const sub of subs) {
         try {

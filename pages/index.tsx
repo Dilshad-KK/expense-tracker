@@ -60,31 +60,16 @@ const Home = () => {
           <span className='text-white z-[2000] font-poppinsMed mb-2'>Welcome Back {user}</span>
           <span className='text-[#ffffffe9] z-[2000] font-poppinsMed text-[12px]'>Have a nice day...!</span>
         </div>
-        <div className='h-[50px] w-[50px] bg-white rounded-full flex items-center justify-center mb-3 z-[2000] relative'>
+        <Link href="/notifications" className='h-[50px] w-[50px] bg-white rounded-full flex items-center justify-center mb-3 z-[2000] relative'>
           <IoMdNotifications className='text-[24px]' />
           {unread > 0 && (
             <span className='absolute -top-1 -right-1 bg-[#ff3b30] text-white text-[10px] rounded-full px-[6px] py-[2px] font-poppinsMed'>{unread}</span>
           )}
-        </div>
+        </Link>
       </div>
       <div className='min-h-screen px-4 py-8'>
         <Categories />
         <Jan8CounterCard />
-        <Link
-          href="/notifications"
-          className='mt-4 p-4 rounded-[14px] bg-[#f3f3fd] border border-[#d3d3fe] flex items-center justify-between'
-        >
-          <div className='flex items-center'>
-            <div className='relative h-[40px] w-[40px] rounded-full mr-3 bg-white border border-[#e5e7eb] flex items-center justify-center'>
-              <IoMdNotifications className='text-[20px] text-[#514cff]' />
-            </div>
-            <div className='flex flex-col'>
-              <span className='text-[12px] text-black font-poppinsMed'>Notifications Test</span>
-              <span className='text-[10px] text-black/60 font-poppinsMed'>Open to register device and test push</span>
-            </div>
-          </div>
-          <span className='text-[10px] text-[#514cff] font-poppinsMed'>Open</span>
-        </Link>
         <div className="h-[1px] bg-[#cccccc4c] w-full my-8" />
         <Loans />
         <Discussions />

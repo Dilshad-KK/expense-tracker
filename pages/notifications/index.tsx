@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import moment from 'moment';
+import CommonHeader from '@/components/commonHeader';
 
 export default function NotificationsPage() {
   const [status, setStatus] = useState<string>('');
@@ -73,14 +74,16 @@ export default function NotificationsPage() {
   const filtered = items.filter((n) => (activeTab === 'unread' ? !n.read : !!n.read));
 
   return (
-    <div className='px-4 py-4' style={{ paddingBottom: 120 }}>
-      <div className='flex items-center justify-between mb-3'>
-        <h1 className='text-black text-[16px] font-poppinsMed'>Notifications</h1>
-        <div>
-          <button onClick={markAllRead} className='text-[10px] text-[#514cff] border border-[#e5e7eb] px-3 py-2 rounded-[8px] bg-white'>Mark all read</button>
-          <button onClick={refresh} className='ml-2 text-[10px] text-[#514cff] border border-[#e5e7eb] px-3 py-2 rounded-[8px] bg-white'>Refresh</button>
+    <div className='bg-[#ffffff] min-h-screen relative'>
+      <CommonHeader title='Notifications' />
+      <div className='px-4 py-4'>
+        <div className='flex items-center justify-between mb-3'>
+          <div />
+          <div>
+            <button onClick={markAllRead} className='text-[10px] text-[#514cff] border border-[#e5e7eb] px-3 py-2 rounded-[8px] bg-white'>Mark all read</button>
+            <button onClick={refresh} className='ml-2 text-[10px] text-[#514cff] border border-[#e5e7eb] px-3 py-2 rounded-[8px] bg-white'>Refresh</button>
+          </div>
         </div>
-      </div>
 
       <div className='flex mb-4 border border-[#e5e7eb] rounded-[10px] overflow-hidden bg-white'>
         <button onClick={() => setActiveTab('unread')} className={`flex-1 px-3 py-2 text-[12px] font-poppinsMed ${activeTab==='unread' ? 'bg-[#f3f3fd] text-black' : 'text-black/60'}`}>Unread</button>
@@ -114,11 +117,14 @@ export default function NotificationsPage() {
         </div>
       )}
 
-      <div className='mt-4 text-[11px] text-black/60'>{status}</div>
+        <div className='mt-4 text-[11px] text-black/60'>{status}</div>
 
-      <div style={{ height: 80 }} />
-      <div className='mt-2'>
-        <button onClick={resetPWA} className='text-[10px] text-[#514cff] border border-[#e5e7eb] px-3 py-2 rounded-[8px] bg-white'>Reset PWA (Unregister SW & Clear caches)</button>
+        {/*
+        <div style={{ height: 80 }} />
+        <div className='mt-2'>
+          <button onClick={resetPWA} className='text-[10px] text-[#514cff] border border-[#e5e7eb] px-3 py-2 rounded-[8px] bg-white'>Reset PWA (Unregister SW & Clear caches)</button>
+        </div>
+        */}
       </div>
     </div>
   );

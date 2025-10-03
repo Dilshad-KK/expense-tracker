@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { supabase } from "../../lib/supabase";
 import moment from "moment";
+import { getCategoryIcon } from "@/utils/categoryMapper";
 
 type ExpenseEntry = {
   id: number;
@@ -73,6 +74,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (error) return res.status(500).json({ error: error.message });
     try {
       const origin = `${(req.headers['x-forwarded-proto'] || 'https')}://${req.headers.host}`;
+      const iconUrl = getCategoryIcon(note || '');
       await fetch(`${origin}/api/broadcastAll`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -80,6 +82,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           title: 'Expense Added',
           body: `SHIFA: ${note} - ${amount}`,
           click_action: '/ibuexpenses',
+          icon: iconUrl,
+          image: iconUrl,
+          actions: [
+            { action: 'open', title: 'Open', url: '/ibuexpenses' }
+          ]
         }),
       });
     } catch {}
