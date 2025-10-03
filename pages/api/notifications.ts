@@ -48,11 +48,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         if (!hasServiceRole) {
           return res.status(403).json({ error: 'Deletes require SUPABASE_SERVICE_ROLE_KEY. Set it in env and redeploy.' });
         }
-        // Delete all rows; select returning to confirm how many were removed
+        // Robust path: fetch IDs, then delete via IN (...)
+        const { data: idsRows, error: selErr } = await supabaseServer
+          .from('notifications')
+          .select('id');
+        if (selErr) return res.status(500).json({ error: selErr.message });
+        const ids = (idsRows || []).map((r: any) => r.id).filter((v: any) => v !== null && v !== undefined);
+        if (!ids.length) return res.status(200).json({ success: true, cleared: 0 });
         const { data, error } = await supabaseServer
           .from('notifications')
           .delete()
-          .gte('id', 0)
+          .in('id', ids)
           .select('*');
         if (error) return res.status(500).json({ error: error.message });
         return res.status(200).json({ success: true, cleared: Array.isArray(data) ? data.length : 0 });
@@ -61,10 +67,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         if (!hasServiceRole) {
           return res.status(403).json({ error: 'Deletes require SUPABASE_SERVICE_ROLE_KEY. Set it in env and redeploy.' });
         }
+        const { data: idsRows, error: selErr } = await supabaseServer
+          .from('notifications')
+          .select('id')
+          .eq('read', true);
+        if (selErr) return res.status(500).json({ error: selErr.message });
+        const ids = (idsRows || []).map((r: any) => r.id);
+        if (!ids.length) return res.status(200).json({ success: true, cleared: 0 });
         const { data, error } = await supabaseServer
           .from('notifications')
           .delete()
-          .eq('read', true)
+          .in('id', ids)
           .select('*');
         if (error) return res.status(500).json({ error: error.message });
         return res.status(200).json({ success: true, cleared: Array.isArray(data) ? data.length : 0 });
