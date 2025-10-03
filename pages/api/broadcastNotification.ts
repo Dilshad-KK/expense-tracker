@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { supabase } from '@/lib/supabase';
+import { supabaseServer } from '@/lib/supabaseServer';
 import admin from 'firebase-admin';
 
 // Ensure Admin initialized (rely on existing init in sendNotification if needed)
@@ -18,7 +18,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
   const { title, body, icon, click_action } = req.body || {};
   try {
-    const { data, error } = await supabase.from('fcm_tokens').select('token');
+    const { data, error } = await supabaseServer.from('fcm_tokens').select('token');
     if (error) return res.status(500).json({ error: error.message });
     const tokens = (data || []).map((r: any) => r.token).filter(Boolean);
     if (!tokens.length) return res.status(200).json({ success: true, sent: 0, failures: 0, results: [] });
@@ -57,7 +57,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         .map((i) => chunk[i])
         .filter((t) => !!t);
       if (invalidTokens.length) {
-        await supabase.from('fcm_tokens').delete().in('token', invalidTokens);
+        await supabaseServer.from('fcm_tokens').delete().in('token', invalidTokens);
       }
     }
 
@@ -66,4 +66,3 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(500).json({ success: false, error: e.message || 'Broadcast failed' });
   }
 }
-

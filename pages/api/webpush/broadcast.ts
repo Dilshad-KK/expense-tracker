@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { supabase } from '@/lib/supabase';
+import { supabaseServer } from '@/lib/supabaseServer';
 import { configureWebPush } from '@/lib/webpush';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -7,7 +7,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const webpush = configureWebPush();
   const { title, body, icon, click_action } = req.body || {};
   try {
-    const { data, error } = await supabase.from('webpush_subscriptions').select('endpoint, subscription');
+    const { data, error } = await supabaseServer.from('webpush_subscriptions').select('endpoint, subscription');
     if (error) return res.status(500).json({ error: error.message });
     const subs = (data || []).map((r: any) => r.subscription).filter(Boolean);
     if (!subs.length) return res.status(200).json({ success: true, sent: 0, failures: 0 });
@@ -32,7 +32,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         // We need endpoint to delete; payload contains subscription endpoint at sub.endpoint
         try {
           const endpoint = sub?.endpoint;
-          if (endpoint) await supabase.from('webpush_subscriptions').delete().eq('endpoint', endpoint);
+          if (endpoint) await supabaseServer.from('webpush_subscriptions').delete().eq('endpoint', endpoint);
         } catch {}
       }
     }
@@ -41,4 +41,3 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(500).json({ success: false, error: e.message || 'Broadcast failed' });
   }
 }
-
