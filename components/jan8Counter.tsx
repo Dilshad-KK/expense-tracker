@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 
 function getUpcomingJan8(now: Date) {
   const year = now.getFullYear();
-  const jan8ThisYear = new Date(year, 0, 8, 0, 0, 0, 0); // Jan is month 0
+  const jan8ThisYear = new Date(year, 0, 8, 0, 0, 0, 0);
   return now <= jan8ThisYear ? jan8ThisYear : new Date(year + 1, 0, 8, 0, 0, 0, 0);
 }
 
@@ -24,29 +24,32 @@ export default function Jan8CounterCard() {
   }, [now]);
 
   useEffect(() => {
-    const id = setInterval(() => setNow(new Date()), 60 * 1000); // update each minute
+    const id = setInterval(() => setNow(new Date()), 60 * 1000);
     return () => clearInterval(id);
   }, []);
 
   const circleStyle: React.CSSProperties = {
-    background: `conic-gradient(#514cff ${percentRemaining}%, #e5e7eb ${percentRemaining}%)`,
+    background: `conic-gradient(rgb(59 130 246) ${percentRemaining}%, rgb(243 244 246) ${percentRemaining}%)`,
   };
 
   return (
-    <div className='mt-4 p-4 rounded-[14px] bg-[#f3f3fd] border border-[#d3d3fe] flex items-center justify-between'>
-      <div className='flex items-center'>
-        <div className='relative h-[56px] w-[56px] rounded-full mr-3' style={circleStyle}>
-          <div className='absolute inset-[6px] bg-white rounded-full flex items-center justify-center'>
-            <span className='text-[12px] text-black font-poppinsMed'>{remainingDays}d</span>
+    <div className='mt-8 p-4 rounded-lg bg-white border border-gray-200 shadow-sm hover:shadow-xs transition-shadow duration-200'>
+      <div className='flex items-center justify-between'>
+        <div className='flex items-center space-x-3'>
+          <div className='relative h-12 w-12 rounded-full' style={circleStyle}>
+            <div className='absolute inset-1 bg-white rounded-full flex items-center justify-center'>
+              <span className='text-xs text-gray-700 font-medium'>{remainingDays}d</span>
+            </div>
+          </div>
+          <div className='flex flex-col'>
+            <span className='text-sm text-gray-900 font-medium'>Jan 8 Countdown</span>
+            <span className='text-xs text-gray-500'>{remainingDays} days remaining</span>
           </div>
         </div>
-        <div className='flex flex-col'>
-          <span className='text-[12px] text-black font-poppinsMed'>Jan 8 Countdown</span>
-          <span className='text-[10px] text-black/60 font-poppinsMed'>{remainingDays} days remaining</span>
+        <div className='text-xs text-blue-500 font-medium bg-blue-50 px-2 py-1 rounded-full'>
+          {Math.round(100 - percentRemaining)}% complete
         </div>
       </div>
-      <div className='text-[10px] text-[#514cff] font-poppinsMed'>{Math.round(100 - percentRemaining)}% done</div>
     </div>
   );
 }
-

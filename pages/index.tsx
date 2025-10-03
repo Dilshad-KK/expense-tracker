@@ -47,6 +47,35 @@ const Home = () => {
     })();
   }, []);
 
+  // One-time auto-fix: if an old OneSignal SW is controlling the scope, reset it.
+  useEffect(() => {
+    (async () => {
+      if (typeof window === 'undefined' || !('serviceWorker' in navigator)) return;
+      try {
+        const already = localStorage.getItem('swAutoResetDone') === '1';
+        if (already) return;
+        const reg = await navigator.serviceWorker.getRegistration();
+        const script = reg?.active?.scriptURL || '';
+        if (script.includes('OneSignalSDKWorker')) {
+          // Unsubscribe and unregister legacy workers, clear caches, then reload
+          try {
+            const regs = await navigator.serviceWorker.getRegistrations();
+            for (const r of regs) {
+              try { const sub = await r.pushManager.getSubscription(); if (sub) await sub.unsubscribe(); } catch {}
+              await r.unregister();
+            }
+          } catch {}
+          try {
+            const keys = await caches.keys();
+            await Promise.all(keys.map((k) => caches.delete(k)));
+          } catch {}
+          localStorage.setItem('swAutoResetDone', '1');
+          setTimeout(() => window.location.reload(), 300);
+        }
+      } catch {}
+    })();
+  }, []);
+
   return (
     <div className='bg-[#ffffff]'>
       <div className='relative bg-[#514cff] h-[150px] rounded-b-[60px] flex justify-between items-center px-4'>

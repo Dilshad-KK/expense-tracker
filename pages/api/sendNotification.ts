@@ -23,7 +23,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(400).json({ error: "FCM token is required" });
   }
 
-  // Use data-only payload so the app SW handles display via onBackgroundMessage
+  // Send both a minimal notification (for reliability) and data (for SW customization)
   const message: admin.messaging.Message = {
     token: fcmToken,
     data: {
@@ -38,6 +38,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       },
       fcmOptions: {
         link: click_action || '/',
+      },
+      notification: {
+        title: title || 'Notification',
+        body: body || '',
+        icon: icon || '/assets/icon-192x192.png',
       },
     },
   };
