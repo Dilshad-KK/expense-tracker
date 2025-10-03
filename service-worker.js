@@ -52,33 +52,25 @@ try {
 
     // Handle background notification payloads
     messaging.onBackgroundMessage((payload) => {
+      // If the message includes a notification payload, let the browser/FCM render it to avoid duplicates
+      if (payload && payload.notification) return;
+
       const d = payload?.data || {};
-      const n = payload?.notification || {};
-      const title = d.title || n.title || 'Notification';
-      const body = d.body || n.body || '';
-      const icon = d.icon || n.icon || '/assets/icon-192x192.png';
-      const badge = d.badge || n.badge;
-      const image = d.image || n.image;
-      const requireInteraction = (d.requireInteraction || n.requireInteraction) === 'true' || (d.requireInteraction === true);
+      const title = d.title || 'Notification';
+      const body = d.body || '';
+      if (!title && !body) return; // nothing to show
+      const icon = d.icon || '/assets/icon-192x192.png';
+      const badge = d.badge;
+      const image = d.image;
+      const requireInteraction = d.requireInteraction === 'true' || d.requireInteraction === true;
       let actions = undefined;
       try { if (d.actions) actions = JSON.parse(d.actions); } catch {}
       let vibrate = undefined;
       try {
-        if (d.vibrate) {
-          vibrate = Array.isArray(d.vibrate) ? d.vibrate : JSON.parse(d.vibrate);
-        }
+        if (d.vibrate) vibrate = Array.isArray(d.vibrate) ? d.vibrate : JSON.parse(d.vibrate);
       } catch {}
 
-      const options = {
-        body,
-        icon,
-        badge,
-        image,
-        requireInteraction,
-        vibrate,
-        actions,
-        data: d,
-      };
+      const options = { body, icon, badge, image, requireInteraction, vibrate, actions, data: d };
       self.registration.showNotification(title, options);
     });
   } else {
