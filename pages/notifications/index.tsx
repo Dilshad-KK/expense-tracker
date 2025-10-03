@@ -19,23 +19,7 @@ export default function NotificationsPage() {
     })();
   }, []);
 
-  const handleEnableNotifications = async () => {
-    // Decide channel based on platform and install
-    if (isIOS) {
-      if (!isStandalone) {
-        setStatus('Install this app to Home Screen to enable iOS Web Push.');
-        return;
-      }
-      setStatus('Subscribing (Web Push)...');
-      const res = await subscribeWebPush();
-      setStatus(res.ok ? 'Subscribed to Web Push' : `Web Push failed: ${res.reason || ''}`);
-      return;
-    }
-    setStatus('Requesting FCM token...');
-    const t = await requestFcmToken();
-    setToken(t);
-    setStatus(t ? 'FCM token registered' : 'FCM token request failed');
-  };
+  // Notifications enabling is handled globally in _app for iOS, and on first use for FCM.
 
   const resetPWA = async () => {
     setStatus('Resetting PWA: unregistering service workers and clearing caches...');
