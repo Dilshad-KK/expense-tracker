@@ -6,6 +6,7 @@ import Loans from '@/components/loans';
 import Discussions from '@/components/discussions';
 import Categories from '@/components/categories';
 import Periods from '@/components/periods';
+import Jan8CounterCard from '@/components/jan8Counter';
 
 // import CountdownTimer from "@/components/timer";
 
@@ -53,6 +54,7 @@ const Home = () => {
       </div>
       <div className='min-h-screen px-4 py-8'>
         <Categories />
+        <Jan8CounterCard />
         <div className="h-[1px] bg-[#cccccc4c] w-full my-8" />
         <Loans />
         <Discussions />
