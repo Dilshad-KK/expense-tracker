@@ -27,6 +27,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     if (req.method === 'POST') {
       const { action, id } = req.body || {};
+      const hasServiceRole = !!process.env.SUPABASE_SERVICE_ROLE_KEY;
       if (action === 'mark_all_read') {
         const { error } = await supabaseServer
           .from('notifications')
@@ -44,28 +45,41 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(200).json({ success: true });
       }
       if (action === 'clear_all') {
-        const { error } = await supabaseServer
+        if (!hasServiceRole) {
+          return res.status(403).json({ error: 'Deletes require SUPABASE_SERVICE_ROLE_KEY. Set it in env and redeploy.' });
+        }
+        // Delete all rows; select returning to confirm how many were removed
+        const { data, error } = await supabaseServer
           .from('notifications')
           .delete()
-          .neq('id', null); // delete all rows
+          .gte('id', 0)
+          .select('*');
         if (error) return res.status(500).json({ error: error.message });
-        return res.status(200).json({ success: true, cleared: 'all' });
+        return res.status(200).json({ success: true, cleared: Array.isArray(data) ? data.length : 0 });
       }
       if (action === 'clear_read') {
-        const { error } = await supabaseServer
+        if (!hasServiceRole) {
+          return res.status(403).json({ error: 'Deletes require SUPABASE_SERVICE_ROLE_KEY. Set it in env and redeploy.' });
+        }
+        const { data, error } = await supabaseServer
           .from('notifications')
           .delete()
-          .eq('read', true);
+          .eq('read', true)
+          .select('*');
         if (error) return res.status(500).json({ error: error.message });
-        return res.status(200).json({ success: true, cleared: 'read' });
+        return res.status(200).json({ success: true, cleared: Array.isArray(data) ? data.length : 0 });
       }
       if (action === 'clear' && id) {
-        const { error } = await supabaseServer
+        if (!hasServiceRole) {
+          return res.status(403).json({ error: 'Deletes require SUPABASE_SERVICE_ROLE_KEY. Set it in env and redeploy.' });
+        }
+        const { data, error } = await supabaseServer
           .from('notifications')
           .delete()
-          .eq('id', id);
+          .eq('id', id)
+          .select('*');
         if (error) return res.status(500).json({ error: error.message });
-        return res.status(200).json({ success: true, cleared: id });
+        return res.status(200).json({ success: true, cleared: Array.isArray(data) ? data.length : 0 });
       }
       return res.status(400).json({ error: 'Unknown action' });
     }

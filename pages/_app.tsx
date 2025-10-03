@@ -6,12 +6,16 @@ import type { AppProps } from "next/app";
 import { useEffect, useState } from 'react';
 import { requestFcmToken, subscribeForegroundMessages } from '@/lib/firebaseClient';
 import { subscribeWebPush } from '@/lib/webpushClient';
+import { Provider } from 'react-redux';
+import { store } from '@/lib/store';
+import { fetchUnreadCount, fetchNotifications } from '@/store/notificationsSlice';
 
 export default function App({ Component, pageProps }: AppProps) {
   const [toast, setToast] = useState<null | { title?: string; body?: string }>(null);
   const [iosPromptVisible, setIosPromptVisible] = useState(false);
   const [envChecked, setEnvChecked] = useState(false);
   const [channelInfo, setChannelInfo] = useState<string>('');
+  // Using store.dispatch directly (this component defines Provider below)
 
   useEffect(() => {
     // Request FCM token and listen to foreground messages
@@ -85,6 +89,9 @@ export default function App({ Component, pageProps }: AppProps) {
           const body = data.body || '';
           setToast({ title, body });
           setTimeout(() => setToast(null), 4000);
+          // Refresh unread count and unread list opportunistically
+          store.dispatch(fetchUnreadCount());
+          store.dispatch(fetchNotifications('unread' as any));
         }
       } catch {}
     };
@@ -93,8 +100,19 @@ export default function App({ Component, pageProps }: AppProps) {
       try { navigator.serviceWorker.removeEventListener('message', handler as any); } catch {}
     };
   }, []);
+
+  // Refresh unread count when app comes to foreground
+  useEffect(() => {
+    const onVis = () => {
+      if (document.visibilityState === 'visible') {
+        store.dispatch(fetchUnreadCount());
+      }
+    };
+    document.addEventListener('visibilitychange', onVis);
+    return () => document.removeEventListener('visibilitychange', onVis);
+  }, []);
   return (
-    <>
+    <Provider store={store}>
       {envChecked && iosPromptVisible && (
         <div style={{ position: 'fixed', bottom: 72, left: 12, right: 12, zIndex: 9999 }}>
           <div className="shadow-lg rounded-[12px] bg-white border border-[#e5e7eb] px-4 py-3">
@@ -118,6 +136,6 @@ export default function App({ Component, pageProps }: AppProps) {
       )}
       <Component {...pageProps} />
       <NavLinks />
-    </>
+    </Provider>
   )
 }

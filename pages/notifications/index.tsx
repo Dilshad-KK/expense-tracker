@@ -1,17 +1,20 @@
 import { useEffect, useState } from 'react';
 import moment from 'moment';
 import CommonHeader from '@/components/commonHeader';
+import { useSelector } from 'react-redux';
+import type { RootState } from '@/lib/store';
+import { useAppDispatch } from '@/lib/store';
+import { fetchNotifications, markAllRead as markAllReadThunk, markRead as markReadThunk, clearAll as clearAllThunk, clearRead as clearReadThunk, clearOne as clearOneThunk } from '@/store/notificationsSlice';
 
 export default function NotificationsPage() {
   const [status, setStatus] = useState<string>('');
-  const [items, setItems] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<'unread' | 'read'>('unread');
-  const [loading, setLoading] = useState<boolean>(true);
+  const dispatch = useAppDispatch();
+  const itemsUnread = useSelector((s: RootState) => s.notifications.itemsByFilter.unread);
+  const itemsRead = useSelector((s: RootState) => s.notifications.itemsByFilter.read);
+  const loading = useSelector((s: RootState) => s.notifications.loading);
 
-  useEffect(() => {
-    // Initial load for current tab
-    refresh();
-  }, []);
+  useEffect(() => { dispatch(fetchNotifications(activeTab)); }, [dispatch]);
 
   // Notifications enabling is handled globally in _app for iOS, and on first use for FCM.
 
@@ -41,48 +44,27 @@ export default function NotificationsPage() {
     }
   };
 
-  const refresh = async () => {
-    setLoading(true);
-    setStatus('');
-    try {
-      const res = await fetch(`/api/notifications?filter=${activeTab}`);
-      const json = await res.json();
-      setItems(json?.items || []);
-    } catch (e: any) {
-      setStatus('Refresh failed');
-    } finally {
-      setLoading(false);
-    }
-  };
+  const refresh = async () => { setStatus(''); dispatch(fetchNotifications(activeTab)); };
 
   // Auto refresh when switching tabs
-  useEffect(() => {
-    refresh();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeTab]);
+  useEffect(() => { dispatch(fetchNotifications(activeTab)); }, [dispatch, activeTab]);
 
-  const markAllRead = async () => {
-    setStatus('Marking all as read...');
-    await fetch('/api/notifications', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'mark_all_read' }) });
-    await refresh();
-  };
+  const markAllRead = async () => { setStatus(''); dispatch(markAllReadThunk()); };
+  const markRead = async (id: any) => { setStatus(''); dispatch(markReadThunk(Number(id))); };
 
-  const markRead = async (id: any) => {
-    await fetch('/api/notifications', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'mark_read', id }) });
-    await refresh();
-  };
-
-  const filtered = items.filter((n) => (activeTab === 'unread' ? !n.read : !!n.read));
+  const filtered = (activeTab === 'unread' ? itemsUnread : itemsRead);
 
   return (
-    <div className='bg-[#ffffff] min-h-screen relative'>
+    <div className='bg-[#ffffff] min-h-screen relative pb-28'>
       <CommonHeader title='Notifications' />
       <div className='px-4 py-4'>
         <div className='flex items-center justify-between mb-3'>
           <div />
-          <div>
+          <div className='flex items-center'>
             <button onClick={markAllRead} className='text-[10px] text-[#514cff] border border-[#e5e7eb] px-3 py-2 rounded-[8px] bg-white'>Mark all read</button>
             <button onClick={refresh} className='ml-2 text-[10px] text-[#514cff] border border-[#e5e7eb] px-3 py-2 rounded-[8px] bg-white'>Refresh</button>
+            <button onClick={() => dispatch(clearReadThunk())} className='ml-2 text-[10px] text-[#8a8a8a] border border-[#e5e7eb] px-3 py-2 rounded-[8px] bg-white'>Clear read</button>
+            <button onClick={() => dispatch(clearAllThunk())} className='ml-2 text-[10px] text-[#ff3b30] border border-[#ffd5d2] px-3 py-2 rounded-[8px] bg-white'>Clear all</button>
           </div>
         </div>
 
@@ -111,6 +93,7 @@ export default function NotificationsPage() {
                 <div className='flex items-center gap-2'>
                   {n.link && (<a href={n.link} className='text-[10px] text-[#514cff] font-poppinsMed'>Open</a>)}
                   {!n.read && (<button onClick={() => markRead(n.id)} className='text-[10px] text-[#514cff] border border-[#e5e7eb] px-2 py-1 rounded-[8px] bg-white'>Mark read</button>)}
+                  <button onClick={() => dispatch(clearOneThunk(Number(n.id)))} className='text-[10px] text-[#ff3b30] border border-[#ffd5d2] px-2 py-1 rounded-[8px] bg-white'>Delete</button>
                 </div>
               </div>
             </div>

@@ -1,9 +1,10 @@
 import moment from "moment";
-import { useState, useEffect } from "react";
+import { useMemo } from "react";
 import GoBack from "../gobackSecond";
 import Link from 'next/link';
 import { FaPlus } from "react-icons/fa6";
 import { getCategoryIcon } from "@/utils/categoryMapper";
+import { useGetGroupedExpensesQuery } from "@/store/api";
 // import { messaging } from "../firebase";
 // import { requestFCMToken } from "../firebase";
 
@@ -20,16 +21,7 @@ interface UserType {
   user: string;
 }
 
-type GroupedExpenses = Record<string, Expense[]>;
-
 export default function ExpensesUi(props: UserType) {
-
-  const [expenses, setExpenses] = useState<Expense[]>([]);
-  const [grouped, setGrouped] = useState<GroupedExpenses>({});
-  const [loading, setLoading] = useState(false);
-  const [totalExpense, setTotalExpense] = useState(0);
-  const [totalDeposit, setTotalDeposit] = useState(0);
-  const [closingBalance, setClosingBalance] = useState(0);
   // const [active, setActive] = useState("All");
 
   let apiPath = '';
@@ -60,22 +52,13 @@ export default function ExpensesUi(props: UserType) {
     detailshref = `/ibuexpenses/expensedetails/`;
   }
 
-  useEffect(() => {
-    fetchExpenses("all");
-  }, []);
-
-  async function fetchExpenses(option: string) {
-    setLoading(true);
-    const res = await fetch(`${apiPath}?filter=${option}`);
-    const result = await res.json();
-    const data = Object.values(result.grouped).flat() as Expense[];
-    setGrouped(result.grouped)
-    setExpenses(data);
-    setTotalExpenses(data);
-    setTotalDeposits(data);
-    setClosingBalances(data);
-    setLoading(false);
-  }
+  // Fetch grouped expenses via RTK Query using the resolved apiPath
+  const { data: expData, isFetching: loading } = useGetGroupedExpensesQuery({ apiPath, filter: 'all' }, { skip: !apiPath });
+  const grouped: Record<string, Expense[]> = useMemo(() => (expData?.grouped || {}), [expData]);
+  const flat = useMemo(() => Object.values(grouped).flat() as Expense[], [grouped]);
+  const totalExpense = useMemo(() => parseFloat((flat.reduce((acc, e) => acc + (e.type === 'Withdrawal' ? Number(e.amount) : 0), 0)).toFixed(2)), [flat]);
+  const totalDeposit = useMemo(() => parseFloat((flat.reduce((acc, e) => acc + (e.type === 'Deposit' ? Number(e.amount) : 0), 0)).toFixed(2)), [flat]);
+  const closingBalance = useMemo(() => parseFloat((totalDeposit - totalExpense).toFixed(2)), [totalDeposit, totalExpense]);
 
   // const handleFilter = (option: string) => {
   //   setActive(option);
@@ -84,46 +67,6 @@ export default function ExpensesUi(props: UserType) {
   //     option === "This Month" ? optionString = "thisMonth" : option === "all"
   //   fetchExpenses(optionString)
   // }
-
-  function setTotalExpenses(expenses: Expense[]) {
-    let total = 0
-    expenses?.map((expense) => {
-      if (expense.type === "Withdrawal") {
-        total += Number(expense.amount);
-      }
-    });
-    setTotalExpense(parseFloat(total.toFixed(2)));
-  }
-  function setTotalDeposits(deposits: Expense[]) {
-    let total = 0
-    deposits?.map((deposit) => {
-      if (deposit.type === "Deposit") {
-        total += Number(deposit.amount);
-      }
-    });
-    setTotalDeposit(parseFloat(total.toFixed(2)));
-  }
-
-  function setClosingBalances(transactions: Expense[]) {
-    let deposits = 0;
-    let withdrawals = 0;
-    let cbalance = 0;
-
-    transactions?.map((transaction) => {
-      if (transaction.type === "Deposit") {
-        deposits += Number(transaction.amount);
-      }
-    });
-
-    transactions?.map((transaction) => {
-      if (transaction.type === "Withdrawal") {
-        withdrawals += Number(transaction.amount);
-      }
-    });
-
-    cbalance = deposits - withdrawals;
-    setClosingBalance(parseFloat(cbalance.toFixed(2)));
-  }
 
 
 
@@ -150,7 +93,7 @@ export default function ExpensesUi(props: UserType) {
 
           :
 
-          expenses?.length > 0 ?
+          flat?.length > 0 ?
             <>
               {/* <div className="flex justify-center items-center w-full mb-6">
                 {["All", "This Month", "Last Three Months"]?.map((option: string) => (

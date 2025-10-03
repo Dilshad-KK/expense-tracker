@@ -1,5 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { useSelector } from 'react-redux';
+import type { RootState } from '@/lib/store';
+import { useAppDispatch } from '@/lib/store';
+import { fetchUnreadCount } from '@/store/notificationsSlice';
 import { IoMdNotifications } from "react-icons/io";
 import Clock from '@/components/time';
 
@@ -14,7 +18,8 @@ import Jan8CounterCard from '@/components/jan8Counter';
 const Home = () => {
 
   const [user, setUser] = useState("");
-  const [unread, setUnread] = useState<number>(0);
+  const dispatch = useAppDispatch();
+  const unread = useSelector((s: RootState) => s.notifications.unreadCount);
 
   useEffect(() => {
     const cachedUser = localStorage.getItem("userIdentity");
@@ -37,15 +42,7 @@ const Home = () => {
     setUser(user);
   }, []);
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const res = await fetch('/api/notifications?count=1');
-        const json = await res.json();
-        if (typeof json?.unread === 'number') setUnread(json.unread);
-      } catch {}
-    })();
-  }, []);
+  useEffect(() => { dispatch(fetchUnreadCount()); }, [dispatch]);
 
   // One-time auto-fix: if an old OneSignal SW is controlling the scope, reset it.
   useEffect(() => {
