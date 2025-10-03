@@ -14,6 +14,7 @@ import Jan8CounterCard from '@/components/jan8Counter';
 const Home = () => {
 
   const [user, setUser] = useState("");
+  const [unread, setUnread] = useState<number>(0);
 
   useEffect(() => {
     const cachedUser = localStorage.getItem("userIdentity");
@@ -36,6 +37,16 @@ const Home = () => {
     setUser(user);
   }, []);
 
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetch('/api/notifications?count=1');
+        const json = await res.json();
+        if (typeof json?.unread === 'number') setUnread(json.unread);
+      } catch {}
+    })();
+  }, []);
+
   return (
     <div className='bg-[#ffffff]'>
       <div className='relative bg-[#514cff] h-[150px] rounded-b-[60px] flex justify-between items-center px-4'>
@@ -49,8 +60,11 @@ const Home = () => {
           <span className='text-white z-[2000] font-poppinsMed mb-2'>Welcome Back {user}</span>
           <span className='text-[#ffffffe9] z-[2000] font-poppinsMed text-[12px]'>Have a nice day...!</span>
         </div>
-        <div className='h-[50px] w-[50px] bg-white rounded-full flex items-center justify-center mb-3 z-[2000]'>
+        <div className='h-[50px] w-[50px] bg-white rounded-full flex items-center justify-center mb-3 z-[2000] relative'>
           <IoMdNotifications className='text-[24px]' />
+          {unread > 0 && (
+            <span className='absolute -top-1 -right-1 bg-[#ff3b30] text-white text-[10px] rounded-full px-[6px] py-[2px] font-poppinsMed'>{unread}</span>
+          )}
         </div>
       </div>
       <div className='min-h-screen px-4 py-8'>

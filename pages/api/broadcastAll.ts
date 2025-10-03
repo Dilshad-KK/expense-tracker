@@ -20,6 +20,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const result: any = { success: true, fcm: null, webpush: null };
 
   try {
+    // Persist a notification record for listing/unread count
+    try {
+      await supabaseServer.from('notifications').insert({
+        title: title || 'Notification',
+        body: body || '',
+        icon: icon || '/assets/icon-192x192.png',
+        link: click_action || '/',
+        read: false,
+      });
+    } catch {}
+
     // FCM Broadcast (Android/Desktop)
     if (admin.apps.length) {
       const { data: fcmRows, error: fcmErr } = await supabaseServer.from('fcm_tokens').select('token');
@@ -98,4 +109,3 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(500).json({ success: false, error: e?.message || 'Broadcast failed', details: result });
   }
 }
-

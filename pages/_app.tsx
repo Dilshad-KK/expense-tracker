@@ -5,9 +5,13 @@ import "slick-carousel/slick/slick-theme.css";
 import type { AppProps } from "next/app";
 import { useEffect, useState } from 'react';
 import { requestFcmToken, subscribeForegroundMessages } from '@/lib/firebaseClient';
+import { subscribeWebPush } from '@/lib/webpushClient';
 
 export default function App({ Component, pageProps }: AppProps) {
   const [toast, setToast] = useState<null | { title?: string; body?: string }>(null);
+  const [iosPromptVisible, setIosPromptVisible] = useState(false);
+  const [envChecked, setEnvChecked] = useState(false);
+  const [channelInfo, setChannelInfo] = useState<string>('');
 
   useEffect(() => {
     // Request FCM token and listen to foreground messages
@@ -41,8 +45,49 @@ export default function App({ Component, pageProps }: AppProps) {
       if (typeof unsub === 'function') unsub();
     };
   }, []);
+
+  // Show iOS PWA notification enable banner on first load (installed PWA only)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const ua = navigator.userAgent || '';
+    const isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && (navigator as any).maxTouchPoints > 1);
+    const isStandalone = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || (navigator as any).standalone === true;
+    const perm = 'Notification' in window ? Notification.permission : 'unsupported';
+    setChannelInfo(isIOS ? (isStandalone ? 'Web Push (iOS PWA)' : 'Install PWA to enable Web Push') : 'FCM (Android/Desktop)');
+    const dismissed = localStorage.getItem('iosPushPromptDismissed') === '1';
+    if (isIOS && isStandalone && perm === 'default' && !dismissed) {
+      setIosPromptVisible(true);
+    }
+    setEnvChecked(true);
+  }, []);
+
+  const enableIosPush = async () => {
+    const res = await subscribeWebPush();
+    if (res.ok) {
+      setIosPromptVisible(false);
+      localStorage.setItem('iosPushPromptDismissed', '1');
+      setToast({ title: 'Notifications Enabled', body: 'You will receive alerts on this device.' });
+      setTimeout(() => setToast(null), 3000);
+    } else {
+      setToast({ title: 'Enable Failed', body: res.reason || 'Please check Settings > Notifications.' });
+      setTimeout(() => setToast(null), 4000);
+    }
+  };
   return (
     <>
+      {envChecked && iosPromptVisible && (
+        <div style={{ position: 'fixed', bottom: 72, left: 12, right: 12, zIndex: 9999 }}>
+          <div className="shadow-lg rounded-[12px] bg-white border border-[#e5e7eb] px-4 py-3">
+            <div className="text-[12px] font-poppinsMed text-black mb-[4px]">Enable Notifications</div>
+            <div className="text-[11px] text-black/70 mb-2">Tap to allow push notifications for this PWA. You can change this later in Settings.</div>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button onClick={enableIosPush} className="text-white bg-[#514cff] px-3 py-2 rounded-[8px] text-[12px]">Enable</button>
+              <button onClick={() => { setIosPromptVisible(false); localStorage.setItem('iosPushPromptDismissed','1'); }} className="text-[#514cff] bg-white border border-[#e5e7eb] px-3 py-2 rounded-[8px] text-[12px]">Later</button>
+              <div className="text-[10px] text-black/50 ml-auto self-center">{channelInfo}</div>
+            </div>
+          </div>
+        </div>
+      )}
       {toast && (
         <div style={{ position: 'fixed', top: 12, right: 12, zIndex: 9999 }}>
           <div className="shadow-lg rounded-[12px] bg-white border border-[#e5e7eb] px-4 py-3 max-w-[300px]">

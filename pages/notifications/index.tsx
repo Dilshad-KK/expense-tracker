@@ -7,12 +7,14 @@ export default function NotificationsTestPage() {
   const [title, setTitle] = useState('Hello from FCM');
   const [body, setBody] = useState('This is a test notification');
   const [status, setStatus] = useState<string>('');
+  const [items, setItems] = useState<any[]>([]);
   const env = getFirebaseEnvStatus();
   const [swInfo, setSwInfo] = useState<string>('');
   const [swScript, setSwScript] = useState<string>('');
   // Avoid hydration mismatch by determining permission on client after mount
   const [permission, setPermission] = useState<string>('checking...');
   const [isIOS, setIsIOS] = useState<boolean>(false);
+  const [isStandalone, setIsStandalone] = useState<boolean>(false);
 
   useEffect(() => {
     (async () => {
@@ -37,7 +39,17 @@ export default function NotificationsTestPage() {
       }
       const ua = navigator.userAgent || '';
       setIsIOS(/iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && (navigator as any).maxTouchPoints > 1));
+      const standalone = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || (navigator as any).standalone === true;
+      setIsStandalone(!!standalone);
     }
+    // Load latest notifications
+    (async () => {
+      try {
+        const res = await fetch('/api/notifications');
+        const json = await res.json();
+        if (json?.items) setItems(json.items);
+      } catch {}
+    })();
   }, []);
 
   const sendTest = async () => {
@@ -118,6 +130,24 @@ export default function NotificationsTestPage() {
     }
   };
 
+  const handleEnableNotifications = async () => {
+    // Decide channel based on platform and install
+    if (isIOS) {
+      if (!isStandalone) {
+        setStatus('Install this app to Home Screen to enable iOS Web Push.');
+        return;
+      }
+      setStatus('Subscribing (Web Push)...');
+      const res = await subscribeWebPush();
+      setStatus(res.ok ? 'Subscribed to Web Push' : `Web Push failed: ${res.reason || ''}`);
+      return;
+    }
+    setStatus('Requesting FCM token...');
+    const t = await requestFcmToken();
+    setToken(t);
+    setStatus(t ? 'FCM token registered' : 'FCM token request failed');
+  };
+
   const resetPWA = async () => {
     setStatus('Resetting PWA: unregistering service workers and clearing caches...');
     try {
@@ -148,6 +178,8 @@ export default function NotificationsTestPage() {
     <div style={{ padding: 16, paddingBottom: 120 }}>
       <h1>Notifications Test</h1>
       <p>Permission: {permission}</p>
+      <p>Channel: {isIOS ? (isStandalone ? 'Web Push (iOS PWA)' : 'Install PWA to enable Web Push') : 'FCM (Android/Desktop)'}</p>
+      <button onClick={handleEnableNotifications} style={{ marginTop: 8, padding: '10px 12px', borderRadius: 8, border: '1px solid #e5e7eb', background: '#fff' }}>Enable Notifications</button>
       <p>SW: {swInfo}</p>
       {swScript ? <p>SW script: {swScript}</p> : null}
       <div style={{margin: '8px 0'}}>
@@ -191,6 +223,21 @@ export default function NotificationsTestPage() {
           <button onClick={broadcastWP} style={{ marginLeft: 8, padding: '10px 12px', borderRadius: 8, border: '1px solid #e5e7eb', background: '#fff' }}>Broadcast Web Push</button>
           <button onClick={broadcastAll} style={{ marginLeft: 8, padding: '10px 12px', borderRadius: 8, border: '1px solid #e5e7eb', background: '#fff' }}>Broadcast All</button>
         </div>
+      </div>
+      <div style={{ marginTop: 24 }}>
+        <div className='text-black text-[14px] font-poppinsMed mb-2'>Recent Notifications</div>
+        <div>
+          {items.map((n, idx) => (
+            <div key={idx} className='mb-2 p-3 rounded-[12px] border border-[#e5e7eb] bg-white flex justify-between items-center'>
+              <div>
+                <div className='text-[12px] font-poppinsMed text-black'>{n.title}</div>
+                <div className='text-[11px] text-black/70'>{n.body}</div>
+              </div>
+              <a href={n.link || '/'} className='text-[10px] text-[#514cff] font-poppinsMed'>Open</a>
+            </div>
+          ))}
+        </div>
+        <button onClick={async () => { setStatus('Marking all as read...'); await fetch('/api/notifications', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ action: 'mark_all_read' })}); setStatus('All marked as read'); }} style={{ marginTop: 8, padding: '10px 12px', borderRadius: 8, border: '1px solid #e5e7eb', background: '#fff' }}>Mark all as read</button>
       </div>
       <div style={{ marginTop: 16 }}>
         <strong>Maintenance</strong>

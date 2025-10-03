@@ -71,6 +71,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       .select();
 
     if (error) return res.status(500).json({ error: error.message });
+    try {
+      const origin = `${(req.headers['x-forwarded-proto'] || 'https')}://${req.headers.host}`;
+      await fetch(`${origin}/api/broadcastAll`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: 'Expense Added',
+          body: `SHIFA: ${note} - ${amount}`,
+          click_action: '/ibuexpenses',
+        }),
+      });
+    } catch {}
     return res.status(201).json({ message: "Expense added", data });
   }
 
