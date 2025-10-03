@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { requestFcmToken, getFirebaseEnvStatus } from '@/lib/firebaseClient';
+import { subscribeWebPush } from '@/lib/webpushClient';
 
 export default function NotificationsTestPage() {
   const [token, setToken] = useState<string | null>(null);
@@ -8,6 +9,9 @@ export default function NotificationsTestPage() {
   const [status, setStatus] = useState<string>('');
   const env = getFirebaseEnvStatus();
   const [swInfo, setSwInfo] = useState<string>('');
+  const [swScript, setSwScript] = useState<string>('');
+  // Avoid hydration mismatch by determining permission on client after mount
+  const [permission, setPermission] = useState<string>('checking...');
 
   useEffect(() => {
     (async () => {
@@ -19,10 +23,18 @@ export default function NotificationsTestPage() {
         const reg = await navigator.serviceWorker.getRegistration();
         const ctrl = navigator.serviceWorker.controller;
         setSwInfo(`registered=${!!reg}, active=${!!reg?.active}, scope=${reg?.scope || ''}, controlled=${!!ctrl}`);
+        setSwScript(reg?.active?.scriptURL || '');
       } else {
         setSwInfo('serviceWorker not supported');
       }
     })();
+    if (typeof window !== 'undefined') {
+      if ('Notification' in window) {
+        setPermission(Notification.permission);
+      } else {
+        setPermission('unsupported');
+      }
+    }
   }, []);
 
   const sendTest = async () => {
@@ -45,17 +57,52 @@ export default function NotificationsTestPage() {
     }
   };
 
+  const broadcastTest = async () => {
+    setStatus('Broadcasting...');
+    try {
+      const res = await fetch('/api/broadcastNotification', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, body }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error || 'Failed');
+      setStatus(`Broadcast sent: ${data.sent} success, ${data.failures} failures`);
+    } catch (e: any) {
+      setStatus(`Broadcast error: ${e.message || 'Failed'}`);
+    }
+  };
+
   const copyToken = async () => {
     if (!token) return;
     await navigator.clipboard.writeText(token);
     setStatus('Token copied to clipboard');
   };
 
+  const subscribeWP = async () => {
+    setStatus('Subscribing to Web Push...');
+    const ok = await subscribeWebPush();
+    setStatus(ok ? 'Web Push subscription saved' : 'Web Push subscription failed');
+  };
+
+  const broadcastWP = async () => {
+    setStatus('Broadcasting via Web Push...');
+    try {
+      const res = await fetch('/api/webpush/broadcast', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title, body }) });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error || 'Failed');
+      setStatus(`Web Push: ${data.sent} success, ${data.failures} failures`);
+    } catch (e: any) {
+      setStatus(`Web Push error: ${e.message || 'Failed'}`);
+    }
+  };
+
   return (
     <div style={{ padding: 16 }}>
       <h1>Notifications Test</h1>
-      <p>Permission: {typeof Notification !== 'undefined' ? Notification.permission : 'unsupported'}</p>
+      <p>Permission: {permission}</p>
       <p>SW: {swInfo}</p>
+      {swScript ? <p>SW script: {swScript}</p> : null}
       <div style={{margin: '8px 0'}}>
         <strong>Env:</strong>
         <div>API Key: {String(env.apiKey)}</div>
@@ -85,6 +132,14 @@ export default function NotificationsTestPage() {
         </label>
       </div>
       <button onClick={sendTest} style={{ marginTop: 12 }}>Send Test Notification</button>
+      <button onClick={broadcastTest} style={{ marginTop: 12, marginLeft: 8 }}>Broadcast to All Devices</button>
+      <div style={{ marginTop: 16 }}>
+        <strong>iOS PWA/Web Push</strong>
+        <div style={{ marginTop: 8 }}>
+          <button onClick={subscribeWP}>Subscribe Web Push (install PWA on iOS)</button>
+          <button onClick={broadcastWP} style={{ marginLeft: 8 }}>Broadcast Web Push</button>
+        </div>
+      </div>
       <div style={{ marginTop: 8 }}>{status}</div>
     </div>
   );

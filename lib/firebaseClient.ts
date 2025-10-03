@@ -23,6 +23,7 @@ export async function requestFcmToken(): Promise<string | null> {
   try {
     if (typeof window === 'undefined') return null;
     if (!('Notification' in window)) return null;
+    if (!('serviceWorker' in navigator)) return null;
 
     // Ensure permission
     if (Notification.permission === 'default') {
@@ -38,7 +39,31 @@ export async function requestFcmToken(): Promise<string | null> {
     const vapidKey = vapidPublicKey;
     if (!vapidKey) return null;
 
-    const token = await getToken(messaging, { vapidKey });
+    // Ensure we use the same SW that next-pwa registered (typically /sw.js at root)
+    let registration: ServiceWorkerRegistration | undefined;
+    try {
+      registration = await navigator.serviceWorker.getRegistration();
+      if (!registration) {
+        const readyReg = await navigator.serviceWorker.ready;
+        registration = readyReg;
+      }
+    } catch {
+      // ignore and let it be undefined
+    }
+
+    const token = await getToken(messaging, registration ? { vapidKey, serviceWorkerRegistration: registration } : { vapidKey });
+    if (token) {
+      try {
+        const ua = typeof navigator !== 'undefined' ? navigator.userAgent : undefined;
+        await fetch('/api/registerToken', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token, device: ua }),
+        });
+      } catch {
+        // ignore registration errors client-side
+      }
+    }
     return token || null;
   } catch {
     return null;

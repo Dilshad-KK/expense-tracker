@@ -71,6 +71,27 @@ try {
   // console.error('FCM init error in SW', e);
 }
 
+// --- Standards Web Push (for iOS and others) ---
+// Only handle payloads explicitly marked as web push to avoid duplicate handling with FCM
+self.addEventListener('push', (event) => {
+  try {
+    const data = event.data ? event.data.json() : null;
+    if (!data || (data && data.source !== 'wp')) return;
+    const title = data.title || 'Notification';
+    const body = data.body || '';
+    const icon = data.icon || '/assets/icon-192x192.png';
+    event.waitUntil(
+      self.registration.showNotification(title, {
+        body,
+        icon,
+        data,
+      })
+    );
+  } catch (e) {
+    // ignore malformed payloads
+  }
+});
+
 // Focus/open a window when the notification is clicked
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
