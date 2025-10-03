@@ -34,6 +34,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     for (const chunk of chunks) {
       const response = await admin.messaging().sendEachForMulticast({
         tokens: chunk,
+        // Include both data and a webpush notification so Android/Desktop display reliably
         data: {
           title: title || 'Notification',
           body: body || '',
@@ -43,6 +44,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         webpush: {
           headers: { TTL: '2419200' },
           fcmOptions: { link: click_action || '/' },
+          notification: {
+            title: title || 'Notification',
+            body: body || '',
+            icon: icon || '/assets/icon-192x192.png',
+          },
         },
       });
       sent += response.successCount;

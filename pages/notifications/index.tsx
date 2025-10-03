@@ -76,6 +76,24 @@ export default function NotificationsTestPage() {
     }
   };
 
+  const broadcastAll = async () => {
+    setStatus('Broadcasting to all (FCM + Web Push)...');
+    try {
+      const res = await fetch('/api/broadcastAll', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, body }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error || 'Failed');
+      const fcm = data?.fcm ? `FCM sent ${data.fcm.sent || 0}, fail ${data.fcm.failures || 0}` : '';
+      const wp = data?.webpush ? ` | WebPush sent ${data.webpush.sent || 0}, fail ${data.webpush.failures || 0}` : '';
+      setStatus(`Broadcast: ${fcm}${wp}`);
+    } catch (e: any) {
+      setStatus(`Broadcast all error: ${e.message || 'Failed'}`);
+    }
+  };
+
   const copyToken = async () => {
     if (!token) return;
     await navigator.clipboard.writeText(token);
@@ -163,7 +181,7 @@ export default function NotificationsTestPage() {
       {!isIOS && (
         <>
           <button onClick={sendTest} style={{ marginTop: 12, padding: '10px 12px', borderRadius: 8, border: '1px solid #e5e7eb', background: '#fff' }}>Send Test Notification</button>
-          <button onClick={broadcastTest} style={{ marginTop: 12, marginLeft: 8, padding: '10px 12px', borderRadius: 8, border: '1px solid #e5e7eb', background: '#fff' }}>Broadcast to All Devices</button>
+          <button onClick={broadcastTest} style={{ marginTop: 12, marginLeft: 8, padding: '10px 12px', borderRadius: 8, border: '1px solid #e5e7eb', background: '#fff' }}>Broadcast FCM</button>
         </>
       )}
       <div style={{ marginTop: 16 }}>
@@ -171,6 +189,7 @@ export default function NotificationsTestPage() {
         <div style={{ marginTop: 8 }}>
           <button onClick={subscribeWP} style={{ padding: '10px 12px', borderRadius: 8, border: '1px solid #e5e7eb', background: '#fff' }}>Subscribe Web Push (install PWA on iOS)</button>
           <button onClick={broadcastWP} style={{ marginLeft: 8, padding: '10px 12px', borderRadius: 8, border: '1px solid #e5e7eb', background: '#fff' }}>Broadcast Web Push</button>
+          <button onClick={broadcastAll} style={{ marginLeft: 8, padding: '10px 12px', borderRadius: 8, border: '1px solid #e5e7eb', background: '#fff' }}>Broadcast All</button>
         </div>
       </div>
       <div style={{ marginTop: 16 }}>
