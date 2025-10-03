@@ -7,7 +7,10 @@ export const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID as string,
 };
 
-export const vapidPublicKey = (process.env.NEXT_PUBLIC_FCM_VAPID_KEY || '') as string;
+// Support both env names: prefer NEXT_PUBLIC_FCM_VAPID, fallback to legacy NEXT_PUBLIC_FCM_VAPID_KEY
+export const vapidPublicKey = (
+  process.env.NEXT_PUBLIC_FCM_VAPID || process.env.NEXT_PUBLIC_FCM_VAPID_KEY || ''
+) as string;
 
 export function firebaseEnvFlags() {
   return {
@@ -20,4 +23,3 @@ export function firebaseEnvFlags() {
     vapidPublicKey: !!vapidPublicKey,
   };
 }
-
