@@ -35,7 +35,8 @@ importScripts('https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-comp
 
 // Read Firebase config from environment at build time. If missing, skip FCM init.
 const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  // Prefer NEXT_PUBLIC_FIREBASE_API (no _KEY), fallback to legacy name
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API || process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
   projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
   storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,

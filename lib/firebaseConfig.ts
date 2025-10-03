@@ -1,5 +1,6 @@
 export const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY as string,
+  // Support both names; prefer NEXT_PUBLIC_FIREBASE_API (no _KEY)
+  apiKey: (process.env.NEXT_PUBLIC_FIREBASE_API || process.env.NEXT_PUBLIC_FIREBASE_API_KEY) as string,
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN as string,
   projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID as string,
   storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET as string,
