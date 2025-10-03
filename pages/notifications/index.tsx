@@ -1,134 +1,24 @@
 import { useEffect, useState } from 'react';
-import { requestFcmToken, getFirebaseEnvStatus } from '@/lib/firebaseClient';
-import { subscribeWebPush } from '@/lib/webpushClient';
+import { useEffect, useState } from 'react';
+import moment from 'moment';
 
-export default function NotificationsTestPage() {
-  const [token, setToken] = useState<string | null>(null);
-  const [title, setTitle] = useState('Hello from FCM');
-  const [body, setBody] = useState('This is a test notification');
+export default function NotificationsPage() {
   const [status, setStatus] = useState<string>('');
   const [items, setItems] = useState<any[]>([]);
-  const env = getFirebaseEnvStatus();
-  const [swInfo, setSwInfo] = useState<string>('');
-  const [swScript, setSwScript] = useState<string>('');
-  // Avoid hydration mismatch by determining permission on client after mount
-  const [permission, setPermission] = useState<string>('checking...');
-  const [isIOS, setIsIOS] = useState<boolean>(false);
-  const [isStandalone, setIsStandalone] = useState<boolean>(false);
+  const [activeTab, setActiveTab] = useState<'unread' | 'read'>('unread');
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     (async () => {
-      const t = await requestFcmToken();
-      setToken(t);
-    })();
-    (async () => {
-      if ('serviceWorker' in navigator) {
-        const reg = await navigator.serviceWorker.getRegistration();
-        const ctrl = navigator.serviceWorker.controller;
-        setSwInfo(`registered=${!!reg}, active=${!!reg?.active}, scope=${reg?.scope || ''}, controlled=${!!ctrl}`);
-        setSwScript(reg?.active?.scriptURL || '');
-      } else {
-        setSwInfo('serviceWorker not supported');
-      }
-    })();
-    if (typeof window !== 'undefined') {
-      if ('Notification' in window) {
-        setPermission(Notification.permission);
-      } else {
-        setPermission('unsupported');
-      }
-      const ua = navigator.userAgent || '';
-      setIsIOS(/iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && (navigator as any).maxTouchPoints > 1));
-      const standalone = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || (navigator as any).standalone === true;
-      setIsStandalone(!!standalone);
-    }
-    // Load latest notifications
-    (async () => {
       try {
+        setLoading(true);
         const res = await fetch('/api/notifications');
         const json = await res.json();
         if (json?.items) setItems(json.items);
       } catch {}
+      finally { setLoading(false); }
     })();
   }, []);
-
-  const sendTest = async () => {
-    if (!token) {
-      setStatus('No token. Allow notifications first.');
-      return;
-    }
-    setStatus('Sending...');
-    try {
-      const res = await fetch('/api/sendNotification', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ fcmToken: token, title, body }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data?.error || 'Failed');
-      setStatus('Sent! Check your device.');
-    } catch (e: any) {
-      setStatus(`Error: ${e.message || 'Failed to send'}`);
-    }
-  };
-
-  const broadcastTest = async () => {
-    setStatus('Broadcasting...');
-    try {
-      const res = await fetch('/api/broadcastNotification', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, body }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data?.error || 'Failed');
-      setStatus(`Broadcast sent: ${data.sent} success, ${data.failures} failures`);
-    } catch (e: any) {
-      setStatus(`Broadcast error: ${e.message || 'Failed'}`);
-    }
-  };
-
-  const broadcastAll = async () => {
-    setStatus('Broadcasting to all (FCM + Web Push)...');
-    try {
-      const res = await fetch('/api/broadcastAll', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, body }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data?.error || 'Failed');
-      const fcm = data?.fcm ? `FCM sent ${data.fcm.sent || 0}, fail ${data.fcm.failures || 0}` : '';
-      const wp = data?.webpush ? ` | WebPush sent ${data.webpush.sent || 0}, fail ${data.webpush.failures || 0}` : '';
-      setStatus(`Broadcast: ${fcm}${wp}`);
-    } catch (e: any) {
-      setStatus(`Broadcast all error: ${e.message || 'Failed'}`);
-    }
-  };
-
-  const copyToken = async () => {
-    if (!token) return;
-    await navigator.clipboard.writeText(token);
-    setStatus('Token copied to clipboard');
-  };
-
-  const subscribeWP = async () => {
-    setStatus('Subscribing to Web Push...');
-    const res = await subscribeWebPush();
-    setStatus(res.ok ? 'Web Push subscription saved' : `Web Push subscription failed: ${res.reason || ''}`);
-  };
-
-  const broadcastWP = async () => {
-    setStatus('Broadcasting via Web Push...');
-    try {
-      const res = await fetch('/api/webpush/broadcast', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title, body }) });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data?.error || 'Failed');
-      setStatus(`Web Push: ${data.sent} success, ${data.failures} failures`);
-    } catch (e: any) {
-      setStatus(`Web Push error: ${e.message || 'Failed'}`);
-    }
-  };
 
   const handleEnableNotifications = async () => {
     // Decide channel based on platform and install
@@ -174,79 +64,79 @@ export default function NotificationsTestPage() {
     }
   };
 
+  const refresh = async () => {
+    setStatus('Refreshing...');
+    try {
+      const res = await fetch(`/api/notifications?filter=${activeTab}`);
+      const json = await res.json();
+      setItems(json?.items || []);
+      setStatus('');
+    } catch (e: any) {
+      setStatus('Refresh failed');
+    }
+  };
+
+  const markAllRead = async () => {
+    setStatus('Marking all as read...');
+    await fetch('/api/notifications', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'mark_all_read' }) });
+    await refresh();
+  };
+
+  const markRead = async (id: any) => {
+    await fetch('/api/notifications', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'mark_read', id }) });
+    await refresh();
+  };
+
+  const filtered = items.filter((n) => (activeTab === 'unread' ? !n.read : !!n.read));
+
   return (
-    <div style={{ padding: 16, paddingBottom: 120 }}>
-      <h1>Notifications Test</h1>
-      <p>Permission: {permission}</p>
-      <p>Channel: {isIOS ? (isStandalone ? 'Web Push (iOS PWA)' : 'Install PWA to enable Web Push') : 'FCM (Android/Desktop)'}</p>
-      <button onClick={handleEnableNotifications} style={{ marginTop: 8, padding: '10px 12px', borderRadius: 8, border: '1px solid #e5e7eb', background: '#fff' }}>Enable Notifications</button>
-      <p>SW: {swInfo}</p>
-      {swScript ? <p>SW script: {swScript}</p> : null}
-      <div style={{margin: '8px 0'}}>
-        <strong>Env:</strong>
-        <div>API Key: {String(env.apiKey)}</div>
-        <div>Auth Domain: {String(env.authDomain)}</div>
-        <div>Project ID: {String(env.projectId)}</div>
-        <div>Storage Bucket: {String(env.storageBucket)}</div>
-        <div>Messaging Sender ID: {String(env.messagingSenderId)}</div>
-        <div>App ID: {String(env.appId)}</div>
-        <div>VAPID Key: {String(env.vapidKey)}</div>
-      </div>
-      <div>
-        <strong>FCM Token:</strong>
-        <div style={{ wordBreak: 'break-all', marginTop: 8 }}>{token || 'No token yet'}</div>
-        <button onClick={copyToken} disabled={!token} style={{ marginTop: 8, padding: '10px 12px', borderRadius: 8, border: '1px solid #e5e7eb', background: '#fff' }}>Copy Token</button>
-      </div>
-      <hr style={{ margin: '16px 0' }}/>
-      <div>
-        <label>
-          Title
-          <input value={title} onChange={(e) => setTitle(e.target.value)} style={{ display: 'block', width: '100%', marginTop: 4, padding: 8, borderRadius: 8, border: '1px solid #e5e7eb' }} />
-        </label>
-      </div>
-      <div style={{ marginTop: 8 }}>
-        <label>
-          Body
-          <input value={body} onChange={(e) => setBody(e.target.value)} style={{ display: 'block', width: '100%', marginTop: 4, padding: 8, borderRadius: 8, border: '1px solid #e5e7eb' }} />
-        </label>
-      </div>
-      {!isIOS && (
-        <>
-          <button onClick={sendTest} style={{ marginTop: 12, padding: '10px 12px', borderRadius: 8, border: '1px solid #e5e7eb', background: '#fff' }}>Send Test Notification</button>
-          <button onClick={broadcastTest} style={{ marginTop: 12, marginLeft: 8, padding: '10px 12px', borderRadius: 8, border: '1px solid #e5e7eb', background: '#fff' }}>Broadcast FCM</button>
-        </>
-      )}
-      <div style={{ marginTop: 16 }}>
-        <strong>iOS PWA/Web Push</strong>
-        <div style={{ marginTop: 8 }}>
-          <button onClick={subscribeWP} style={{ padding: '10px 12px', borderRadius: 8, border: '1px solid #e5e7eb', background: '#fff' }}>Subscribe Web Push (install PWA on iOS)</button>
-          <button onClick={broadcastWP} style={{ marginLeft: 8, padding: '10px 12px', borderRadius: 8, border: '1px solid #e5e7eb', background: '#fff' }}>Broadcast Web Push</button>
-          <button onClick={broadcastAll} style={{ marginLeft: 8, padding: '10px 12px', borderRadius: 8, border: '1px solid #e5e7eb', background: '#fff' }}>Broadcast All</button>
+    <div className='px-4 py-4' style={{ paddingBottom: 120 }}>
+      <div className='flex items-center justify-between mb-3'>
+        <h1 className='text-black text-[16px] font-poppinsMed'>Notifications</h1>
+        <div>
+          <button onClick={markAllRead} className='text-[10px] text-[#514cff] border border-[#e5e7eb] px-3 py-2 rounded-[8px] bg-white'>Mark all read</button>
+          <button onClick={refresh} className='ml-2 text-[10px] text-[#514cff] border border-[#e5e7eb] px-3 py-2 rounded-[8px] bg-white'>Refresh</button>
         </div>
       </div>
-      <div style={{ marginTop: 24 }}>
-        <div className='text-black text-[14px] font-poppinsMed mb-2'>Recent Notifications</div>
+
+      <div className='flex mb-4 border border-[#e5e7eb] rounded-[10px] overflow-hidden bg-white'>
+        <button onClick={() => setActiveTab('unread')} className={`flex-1 px-3 py-2 text-[12px] font-poppinsMed ${activeTab==='unread' ? 'bg-[#f3f3fd] text-black' : 'text-black/60'}`}>Unread</button>
+        <button onClick={() => setActiveTab('read')} className={`flex-1 px-3 py-2 text-[12px] font-poppinsMed ${activeTab==='read' ? 'bg-[#f3f3fd] text-black' : 'text-black/60'}`}>Read</button>
+      </div>
+
+      {loading ? (
+        <div className='text-[12px] text-black/60'>Loading…</div>
+      ) : (
         <div>
-          {items.map((n, idx) => (
-            <div key={idx} className='mb-2 p-3 rounded-[12px] border border-[#e5e7eb] bg-white flex justify-between items-center'>
-              <div>
-                <div className='text-[12px] font-poppinsMed text-black'>{n.title}</div>
-                <div className='text-[11px] text-black/70'>{n.body}</div>
+          {filtered.length === 0 && (
+            <div className='text-[12px] text-black/60'>No {activeTab} notifications</div>
+          )}
+          {filtered.map((n, idx) => (
+            <div key={idx} className='mb-2 p-3 rounded-[12px] border border-[#e5e7eb] bg-white'>
+              <div className='flex justify-between items-start'>
+                <div className='mr-2'>
+                  <div className='text-[12px] font-poppinsMed text-black'>{n.title}</div>
+                  <div className='text-[11px] text-black/70'>{n.body}</div>
+                  {n.created_at && (
+                    <div className='text-[10px] text-black/50 mt-1'>{moment(n.created_at).fromNow()}</div>
+                  )}
+                </div>
+                <div className='flex items-center gap-2'>
+                  {n.link && (<a href={n.link} className='text-[10px] text-[#514cff] font-poppinsMed'>Open</a>)}
+                  {!n.read && (<button onClick={() => markRead(n.id)} className='text-[10px] text-[#514cff] border border-[#e5e7eb] px-2 py-1 rounded-[8px] bg-white'>Mark read</button>)}
+                </div>
               </div>
-              <a href={n.link || '/'} className='text-[10px] text-[#514cff] font-poppinsMed'>Open</a>
             </div>
           ))}
         </div>
-        <button onClick={async () => { setStatus('Marking all as read...'); await fetch('/api/notifications', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ action: 'mark_all_read' })}); setStatus('All marked as read'); }} style={{ marginTop: 8, padding: '10px 12px', borderRadius: 8, border: '1px solid #e5e7eb', background: '#fff' }}>Mark all as read</button>
-      </div>
-      <div style={{ marginTop: 16 }}>
-        <strong>Maintenance</strong>
-        <div style={{ marginTop: 8 }}>
-          <button onClick={resetPWA} style={{ padding: '10px 12px', borderRadius: 8, border: '1px solid #e5e7eb', background: '#fff' }}>Reset PWA (Unregister SW & Clear caches)</button>
-        </div>
-      </div>
-      <div style={{ marginTop: 8 }}>{status}</div>
+      )}
+
+      <div className='mt-4 text-[11px] text-black/60'>{status}</div>
+
       <div style={{ height: 80 }} />
+      <div className='mt-2'>
+        <button onClick={resetPWA} className='text-[10px] text-[#514cff] border border-[#e5e7eb] px-3 py-2 rounded-[8px] bg-white'>Reset PWA (Unregister SW & Clear caches)</button>
+      </div>
     </div>
   );
 }
