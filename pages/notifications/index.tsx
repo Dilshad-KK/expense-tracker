@@ -105,6 +105,13 @@ export default function NotificationsTestPage() {
     try {
       if ('serviceWorker' in navigator) {
         const regs = await navigator.serviceWorker.getRegistrations();
+        // Try to unsubscribe existing push subscriptions before unregister
+        for (const r of regs) {
+          try {
+            const sub = await r.pushManager.getSubscription();
+            if (sub) await sub.unsubscribe();
+          } catch {}
+        }
         await Promise.all(regs.map(r => r.unregister()));
       }
       if ('caches' in window) {

@@ -44,6 +44,14 @@ export async function subscribeWebPush(): Promise<{ ok: boolean; reason?: string
       reg = readyOrTimeout as ServiceWorkerRegistration;
     }
 
+    // If an old subscription exists (likely with a different VAPID key), unsubscribe first
+    try {
+      const existing = await reg.pushManager.getSubscription();
+      if (existing) {
+        await existing.unsubscribe();
+      }
+    } catch {}
+
     const sub = await reg.pushManager.subscribe({
       userVisibleOnly: true,
       applicationServerKey: urlBase64ToUint8Array(publicKey),
