@@ -73,6 +73,26 @@ export default function App({ Component, pageProps }: AppProps) {
       setTimeout(() => setToast(null), 4000);
     }
   };
+
+  // Listen for SW messages (e.g., Web Push foreground notifications) and show a toast
+  useEffect(() => {
+    if (typeof window === 'undefined' || !('serviceWorker' in navigator)) return;
+    const handler = (event: MessageEvent) => {
+      try {
+        const data: any = event.data || {};
+        if (data && data.type === 'PUSH') {
+          const title = data.title || 'Notification';
+          const body = data.body || '';
+          setToast({ title, body });
+          setTimeout(() => setToast(null), 4000);
+        }
+      } catch {}
+    };
+    navigator.serviceWorker.addEventListener('message', handler as any);
+    return () => {
+      try { navigator.serviceWorker.removeEventListener('message', handler as any); } catch {}
+    };
+  }, []);
   return (
     <>
       {envChecked && iosPromptVisible && (

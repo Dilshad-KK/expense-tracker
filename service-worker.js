@@ -104,7 +104,16 @@ self.addEventListener('push', (event) => {
     const actions = data.actions;
     const vibrate = data.vibrate;
     const options = { body, icon, badge, image, requireInteraction, actions, vibrate, data };
-    event.waitUntil(self.registration.showNotification(title, options));
+    // Also inform open clients so they can show an in-app toast when foreground
+    event.waitUntil((async () => {
+      try {
+        const clientList = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+        clientList.forEach((c) => {
+          try { c.postMessage({ type: 'PUSH', title, body, icon, image, data }); } catch {}
+        });
+      } catch {}
+      await self.registration.showNotification(title, options);
+    })());
   } catch (e) {
     // ignore malformed payloads
   }

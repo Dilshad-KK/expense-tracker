@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { supabase } from "../../lib/supabase";
 import moment from "moment";
-import { getCategoryIcon } from "@/utils/categoryMapper";
+import { getCategoryIcon, getCategoryHeroImage } from "@/utils/categoryMapper";
 
 type ExpenseEntry = {
   id: number;
@@ -62,6 +62,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     try {
       const origin = `${(req.headers['x-forwarded-proto'] || 'https')}://${req.headers.host}`;
       const iconUrl = getCategoryIcon(note || '');
+      const heroUrl = getCategoryHeroImage(note || '');
       await fetch(`${origin}/api/broadcastAll`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -70,7 +71,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           body: `UAE: ${note} - ${amount}`,
           click_action: '/ikkuexpensesuae',
           icon: iconUrl,
-          image: iconUrl,
+          image: heroUrl,
           actions: [
             { action: 'open', title: 'Open', url: '/ikkuexpensesuae' }
           ]

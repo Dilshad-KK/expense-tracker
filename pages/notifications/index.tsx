@@ -9,15 +9,8 @@ export default function NotificationsPage() {
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    (async () => {
-      try {
-        setLoading(true);
-        const res = await fetch('/api/notifications');
-        const json = await res.json();
-        if (json?.items) setItems(json.items);
-      } catch {}
-      finally { setLoading(false); }
-    })();
+    // Initial load for current tab
+    refresh();
   }, []);
 
   // Notifications enabling is handled globally in _app for iOS, and on first use for FCM.
@@ -49,16 +42,24 @@ export default function NotificationsPage() {
   };
 
   const refresh = async () => {
-    setStatus('Refreshing...');
+    setLoading(true);
+    setStatus('');
     try {
       const res = await fetch(`/api/notifications?filter=${activeTab}`);
       const json = await res.json();
       setItems(json?.items || []);
-      setStatus('');
     } catch (e: any) {
       setStatus('Refresh failed');
+    } finally {
+      setLoading(false);
     }
   };
+
+  // Auto refresh when switching tabs
+  useEffect(() => {
+    refresh();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab]);
 
   const markAllRead = async () => {
     setStatus('Marking all as read...');
