@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import Link from 'next/link'
 import { IoMdNotifications } from "react-icons/io";
 import Clock from '@/components/time';
 
@@ -55,6 +56,21 @@ const Home = () => {
       <div className='min-h-screen px-4 py-8'>
         <Categories />
         <Jan8CounterCard />
+        <Link
+          href="/notifications"
+          className='mt-4 p-4 rounded-[14px] bg-[#f3f3fd] border border-[#d3d3fe] flex items-center justify-between'
+        >
+          <div className='flex items-center'>
+            <div className='relative h-[40px] w-[40px] rounded-full mr-3 bg-white border border-[#e5e7eb] flex items-center justify-center'>
+              <IoMdNotifications className='text-[20px] text-[#514cff]' />
+            </div>
+            <div className='flex flex-col'>
+              <span className='text-[12px] text-black font-poppinsMed'>Notifications Test</span>
+              <span className='text-[10px] text-black/60 font-poppinsMed'>Open to register device and test push</span>
+            </div>
+          </div>
+          <span className='text-[10px] text-[#514cff] font-poppinsMed'>Open</span>
+        </Link>
         <div className="h-[1px] bg-[#cccccc4c] w-full my-8" />
         <Loans />
         <Discussions />
