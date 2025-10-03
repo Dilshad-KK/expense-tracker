@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { useEffect, useState } from 'react';
 import moment from 'moment';
 
 export default function NotificationsPage() {
