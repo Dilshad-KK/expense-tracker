@@ -84,8 +84,8 @@ export default function NotificationsTestPage() {
 
   const subscribeWP = async () => {
     setStatus('Subscribing to Web Push...');
-    const ok = await subscribeWebPush();
-    setStatus(ok ? 'Web Push subscription saved' : 'Web Push subscription failed');
+    const res = await subscribeWebPush();
+    setStatus(res.ok ? 'Web Push subscription saved' : `Web Push subscription failed: ${res.reason || ''}`);
   };
 
   const broadcastWP = async () => {
@@ -97,6 +97,25 @@ export default function NotificationsTestPage() {
       setStatus(`Web Push: ${data.sent} success, ${data.failures} failures`);
     } catch (e: any) {
       setStatus(`Web Push error: ${e.message || 'Failed'}`);
+    }
+  };
+
+  const resetPWA = async () => {
+    setStatus('Resetting PWA: unregistering service workers and clearing caches...');
+    try {
+      if ('serviceWorker' in navigator) {
+        const regs = await navigator.serviceWorker.getRegistrations();
+        await Promise.all(regs.map(r => r.unregister()));
+      }
+      if ('caches' in window) {
+        const keys = await caches.keys();
+        await Promise.all(keys.map(k => caches.delete(k)));
+      }
+      // Do not wipe localStorage/sessionStorage automatically to avoid data loss
+      setStatus('Reset complete. Reloading...');
+      setTimeout(() => window.location.reload(), 500);
+    } catch (e: any) {
+      setStatus(`Reset failed: ${e?.message || 'unknown error'}`);
     }
   };
 
@@ -145,6 +164,12 @@ export default function NotificationsTestPage() {
         <div style={{ marginTop: 8 }}>
           <button onClick={subscribeWP} style={{ padding: '10px 12px', borderRadius: 8, border: '1px solid #e5e7eb', background: '#fff' }}>Subscribe Web Push (install PWA on iOS)</button>
           <button onClick={broadcastWP} style={{ marginLeft: 8, padding: '10px 12px', borderRadius: 8, border: '1px solid #e5e7eb', background: '#fff' }}>Broadcast Web Push</button>
+        </div>
+      </div>
+      <div style={{ marginTop: 16 }}>
+        <strong>Maintenance</strong>
+        <div style={{ marginTop: 8 }}>
+          <button onClick={resetPWA} style={{ padding: '10px 12px', borderRadius: 8, border: '1px solid #e5e7eb', background: '#fff' }}>Reset PWA (Unregister SW & Clear caches)</button>
         </div>
       </div>
       <div style={{ marginTop: 8 }}>{status}</div>
