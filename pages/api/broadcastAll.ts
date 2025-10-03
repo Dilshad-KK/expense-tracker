@@ -65,14 +65,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             webpush: {
               headers: { TTL: '2419200' },
               fcmOptions: { link: click_action || '/' },
+              // Keep notification minimal for maximum compatibility
               notification: {
                 title: title || 'Notification',
                 body: body || '',
                 icon: iconAbs,
-                image: imageAbs,
-                badge,
-                requireInteraction,
-                actions: Array.isArray(actions) ? actions.map((a: any) => ({ action: a.action, title: a.title, icon: a.icon })) : undefined,
               },
             },
           });
