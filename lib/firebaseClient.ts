@@ -1,14 +1,6 @@
 import { initializeApp, getApps } from 'firebase/app';
 import { getMessaging, getToken, onMessage, isSupported, Messaging } from 'firebase/messaging';
-
-const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY as string,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN as string,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID as string,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET as string,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID as string,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID as string,
-};
+import { firebaseConfig, vapidPublicKey, firebaseEnvFlags as flags } from './firebaseConfig';
 
 export function initFirebaseApp() {
   if (!getApps().length) {
@@ -43,7 +35,7 @@ export async function requestFcmToken(): Promise<string | null> {
     const messaging = await getMessagingInstance();
     if (!messaging) return null;
 
-    const vapidKey = process.env.NEXT_PUBLIC_FCM_VAPID_KEY as string | undefined;
+    const vapidKey = vapidPublicKey;
     if (!vapidKey) return null;
 
     const token = await getToken(messaging, { vapidKey });
@@ -60,3 +52,15 @@ export async function subscribeForegroundMessages(cb: (payload: any) => void) {
   return unsubscribe;
 }
 
+export function getFirebaseEnvStatus() {
+  const f = flags();
+  return {
+    apiKey: f.apiKey,
+    authDomain: f.authDomain,
+    projectId: f.projectId,
+    storageBucket: f.storageBucket,
+    messagingSenderId: f.messagingSenderId,
+    appId: f.appId,
+    vapidKey: f.vapidPublicKey,
+  };
+}
