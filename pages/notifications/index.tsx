@@ -12,6 +12,7 @@ export default function NotificationsTestPage() {
   const [swScript, setSwScript] = useState<string>('');
   // Avoid hydration mismatch by determining permission on client after mount
   const [permission, setPermission] = useState<string>('checking...');
+  const [isIOS, setIsIOS] = useState<boolean>(false);
 
   useEffect(() => {
     (async () => {
@@ -34,6 +35,8 @@ export default function NotificationsTestPage() {
       } else {
         setPermission('unsupported');
       }
+      const ua = navigator.userAgent || '';
+      setIsIOS(/iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && (navigator as any).maxTouchPoints > 1));
     }
   }, []);
 
@@ -98,7 +101,7 @@ export default function NotificationsTestPage() {
   };
 
   return (
-    <div style={{ padding: 16 }}>
+    <div style={{ padding: 16, paddingBottom: 120 }}>
       <h1>Notifications Test</h1>
       <p>Permission: {permission}</p>
       <p>SW: {swInfo}</p>
@@ -116,31 +119,36 @@ export default function NotificationsTestPage() {
       <div>
         <strong>FCM Token:</strong>
         <div style={{ wordBreak: 'break-all', marginTop: 8 }}>{token || 'No token yet'}</div>
-        <button onClick={copyToken} disabled={!token} style={{ marginTop: 8 }}>Copy Token</button>
+        <button onClick={copyToken} disabled={!token} style={{ marginTop: 8, padding: '10px 12px', borderRadius: 8, border: '1px solid #e5e7eb', background: '#fff' }}>Copy Token</button>
       </div>
       <hr style={{ margin: '16px 0' }}/>
       <div>
         <label>
           Title
-          <input value={title} onChange={(e) => setTitle(e.target.value)} style={{ display: 'block', width: '100%', marginTop: 4 }} />
+          <input value={title} onChange={(e) => setTitle(e.target.value)} style={{ display: 'block', width: '100%', marginTop: 4, padding: 8, borderRadius: 8, border: '1px solid #e5e7eb' }} />
         </label>
       </div>
       <div style={{ marginTop: 8 }}>
         <label>
           Body
-          <input value={body} onChange={(e) => setBody(e.target.value)} style={{ display: 'block', width: '100%', marginTop: 4 }} />
+          <input value={body} onChange={(e) => setBody(e.target.value)} style={{ display: 'block', width: '100%', marginTop: 4, padding: 8, borderRadius: 8, border: '1px solid #e5e7eb' }} />
         </label>
       </div>
-      <button onClick={sendTest} style={{ marginTop: 12 }}>Send Test Notification</button>
-      <button onClick={broadcastTest} style={{ marginTop: 12, marginLeft: 8 }}>Broadcast to All Devices</button>
+      {!isIOS && (
+        <>
+          <button onClick={sendTest} style={{ marginTop: 12, padding: '10px 12px', borderRadius: 8, border: '1px solid #e5e7eb', background: '#fff' }}>Send Test Notification</button>
+          <button onClick={broadcastTest} style={{ marginTop: 12, marginLeft: 8, padding: '10px 12px', borderRadius: 8, border: '1px solid #e5e7eb', background: '#fff' }}>Broadcast to All Devices</button>
+        </>
+      )}
       <div style={{ marginTop: 16 }}>
         <strong>iOS PWA/Web Push</strong>
         <div style={{ marginTop: 8 }}>
-          <button onClick={subscribeWP}>Subscribe Web Push (install PWA on iOS)</button>
-          <button onClick={broadcastWP} style={{ marginLeft: 8 }}>Broadcast Web Push</button>
+          <button onClick={subscribeWP} style={{ padding: '10px 12px', borderRadius: 8, border: '1px solid #e5e7eb', background: '#fff' }}>Subscribe Web Push (install PWA on iOS)</button>
+          <button onClick={broadcastWP} style={{ marginLeft: 8, padding: '10px 12px', borderRadius: 8, border: '1px solid #e5e7eb', background: '#fff' }}>Broadcast Web Push</button>
         </div>
       </div>
       <div style={{ marginTop: 8 }}>{status}</div>
+      <div style={{ height: 80 }} />
     </div>
   );
 }
