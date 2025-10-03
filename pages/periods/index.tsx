@@ -67,7 +67,8 @@ export default function HomePage() {
     const cycleLength = data.cycle_length;
 
     const daysSinceLastPeriod = today.diff(lastPeriod, "days");
-    const currentDayInCycle = daysSinceLastPeriod % cycleLength;
+    // Normalize modulo to [0, cycleLength-1]
+    const currentDayInCycle = ((daysSinceLastPeriod % cycleLength) + cycleLength) % cycleLength;
 
     let phase = "";
 
@@ -116,10 +117,11 @@ export default function HomePage() {
       text = `Next Period Is Expected In ${daysLeft} days`;
     }
 
-    // Generate the next 3 expected period dates
-    const nextThreePeriods = [];
-    for (let i = 0; i < 4; i++) {
-      const futureDate = lastPeriodDate.clone().add(cycleLength * (i + 1), "days");
+    // Generate the next 3 expected period dates starting from upcoming
+    const nextThreePeriods: any[] = [];
+    const nextPeriodDateMoment = nextPeriodDate.clone();
+    for (let i = 0; i < 3; i++) {
+      const futureDate = nextPeriodDateMoment.clone().add(cycleLength * i, "days");
       nextThreePeriods.push(futureDate);
     }
 
@@ -161,7 +163,7 @@ export default function HomePage() {
                 </div>
                 <div className="flex flex-col bg-[#f3fafa] px-4 py-2 rounded-md items-start justify-center border-[1px] border-solid border-[#9ebfbf6f] mr-2">
                   <div className="text-[12px] text-[#177777] font-poppinsMed">Day</div>
-                  <div className="text-[16px] text-[#177777] font-poppinsMed"> {getPhaseDetails()?.daysSinceLastPeriod}</div>
+                  <div className="text-[16px] text-[#177777] font-poppinsMed"> {(getPhaseDetails()?.currentDayInCycle ?? 0) + 1}</div>
                 </div>
                 <div className="flex flex-col bg-[#f3fafa] px-4 py-2 rounded-md items-start justify-center border-[1px] border-solid border-[#9ebfbf6f]">
                   <div className="text-[12px] text-[#177777] font-poppins">Phase</div>

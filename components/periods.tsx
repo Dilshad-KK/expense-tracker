@@ -26,7 +26,7 @@ const Periods = () => {
             const data: PeriodData[] = await res.json();
             setPeriods(data);
         } catch (error) {
-            console.error("Error fetching discussions:", error);
+            console.error("Error fetching periods:", error);
         } finally {
             setLoading(false);
         }
@@ -46,13 +46,12 @@ const getPeriodInfo = () => {
       };
     }
 
-    // Calculate the next period date
     const nextPeriodDate = lastPeriodDate.clone().add(cycleLength, "days");
-    const daysLeft = nextPeriodDate.diff(today, "days");
+    const rawDiff = nextPeriodDate.diff(today, "days");
+    const daysLeft = rawDiff <= 0 ? 0 : rawDiff; // clamp at 0 for today/past
 
-    // Prepare the text
     let text = "";
-    if (daysLeft <= 0) {
+    if (rawDiff <= 0) {
       text = "Next Period Is Expected Today";
     } else if (daysLeft === 1) {
       text = "Next Period Is Expected Tomorrow";
@@ -60,18 +59,16 @@ const getPeriodInfo = () => {
       text = `Next Period Is Expected In ${daysLeft} days`;
     }
 
-    // Generate the next 3 expected period dates
-    const nextThreePeriods = [];
-    for (let i = 1; i < 4; i++) {
-      const futureDate = lastPeriodDate.clone().add(cycleLength * (i + 1), "days");
+    // Next 3 expected periods starting from the upcoming one
+    const nextThreePeriods: string[] = [];
+    for (let i = 0; i < 3; i++) {
+      const futureDate = nextPeriodDate.clone().add(cycleLength * i, "days");
       nextThreePeriods.push(futureDate.format("MMM Do YY"));
     }
 
     return {
       daysLeft,
-      expectedDate: nextPeriodDate.isSameOrBefore(today, 'day')
-        ? today.format("MMM Do YY")
-        : nextPeriodDate.format("MMM Do YY"),
+      expectedDate: nextPeriodDate.format("MMM Do YY"),
       nextThreePeriods,
       text
     };
@@ -107,8 +104,8 @@ const getPeriodInfo = () => {
                                         </div>
                                         <div className='flex flex-col items-start justify-center'>
                                             <span className='text-[12px] text-black font-poppinsMed mb-1'>{getPeriodInfo()?.text}</span>
-                                            <span className='text-[10px] text-[#308dff] font-poppinsMed mb-1'>  {getPeriodInfo().expectedDate}</span>
-                                            <span className='text-[10px] text-[#1fa027] font-poppinsMed mb-1'>Last period was on {moment(periods[0]?.last_period_date)?.format("MMM Do YY")}</span>
+                                            <span className='text-[10px] text-[#308dff] font-poppinsMed mb-1'>  {getPeriodInfo()?.expectedDate || '-'}</span>
+                                            <span className='text-[10px] text-[#1fa027] font-poppinsMed mb-1'>Last period was on {moment(periods[0]?.last_period_date).isValid() ? moment(periods[0]?.last_period_date).format("MMM Do YY") : '-'}</span>
                                         </div>
                                     </div>
                                 </div>
