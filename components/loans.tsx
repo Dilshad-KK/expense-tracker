@@ -93,18 +93,18 @@ const Loans = () => {
     return (
         <>
             <div className='flex justify-between'>
-                <h3 className='text-left mb-4 text-black text-[16px] font-poppinsMed'>Loans</h3>
-                <Link href={"/allloans"} className='text-left mb-4 text-[#4a99fb] text-[12px] font-poppinsMed cursor-pointer'>View All</Link>
+                <h3 className='text-left mb-4 text-base-content text-[16px] font-poppinsMed'>Loans</h3>
+                <Link href={"/allloans"} className='text-left mb-4 text-primary text-[12px] font-poppinsMed cursor-pointer'>View All</Link>
             </div>
             <div>
                 {
                     loading ?
-                        <div className="h-[90px] w-[100%] bg-white px-4 py-4 rounded-[12px] flex mb-8 items-center">
-                            <div className="skeleton h-[40px] w-[50px] bg-[#d6d6fc] rounded-[12px] mr-3"></div>
+                        <div className="h-[90px] w-[100%] bg-base-100 px-4 py-4 rounded-[12px] flex mb-8 items-center">
+                            <div className="skeleton h-[40px] w-[50px] bg-base-200 rounded-[12px] mr-3"></div>
                             <div className='w-full flex flex-col items-center justify-center'>
-                                <div className="skeleton h-3 w-[100%] bg-[#d6d6fc] mb-2 rounded-[4px]"></div>
-                                <div className="skeleton h-2 w-[100%] bg-[#d6d6fc] mb-2 rounded-[4px]"></div>
-                                <div className="skeleton h-2 w-[100%] bg-[#d6d6fc] rounded-[4px]"></div>
+                                <div className="skeleton h-3 w-[100%] bg-base-200 mb-2 rounded-[4px]"></div>
+                                <div className="skeleton h-2 w-[100%] bg-base-200 mb-2 rounded-[4px]"></div>
+                                <div className="skeleton h-2 w-[100%] bg-base-200 rounded-[4px]"></div>
                             </div>
                         </div> :
                         loans?.length > 1 ?
@@ -112,26 +112,23 @@ const Loans = () => {
                                 {
                                     loans.map((loan, key) => (
                                         <div>
-                                            <Link href={`/allloans/loandetails/${loan.id}`} key={key} className='bg-white px-4 py-4 mb-6 mx-1 rounded-[12px] flex justify-between border-[1px] border-solid border-[#cccccc5e]'>
+                                            <Link href={`/allloans/loandetails/${loan.id}`} key={key} className='bg-base-100 px-4 py-4 mb-6 mx-1 rounded-[12px] flex justify-between border border-base-content/20 shadow-sm'>
                                                 <div className='flex items-center'>
-                                                    <div className='bg-[#a5a5fe2d] rounded-[12px] h-[60px] w-[60px] flex items-center justify-center flex-col mr-4'>
-                                                        <span className='text-black/80 text-[12px] font-poppinsMed'>{moment(loan?.date_started).format("DD")}</span>
-                                                        <span className='text-black/80 text-[10px] uppercase font-poppinsMed'>{moment(loan?.date_started).format("MMM")}</span>
-                                                        <span className='text-black/80 text-[8px] uppercase font-poppinsMed'>{moment(loan?.date_started).format("YYYY")}</span>
+                                                    <div className='bg-base-200 rounded-[12px] h-[60px] w-[60px] flex items-center justify-center flex-col mr-4'>
+                                                        <span className='text-base-content/80 text-[12px] font-poppinsMed'>{moment(loan?.date_started).format("DD")}</span>
+                                                        <span className='text-base-content/80 text-[10px] uppercase font-poppinsMed'>{moment(loan?.date_started).format("MMM")}</span>
+                                                        <span className='text-base-content/80 text-[8px] uppercase font-poppinsMed'>{moment(loan?.date_started).format("YYYY")}</span>
                                                     </div>
                                                     <div className='flex items-start justify-center flex-col'>
-                                                        <span className='text-black/80 text-[14px] font-poppinsMed mb-1'>{loan?.title}</span>
-                                                        <span className='text-black/60 text-[12px] font-poppinsMed mb-1'>{loan?.currency + " "} {loan?.total_amount}</span>
-                                                        <span className='text-black/60 text-[10px] font-poppins'>{`${loan?.times}/${loan?.total_insts} Payment${loan?.times > 1 ? 's' : ''} done`}</span>
+                                                        <span className='text-base-content/80 text-[14px] font-poppinsMed mb-1'>{loan?.title}</span>
+                                                        <span className='text-base-content/60 text-[12px] font-poppinsMed mb-1'>{loan?.currency + " "} {loan?.total_amount}</span>
+                                                        <span className='text-base-content/60 text-[10px] font-poppins'>{`${loan?.times}/${loan?.total_insts} Payment${loan?.times > 1 ? 's' : ''} done`}</span>
                                                     </div>
                                                 </div>
                                                 <div className='flex items-center justify-end'>
-                                                    <div className='flex items-center justify-end'>
-                                                        {loan?.times === Number(loan?.total_insts) ?
-                                                            <div className='bg-[#a7fac5] rounded-[12px] text-[10px] py-1 px-3 flex items-center justify-center uppercase text-[#345c42] font-poppinsMed'>paid</div>
-                                                            :
-                                                            <div className='bg-[#fbe2de] rounded-[12px] text-[10px] py-1 px-3 flex items-center justify-center uppercase text-[#8f4d43] font-poppinsMed'>pending</div>}
-                                                    </div>
+                                                    {loan?.times === Number(loan?.total_insts)
+                                                        ? <div className='badge badge-success badge-outline uppercase text-[10px] py-2 px-3'>paid</div>
+                                                        : <div className='badge badge-warning badge-outline uppercase text-[10px] py-2 px-3'>pending</div>}
                                                 </div>
                                             </Link>
                                         </div>
@@ -141,36 +138,36 @@ const Loans = () => {
                             :
 
                             loading ?
-                                <div className="h-[90px] w-[100%] bg-white px-4 py-4 rounded-[12px] flex mb-8 items-center">
-                                    <div className="skeleton h-[40px] w-[50px] bg-[#d6d6fc] rounded-[12px] mr-3"></div>
+                                <div className="h-[90px] w-[100%] bg-base-100 px-4 py-4 rounded-[12px] flex mb-8 items-center border border-base-content/10">
+                                    <div className="skeleton h-[40px] w-[50px] bg-base-200 rounded-[12px] mr-3"></div>
                                     <div className='w-full flex flex-col items-center justify-center'>
-                                        <div className="skeleton h-3 w-[100%] bg-[#d6d6fc] mb-2 rounded-[4px]"></div>
-                                        <div className="skeleton h-2 w-[100%] bg-[#d6d6fc] mb-2 rounded-[4px]"></div>
-                                        <div className="skeleton h-2 w-[100%] bg-[#d6d6fc] rounded-[4px]"></div>
+                                        <div className="skeleton h-3 w-[100%] bg-base-200 mb-2 rounded-[4px]"></div>
+                                        <div className="skeleton h-2 w-[100%] bg-base-200 mb-2 rounded-[4px]"></div>
+                                        <div className="skeleton h-2 w-[100%] bg-base-200 rounded-[4px]"></div>
                                     </div>
                                 </div>
                                 :
                                 loans?.length > 0 ?
                                     loans.map((loan, key) => (
 
-                                        <Link href={`/loandetails/${loan.id}`} key={key} className='bg-white px-4 py-4 mb-8 rounded-[12px] flex justify-between'>
+                                        <Link href={`/loandetails/${loan.id}`} key={key} className='bg-base-100 px-4 py-4 mb-8 rounded-[12px] flex justify-between border border-base-content/20 shadow-sm'>
                                             <div className='flex items-center'>
-                                                <div className='bg-[#a5a5fe2d] rounded-[12px] h-[60px] w-[60px] flex items-center justify-center flex-col mr-4'>
-                                                    <span className='text-black/80 text-[12px] font-poppinsMed'>{moment(loan?.date_started).format("DD")}</span>
-                                                    <span className='text-black/80 text-[10px] uppercase font-poppinsMed'>{moment(loan?.date_started).format("MMM")}</span>
-                                                    <span className='text-black/80 text-[8px] uppercase font-poppinsMed'>{moment(loan?.date_started).format("YYYY")}</span>
+                                                <div className='bg-base-200 rounded-[12px] h-[60px] w-[60px] flex items-center justify-center flex-col mr-4'>
+                                                    <span className='text-base-content/80 text-[12px] font-poppinsMed'>{moment(loan?.date_started).format("DD")}</span>
+                                                    <span className='text-base-content/80 text-[10px] uppercase font-poppinsMed'>{moment(loan?.date_started).format("MMM")}</span>
+                                                    <span className='text-base-content/80 text-[8px] uppercase font-poppinsMed'>{moment(loan?.date_started).format("YYYY")}</span>
                                                 </div>
                                                 <div className='flex items-start justify-center flex-col'>
-                                                    <span className='text-black/80 text-[14px] font-poppinsMed mb-1'>{loan?.title}</span>
-                                                    <span className='text-black/60 text-[12px] font-poppinsMed mb-1'>{loan?.currency + " "} {loan?.total_amount}</span>
-                                                    <span className='text-black/60 text-[10px] font-poppins'>{`${loan?.times}/${loan?.total_insts} Payment${loan?.times > 1 ? 's' : ''} done`}</span>
+                                                    <span className='text-base-content/80 text-[14px] font-poppinsMed mb-1'>{loan?.title}</span>
+                                                    <span className='text-base-content/60 text-[12px] font-poppinsMed mb-1'>{loan?.currency + " "} {loan?.total_amount}</span>
+                                                    <span className='text-base-content/60 text-[10px] font-poppins'>{`${loan?.times}/${loan?.total_insts} Payment${loan?.times > 1 ? 's' : ''} done`}</span>
                                                 </div>
                                             </div>
                                             <div className='flex items-center justify-end'>
                                                 {loan?.status === 'paid' ?
-                                                    <div className='bg-[#a7fac5] rounded-[12px] text-[10px] py-1 px-3 flex items-center justify-center uppercase text-[#345c42] font-poppinsMed'>{loan?.status}</div>
+                                                    <div className='badge badge-success badge-outline uppercase text-[10px] py-2 px-3'>{loan?.status}</div>
                                                     :
-                                                    <div className='bg-[#fbe2de] rounded-[12px] text-[10px] py-1 px-3 flex items-center justify-center uppercase text-[#8f4d43] font-poppinsMed'>{loan?.status}</div>}
+                                                    <div className='badge badge-warning badge-outline uppercase text-[10px] py-2 px-3'>{loan?.status}</div>}
                                             </div>
                                         </Link>
 

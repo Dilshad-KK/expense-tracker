@@ -77,7 +77,7 @@ const getPeriodInfo = () => {
     return (
         <div className='pb-[100px]'>
             <div className='flex justify-between'>
-                <h3 className='text-left mb-4 text-black text-[16px] font-poppinsMed'>Menstrual Cycle</h3>
+                <h3 className='text-left mb-4 text-base-content text-[16px] font-poppinsMed'>Menstrual Cycle</h3>
             </div>
             <div>
                 {
@@ -93,19 +93,19 @@ const getPeriodInfo = () => {
                         <>
                             <Link
                                 href="/periods"
-                                className="relative mb-6 flex justify-between items-center w-full p-4 rounded-[8px] overflow-hidden bg-white px-4 py-4 border-[1px] border-solid border-[#cccccc5e]"
+                                className="relative mb-6 flex justify-between items-center w-full p-4 rounded-[8px] overflow-hidden bg-base-100 px-4 py-4 border border-base-content/20 shadow-sm"
                             >
 
 
                                 <div className="relative z-20 text-black w-full">
                                     <div className='flex flex-row items-center justify-start'>
-                                        <div className='bg-[#fcfbfb] border-[1px] border-solid border-[#fdefeff0] h-[50px] w-[50px] rounded-lg flex flex-row items-center justify-center mr-[16px]'>
+                                        <div className='bg-base-100 border border-base-300 h-[50px] w-[50px] rounded-lg flex flex-row items-center justify-center mr-[16px]'>
                                             <MdWaterDrop className='text-[24px] text-[#fc3f3f]  animate-bounce' />
                                         </div>
                                         <div className='flex flex-col items-start justify-center'>
-                                            <span className='text-[12px] text-black font-poppinsMed mb-1'>{getPeriodInfo()?.text}</span>
-                                            <span className='text-[10px] text-[#308dff] font-poppinsMed mb-1'>  {getPeriodInfo()?.expectedDate || '-'}</span>
-                                            <span className='text-[10px] text-[#1fa027] font-poppinsMed mb-1'>Last period was on {moment(periods[0]?.last_period_date).isValid() ? moment(periods[0]?.last_period_date).format("MMM Do YY") : '-'}</span>
+                                            <span className='text-[12px] text-base-content font-poppinsMed mb-1'>{getPeriodInfo()?.text}</span>
+                                            <span className='text-[10px] text-info font-poppinsMed mb-1'>  {getPeriodInfo()?.expectedDate || '-'}</span>
+                                            <span className='text-[10px] text-success font-poppinsMed mb-1'>Last period was on {moment(periods[0]?.last_period_date).isValid() ? moment(periods[0]?.last_period_date).format("MMM Do YY") : '-'}</span>
                                         </div>
                                     </div>
                                 </div>

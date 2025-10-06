@@ -60,25 +60,25 @@ export default function Jan8CounterCard() {
   }, []);
 
   const circleStyle: React.CSSProperties = {
-    background: `conic-gradient(rgb(59 130 246) ${percentRemaining}%, rgb(243 244 246) ${percentRemaining}%)`,
+    background: `conic-gradient(hsl(var(--p)) ${percentRemaining}%, hsl(var(--b3)) ${percentRemaining}%)`,
   };
 
   return (
-    <div className='mt-8 p-4 rounded-lg bg-white border border-gray-200 shadow-sm hover:shadow-xs transition-shadow duration-200'>
+    <div className='mt-8 p-4 rounded-lg bg-base-100 border border-base-300 shadow-sm hover:shadow-xs transition-shadow duration-200'>
       <div className='flex items-center justify-between'>
         <div className='flex items-center space-x-3'>
-          <div className='relative h-12 w-12 rounded-full' style={circleStyle}>
-            <div className='absolute inset-1 bg-white rounded-full flex items-center justify-center'>
-              <span className='text-xs text-gray-700 font-medium'>{remainingDays}d</span>
+          <div className='relative h-12 w-12 rounded-full border border-base-content/20' style={circleStyle}>
+            <div className='absolute inset-1 bg-base-100 rounded-full flex items-center justify-center border border-base-content/10'>
+              <span className='text-xs text-base-content font-medium'>{remainingDays}d</span>
             </div>
           </div>
           <div className='flex flex-col'>
-            <span className='text-sm text-gray-900 font-medium'>Jan 8 Countdown</span>
-            <span className='text-xs text-gray-500'>{remainingDays} days remaining</span>
-            <span className='text-[11px] text-gray-400'>{remainingWorkDays} Working days</span>
+            <span className='text-sm text-base-content font-medium'>Jan 8 Countdown</span>
+            <span className='text-xs text-base-content/70'>{remainingDays} days remaining</span>
+            <span className='text-[11px] text-base-content/50'>Working left: {remainingWorkDays} days</span>
           </div>
         </div>
-        <div className='text-xs text-blue-600 font-medium bg-blue-50 px-2 py-1 rounded-full'>
+        <div className='text-xs text-primary font-medium bg-primary/10 px-2 py-1 rounded-full'>
           {Math.round(100 - percentRemaining)}% • {elapsedDays}/{totalDays} days
         </div>
       </div>

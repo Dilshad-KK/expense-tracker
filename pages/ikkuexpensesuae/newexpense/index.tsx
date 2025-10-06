@@ -52,7 +52,7 @@ const NewExpense = () => {
 
     return (
         <div className="bg-[#e8e8fd] min-h-screen relative">
-            <div className='relative bg-[#514cff] h-[150px] rounded-b-[60px] flex justify-between items-center px-4 mb-8'>
+            <div className='relative bg-primary h-[150px] rounded-b-[60px] flex justify-between items-center px-4 mb-8 overflow-hidden'>
                 <div className='absolute left-[-90px] z-[1000] bg-[#ffffff18] rounded-full w-[200px] h-[200px]'></div>
                 <div className='absolute left-[-30px] z-[1000] bg-[#ffffff1a] rounded-full w-[200px] h-[200px]'></div>
                 <GoBack />

@@ -9,7 +9,7 @@ import { subscribeWebPush } from '@/lib/webpushClient';
 import { Provider } from 'react-redux';
 import { store } from '@/lib/store';
 import { fetchUnreadCount, fetchNotifications } from '@/store/notificationsSlice';
-import { applyTheme, getSavedTheme } from '@/utils/theme';
+import { applyTheme } from '@/utils/theme';
 
 export default function App({ Component, pageProps }: AppProps) {
   const [toast, setToast] = useState<null | { title?: string; body?: string }>(null);
@@ -51,10 +51,17 @@ export default function App({ Component, pageProps }: AppProps) {
     };
   }, []);
 
+  // Apply theme from Redux store and subscribe to changes
+  useEffect(() => {
+    try { applyTheme((store.getState() as any).ui.theme); } catch {}
+    const unsubscribe = store.subscribe(() => {
+      try { applyTheme((store.getState() as any).ui.theme); } catch {}
+    });
+    return () => { try { unsubscribe(); } catch {} };
+  }, []);
+
   // Show iOS PWA notification enable banner on first load (installed PWA only)
   useEffect(() => {
-    // Apply saved theme on app load
-    try { applyTheme(getSavedTheme()); } catch {}
     if (typeof window === 'undefined') return;
     const ua = navigator.userAgent || '';
     const isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && (navigator as any).maxTouchPoints > 1);

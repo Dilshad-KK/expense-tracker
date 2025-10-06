@@ -1,13 +1,17 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import CommonHeader from '@/components/commonHeader';
-import { getSavedTheme, setTheme } from '@/utils/theme';
+import { setTheme } from '@/utils/theme';
+import { useDispatch, useSelector } from 'react-redux';
+import type { RootState } from '@/lib/store';
+import { setThemeName } from '@/store/uiSlice';
 
 const Profile = () => {
   const tz = useMemo(() => Intl.DateTimeFormat().resolvedOptions().timeZone, []);
   const suggestedUser = useMemo(() => (tz?.includes('Asia/Dubai') ? 'Dilshad' : 'Shifa Dilshad'), [tz]);
   const [selected, setSelected] = useState<'auto' | 'dilshad' | 'shifa'>('auto');
   const [saved, setSaved] = useState('');
-  const [theme, setThemeState] = useState<'ikbu' | 'ikbu-dark'>(getSavedTheme());
+  const dispatch = useDispatch();
+  const theme = useSelector((s: RootState) => s.ui.theme);
 
   useEffect(() => {
     try {
@@ -30,7 +34,7 @@ const Profile = () => {
       if (selected === 'auto') value = suggestedUser;
       localStorage.setItem('userIdentity', value);
       localStorage.setItem('userIdentityMode', selected);
-      setTheme(theme);
+      // Theme is saved via Redux action when toggled
       setSaved('Settings saved successfully!');
       setTimeout(() => setSaved(''), 3000);
     } catch {}
@@ -105,11 +109,11 @@ const Profile = () => {
           <h3 className='text-sm font-semibold text-gray-900 mb-4'>Theme</h3>
           <div className='flex items-center gap-3'>
             <button
-              onClick={() => setThemeState('ikbu')}
+              onClick={() => dispatch(setThemeName('ikbu'))}
               className={`px-3 py-2 rounded-lg text-xs border ${theme==='ikbu' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-700 border-gray-300'}`}
             >Light</button>
             <button
-              onClick={() => setThemeState('ikbu-dark')}
+              onClick={() => dispatch(setThemeName('ikbu-dark'))}
               className={`px-3 py-2 rounded-lg text-xs border ${theme==='ikbu-dark' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-700 border-gray-300'}`}
             >Dark</button>
           </div>

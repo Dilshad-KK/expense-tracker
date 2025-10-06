@@ -20,6 +20,7 @@ const Home = () => {
   const [user, setUser] = useState("");
   const dispatch = useAppDispatch();
   const unread = useSelector((s: RootState) => s.notifications.unreadCount);
+  const showJan8 = useSelector((s: RootState) => s.ui.showJan8Counter);
 
   useEffect(() => {
     const cachedUser = localStorage.getItem("userIdentity");
@@ -75,7 +76,7 @@ const Home = () => {
 
   return (
     <div className='bg-base-100'>
-      <div className='relative bg-primary h-[150px] rounded-b-[60px] flex justify-between items-center px-4'>
+      <div className='relative bg-primary h-[150px] rounded-b-[60px] flex justify-between items-center px-4 overflow-hidden'>
         <div className='absolute left-[-90px] z-[1000] bg-white/10 rounded-full w-[200px] h-[200px]'></div>
         <div className='absolute left-[-30px] z-[1000] bg-white/10 rounded-full w-[200px] h-[200px]'></div>
         <div className='h-[50px] w-[50px] bg-white rounded-full flex items-center justify-center mb-3 z-[2000]'>
@@ -89,13 +90,13 @@ const Home = () => {
         <Link href="/notifications" className='h-[50px] w-[50px] bg-white rounded-full flex items-center justify-center mb-3 z-[2000] relative'>
           <IoMdNotifications className='text-[24px]' />
           {unread > 0 && (
-            <span className='absolute -top-1 -right-1 bg-[#ff3b30] text-white text-[10px] rounded-full px-[6px] py-[2px] font-poppinsMed'>{unread}</span>
+            <span className='absolute -top-1 -right-1 bg-error text-white text-[10px] rounded-full px-[6px] py-[2px] font-poppinsMed'>{unread}</span>
           )}
         </Link>
       </div>
       <div className='min-h-screen px-4 py-8'>
         <Categories />
-        <Jan8CounterCard />
+        {showJan8 && <Jan8CounterCard />}
         <div className="h-[1px] bg-base-300 w-full my-8" />
         <Loans />
         <Discussions />

@@ -72,7 +72,7 @@ export default function ExpensesUi(props: UserType) {
 
   return (
     <div className="bg-base-100">
-      <div className='relative bg-primary h-[150px] rounded-b-[60px] flex justify-between items-center px-4 mb-8'>
+      <div className='relative bg-primary h-[150px] rounded-b-[60px] flex justify-between items-center px-4 mb-8 overflow-hidden'>
         <div className='absolute left-[-90px] z-[1000] bg-white/10 rounded-full w-[200px] h-[200px]'></div>
         <div className='absolute left-[-30px] z-[1000] bg-white/10 rounded-full w-[200px] h-[200px]'></div>
         <GoBack />
@@ -102,7 +102,7 @@ export default function ExpensesUi(props: UserType) {
                 ))}
               </div> */}
               <div className="mb-8 px-4 py-3 rounded-[8px] flex items-center justify-between border 
-                border-base-300 bg-base-100">
+                border-base-content/20 bg-base-100 shadow-sm">
                 <div>
                   <div className="text-[12px] text-base-content/70 font-poppinsMed mb-1">Total Expense</div>
                   <div className="text-[10px] text-base-content/60">{currency}&nbsp;{totalExpense}</div>
@@ -129,8 +129,8 @@ export default function ExpensesUi(props: UserType) {
                         <span className="text-[12px] text-base-content/70">{moment(item?.created_at).format("MMM")}</span>
                         <span className="text-[12px] text-base-content/70">{moment(item?.created_at).format("DD")}</span>
                       </div>
-                      <div className="bg-base-200 p-3 mr-3 flex-shrink-0">
-                        <img src={getCategoryIcon(item?.note)} className="h-[20px] opacity-70" />
+                      <div className="bg-base-200 p-3 mr-3 flex-shrink-0 rounded-md">
+                        <img src={getCategoryIcon(item?.note)} alt="category" className="h-6 filter saturate-150" />
                       </div>
                       <div className="max-w-[200px]">
                         <div className="text-base-content/80 text-[12px] mb-1">{item?.note}</div>

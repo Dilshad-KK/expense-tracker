@@ -67,7 +67,7 @@ const DiscussionDetails = () => {
   return (
     <div className='bg-[#e8e8fd] min-h-screen'>
       <div>
-        <div className='bg-[#514cff] px-4 py-8 flex justify-center items-center rounded-b-[24px] h-[160px]'>
+        <div className='bg-primary px-4 py-8 flex justify-center items-center rounded-b-[24px] h-[160px] overflow-hidden'>
           <div className='absolute left-[-90px] z-[1000] bg-[#ffffff18] rounded-full w-[200px] h-[200px]'></div>
           <div className='absolute left-[-30px] z-[1000] bg-[#ffffff1a] rounded-full w-[200px] h-[200px]'></div>
           <div className='absolute left-[32px] z-[1000]'>
