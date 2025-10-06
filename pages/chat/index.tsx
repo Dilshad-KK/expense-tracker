@@ -100,6 +100,10 @@ const Chat = () => {
     // Receive messages
     const onMsg = (msg: Message) => {
       if (msg.to && msg.to !== self) return; // not for me
+      // Fast guard against duplicates if we've already seen this id/signature
+      if (msg.message_id && seenIdsRef.current.has(msg.message_id)) return;
+      const sig = signature(msg);
+      if (!msg.message_id && sig && seenSigRef.current.has(sig)) return;
       setMessages((prev) => mergeUnique([...prev, { ...msg, created_at: msg.created_at || new Date().toISOString() }]));
     };
     socket.on('chat:message', onMsg);
@@ -142,7 +146,8 @@ const Chat = () => {
   }, [socket, ready, self, peer]);
 
   useEffect(() => {
-    if (!ready) return;
+    // Only subscribe to Supabase Realtime when socket is not connected
+    if (!ready || connected) return;
     let channel: ReturnType<typeof supabase.channel> | null = null;
     let realtimeActive = false;
     (async () => {
@@ -160,6 +165,9 @@ const Chat = () => {
           .channel(`chat_${self}_${peer}`)
           .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_messages', filter: `from=eq.${peer},to=eq.${self}` }, (payload: any) => {
             const r = payload?.new || {};
+            if (r.message_id && seenIdsRef.current.has(r.message_id)) return;
+            const sig = signature(r);
+            if (!r.message_id && sig && seenSigRef.current.has(sig)) return;
             setMessages((prev) => mergeUnique([...prev, r]));
           });
         channel.subscribe((status: any) => {
@@ -168,7 +176,7 @@ const Chat = () => {
       } catch {}
     })();
     return () => { try { channel && supabase.removeChannel(channel); } catch {} };
-  }, [ready, self, peer]);
+  }, [ready, self, peer, connected]);
 
   // Polling fallback when both socket and realtime aren’t delivering
   useEffect(() => {
@@ -353,7 +361,7 @@ const Chat = () => {
         {/* Messages */}
         <div className="flex-1 overflow-y-auto px-3 py-3 bg-base-200/40">
           {messages.map((m, i) => (
-            <div key={i} className={`mb-2 flex ${m.from === self ? 'justify-end' : 'justify-start'}`}>
+            <div key={(m as any).message_id || (m as any).id || i} className={`mb-2 flex ${m.from === self ? 'justify-end' : 'justify-start'}`}>
               <div className={`px-3 py-2 rounded-2xl max-w-[80%] ${m.from === self ? 'bg-primary text-primary-content rounded-tr-sm' : 'bg-base-300 text-base-content rounded-tl-sm'}`}>
                 <div className="text-[10px] opacity-75 mb-1">{new Date(m.created_at || '').toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
                 <div className="text-sm whitespace-pre-wrap leading-relaxed">{m.text}</div>
