@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Head from 'next/head';
 import dynamic from 'next/dynamic';
-import { HiPhone, HiVideoCamera, HiXMark, HiOutlineTrash } from 'react-icons/hi2';
+import { HiPhone, HiVideoCamera, HiXMark, HiOutlineTrash, HiPaperAirplane } from 'react-icons/hi2';
 import { supabase } from '@/lib/supabase';
 
 // Lazy import socket.io-client to avoid SSR issues
@@ -34,7 +34,6 @@ const useSocket = () => {
 type Message = { id?: string; text: string; from: string; to: string; message_id?: string; created_at?: string };
 
 function resolveIdentity(): { self: string; peer: string } {
-  // Use saved identity; fallback to timezone-based guess from Profile screen
   if (typeof window === 'undefined') return { self: 'Dilshad', peer: 'Shifa Dilshad' };
   try {
     const current = localStorage.getItem('userIdentity');
@@ -62,7 +61,6 @@ const Chat = () => {
   const realtimeActiveRef = useRef<boolean>(false);
   const bottomRef = useRef<HTMLDivElement | null>(null);
   const [clearing, setClearing] = useState(false);
-  const [keyboardOpen, setKeyboardOpen] = useState(false);
 
   // WebRTC state
   const pcRef = useRef<RTCPeerConnection | null>(null);
@@ -76,43 +74,11 @@ const Chat = () => {
 
   // Boot Socket.IO server once
   useEffect(() => {
-    // ping the socket route to ensure server is initialized (bypass caches)
     fetch('/api/socketio?init=1', { cache: 'no-store', keepalive: true } as any).catch(() => {});
-  }, []);
-
-  // Keyboard avoidance: detect virtual keyboard and adjust layout
-  useEffect(() => {
-    const vv: any = (typeof window !== 'undefined' ? (window as any).visualViewport : null);
-    const onResize = () => {
-      try {
-        const threshold = 60;
-        const open = vv && vv.height && window.innerHeight && (window.innerHeight - vv.height) > threshold;
-        setKeyboardOpen(!!open);
-      } catch { setKeyboardOpen(false); }
-    };
-    const onFocus = (e: any) => {
-      const tag = (e?.target?.tagName || '').toLowerCase();
-      if (tag === 'input' || tag === 'textarea') setKeyboardOpen(true);
-    };
-    const onBlur = () => setKeyboardOpen(false);
-    if (vv) {
-      vv.addEventListener('resize', onResize);
-      vv.addEventListener('scroll', onResize);
-    }
-    if (typeof window !== 'undefined') {
-      window.addEventListener('focusin', onFocus);
-      window.addEventListener('focusout', onBlur);
-    }
-    onResize();
-    return () => {
-      try { vv && vv.removeEventListener('resize', onResize); vv && vv.removeEventListener('scroll', onResize); } catch {}
-      try { window.removeEventListener('focusin', onFocus); window.removeEventListener('focusout', onBlur); } catch {}
-    };
   }, []);
 
   useEffect(() => {
     if (!socket || !ready) return;
-    // Ensure no duplicate listeners on reconnect/render
     try {
       socket.off('connect');
       socket.off('disconnect');
@@ -130,12 +96,10 @@ const Chat = () => {
     socket.on('disconnect', onDisconnect);
     socket.on('connect_error', onConnectError);
     socket.emit('presence:join', { userId: self });
-    // Receive messages
+    
     const onMsg = (msg: Message) => {
-      if (msg.to && msg.to !== self) return; // not for me
-      // If socket isn't connected, ignore socket payloads and rely on Realtime/polling
+      if (msg.to && msg.to !== self) return;
       if (!connected) return;
-      // Fast guard + pre-mark as seen to avoid race with other sources
       if (msg.message_id) {
         if (seenIdsRef.current.has(msg.message_id)) return;
         seenIdsRef.current.add(msg.message_id);
@@ -188,13 +152,11 @@ const Chat = () => {
   const supaChannelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
 
   useEffect(() => {
-    // Only subscribe to Supabase Realtime when socket is not connected
     if (!ready || connected) return;
-    if (supaChannelRef.current) return; // already subscribed
+    if (supaChannelRef.current) return;
     let channel: ReturnType<typeof supabase.channel> | null = null;
     let realtimeActive = false;
     (async () => {
-      // Load history between the two users
       try {
         const res = await fetch(`/api/chat/messages?between=${encodeURIComponent(self)},${encodeURIComponent(peer)}`);
         if (res.ok) {
@@ -202,7 +164,6 @@ const Chat = () => {
           setMessages(mergeUnique(data || []));
         }
       } catch {}
-      // Realtime fallback via Supabase
       try {
         channel = supabase
           .channel(`chat_${self}_${peer}`)
@@ -234,14 +195,12 @@ const Chat = () => {
     };
   }, [ready, self, peer, connected]);
 
-  // Polling fallback when both socket and realtime aren’t delivering
   useEffect(() => {
     if (!ready) return;
     let cancelled = false;
     let timer: any;
     const poll = async () => {
       try {
-        // If socket or realtime are active, do not poll
         if (connected || realtimeActiveRef.current) return;
         const res = await fetch(`/api/chat/messages?between=${encodeURIComponent(self)},${encodeURIComponent(peer)}`);
         if (!res.ok) return schedule();
@@ -252,7 +211,6 @@ const Chat = () => {
       schedule();
     };
     const schedule = () => {
-      // If socket is connected or realtime is active, no polling
       if (connected || realtimeActiveRef.current) return;
       timer = setTimeout(poll, 5000);
     };
@@ -263,7 +221,6 @@ const Chat = () => {
   async function sendMessage() {
     if (!text.trim() || !ready) return;
     const msg: Message = { text: text.trim(), from: self, to: peer, message_id: `${Date.now()}_${Math.random().toString(36).slice(2, 10)}`, created_at: new Date().toISOString() };
-    // Pre-mark optimistic message id/signature to avoid echo duplicates
     if (msg.message_id) seenIdsRef.current.add(msg.message_id);
     else {
       const sig = signature(msg);
@@ -282,17 +239,16 @@ const Chat = () => {
         } catch { resolve(); }
       });
       if (!acked) {
-        // Fallback: persist via API
         try { await fetch('/api/chat/messages', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(msg) }); } catch {}
       }
     } catch {}
   }
 
-  // Dedupe helpers
   function signature(m: Partial<Message>) {
     const created = m.created_at ? new Date(m.created_at).getTime() : 0;
     return `${m.from}|${m.to}|${m.text}|${created}`;
   }
+  
   function mergeUnique(list: Message[]): Message[] {
     const byKey = new Map<string, Message>();
     const sigToKey = new Map<string, string>();
@@ -300,24 +256,19 @@ const Chat = () => {
       const sig = signature(m);
       const id = m.message_id;
       if (id) {
-        // If there was an entry keyed by signature, re-key it to the id
         const existingKey = byKey.has(id) ? id : (sig && sigToKey.get(sig)) || undefined;
         if (existingKey && existingKey !== id) {
           const prev = byKey.get(existingKey)!;
           byKey.delete(existingKey);
           byKey.set(id, { ...prev, ...m, message_id: id });
         } else {
-          // Always write latest for this id
           byKey.set(id, m);
         }
         seenIdsRef.current.add(id);
         if (sig) sigToKey.set(sig, id);
       } else if (sig) {
         const mapped = sigToKey.get(sig);
-        if (mapped) {
-          // Signature already mapped to a real id; prefer the id entry
-          continue;
-        }
+        if (mapped) continue;
         byKey.set(sig, m);
         seenSigRef.current.add(sig);
       }
@@ -327,7 +278,6 @@ const Chat = () => {
     return arr;
   }
 
-  // Auto-scroll to the latest message when list changes
   useEffect(() => {
     try { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }); } catch {}
   }, [messages.length]);
@@ -376,95 +326,183 @@ const Chat = () => {
   }
 
   return (
-    <div className="min-h-screen bg-base-100 text-base-content pb-24 flex flex-col">
+    <div className="min-h-screen bg-gradient-to-br from-base-100 to-base-200 text-base-content pb-24 flex flex-col">
       <Head>
-        <title>Chat</title>
+        <title>Chat with {peer}</title>
       </Head>
-      <div className="max-w-2xl w-full mx-auto flex-1 flex flex-col">
-        {/* Header */}
-        <div className="px-4 py-3 border-b border-base-300 flex items-center gap-3 bg-base-100 sticky top-0 z-10">
-          <div className={`h-9 w-9 ${peer === 'Dilshad' ? 'bg-info' : 'bg-secondary'} rounded-full flex items-center justify-center `}>
-            <span className="text-white text-sm font-poppinsMed">{peer?.startsWith('D') ? 'D' : 'S'}</span>
-          </div>
-          <div className="leading-tight">
-            <div className="text-sm font-poppinsMed">{peer}</div>
-            <div className={`text-[11px] ${connected ? 'text-success' : 'text-base-content/60'}`}>{connected ? 'online' : 'offline'}</div>
-          </div>
-          <div className="ml-auto flex items-center gap-2">
-            {/* Subtle clear button */}
-            <button
-              className="btn btn-ghost btn-xs text-base-content/60 hover:text-error"
-              title="Clear chat"
-              disabled={!ready || clearing}
-              onClick={async () => {
-                try {
-                  if (!confirm('Clear all messages in this chat?')) return;
-                  setClearing(true);
-                  await fetch('/api/chat/clear', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ between: `${self},${peer}` }),
-                  });
-                  // Reset local state and seen caches
-                  setMessages([]);
-                  try { seenIdsRef.current.clear(); seenSigRef.current.clear(); } catch {}
-                } finally {
-                  setClearing(false);
-                }
-              }}
-            >
-              <HiOutlineTrash className="w-4 h-4" />
-            </button>
-            {!inCall && (
-              <>
-                <button className="btn btn-ghost btn-sm" title="Voice call" onClick={() => startCall(true)}>
-                  <HiPhone className="w-4 h-4" />
-                </button>
-                <button className="btn btn-ghost btn-sm" title="Video call" onClick={() => startCall(false)}>
-                  <HiVideoCamera className="w-4 h-4" />
-                </button>
-              </>
-            )}
-            {inCall && (
-              <button className="btn btn-error btn-sm text-error-content" title="End call" onClick={endCall}>
-                <HiXMark className="w-4 h-4" />
+      <div className="max-w-2xl w-full mx-auto flex-1 flex flex-col h-screen">
+        {/* Enhanced Header */}
+        <div className="px-6 py-4 border-b border-base-300/60 bg-base-100/80 backdrop-blur-lg sticky top-0 z-20 shadow-sm">
+          <div className="flex items-center gap-4">
+            <div className={`h-12 w-12 ${peer === 'Dilshad' ? 'bg-gradient-to-br from-info to-info/80' : 'bg-gradient-to-br from-secondary to-secondary/80'} rounded-full flex items-center justify-center shadow-md`}>
+              <span className="text-white text-lg font-semibold font-poppinsMed">
+                {peer?.startsWith('D') ? 'D' : 'S'}
+              </span>
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-lg font-semibold text-base-content truncate font-poppinsMed">
+                {peer}
+              </div>
+              <div className="flex items-center gap-2 mt-1">
+                <div className={`h-2 w-2 rounded-full ${connected ? 'bg-success animate-pulse' : 'bg-warning'}`} />
+                <div className={`text-xs ${connected ? 'text-success' : 'text-warning'}`}>
+                  {connected ? 'Online' : 'Connecting...'}
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center gap-1">
+              <button
+                className="btn btn-ghost btn-circle btn-sm text-base-content/60 hover:text-error hover:bg-error/10 transition-all"
+                title="Clear chat"
+                disabled={!ready || clearing}
+                onClick={async () => {
+                  try {
+                    if (!confirm('Clear all messages in this chat?')) return;
+                    setClearing(true);
+                    await fetch('/api/chat/clear', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ between: `${self},${peer}` }),
+                    });
+                    setMessages([]);
+                    try { seenIdsRef.current.clear(); seenSigRef.current.clear(); } catch {}
+                  } finally {
+                    setClearing(false);
+                  }
+                }}
+              >
+                <HiOutlineTrash className="w-4 h-4" />
               </button>
-            )}
+              {!inCall && (
+                <>
+                  <button 
+                    className="btn btn-circle btn-sm bg-success/20 text-success hover:bg-success/30 border-0 transition-all" 
+                    title="Voice call" 
+                    onClick={() => startCall(true)}
+                  >
+                    <HiPhone className="w-4 h-4" />
+                  </button>
+                  <button 
+                    className="btn btn-circle btn-sm bg-primary/20 text-primary hover:bg-primary/30 border-0 transition-all" 
+                    title="Video call" 
+                    onClick={() => startCall(false)}
+                  >
+                    <HiVideoCamera className="w-4 h-4" />
+                  </button>
+                </>
+              )}
+              {inCall && (
+                <button 
+                  className="btn btn-circle btn-sm bg-error text-error-content hover:bg-error/90 border-0 transition-all shadow-lg" 
+                  title="End call" 
+                  onClick={endCall}
+                >
+                  <HiXMark className="w-4 h-4" />
+                </button>
+              )}
+            </div>
           </div>
         </div>
 
-        {/* Call preview */}
+        {/* Enhanced Call Preview */}
         {inCall && (
-          <div className="px-4 py-2 bg-base-200/60 border-b border-base-300">
-            <div className="grid grid-cols-2 gap-2">
-              <video ref={localVideoRef} autoPlay playsInline muted className="w-full rounded border border-base-300" />
-              <video ref={remoteVideoRef} autoPlay playsInline className="w-full rounded border border-base-300" />
+          <div className="px-6 py-4 bg-base-200/80 border-b border-base-300/60 backdrop-blur-sm">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="relative rounded-xl overflow-hidden shadow-lg border-2 border-base-300">
+                <video ref={localVideoRef} autoPlay playsInline muted className="w-full aspect-video object-cover bg-base-300" />
+                <div className="absolute bottom-2 left-2 bg-black/50 text-white text-xs px-2 py-1 rounded">
+                  You
+                </div>
+              </div>
+              <div className="relative rounded-xl overflow-hidden shadow-lg border-2 border-primary/30">
+                <video ref={remoteVideoRef} autoPlay playsInline className="w-full aspect-video object-cover bg-base-300" />
+                <div className="absolute bottom-2 left-2 bg-black/50 text-white text-xs px-2 py-1 rounded">
+                  {peer}
+                </div>
+              </div>
             </div>
           </div>
         )}
 
-        {/* Messages */}
-        <div className="flex-1 overflow-y-auto px-3 py-3 bg-base-200/40">
-          {messages.map((m, i) => (
-            <div key={(m as any).message_id || (m as any).id || i} className={`mb-2 flex ${m.from === self ? 'justify-end' : 'justify-start'}`}>
-              <div className={`px-3 py-2 rounded-2xl max-w-[80%] ${m.from === self ? 'bg-primary text-primary-content rounded-tr-sm' : 'bg-base-300 text-base-content rounded-tl-sm'}`}>
-                <div className="text-[10px] opacity-75 mb-1">{new Date(m.created_at || '').toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
-                <div className="text-sm whitespace-pre-wrap leading-relaxed">{m.text}</div>
+        {/* Enhanced Messages Area */}
+        <div className="flex-1 overflow-y-auto px-4 py-6 bg-base-200/30">
+          {messages.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-full text-base-content/60">
+              <div className="w-16 h-16 bg-base-300 rounded-full flex items-center justify-center mb-4">
+                <HiPaperAirplane className="w-6 h-6 text-base-content/40" />
+              </div>
+              <div className="text-lg font-medium mb-2">No messages yet</div>
+              <div className="text-sm text-center max-w-xs">
+                Start a conversation with {peer} by sending your first message.
               </div>
             </div>
-          ))}
-          <div ref={bottomRef} />
+          ) : (
+            <div className="space-y-3">
+              {messages.map((m, i) => {
+                const isOwn = m.from === self;
+                const showAvatar = i === 0 || messages[i - 1]?.from !== m.from;
+                
+                return (
+                  <div key={(m as any).message_id || (m as any).id || i} className={`flex items-end gap-2 ${isOwn ? 'flex-row-reverse' : 'flex-row'}`}>
+                    {!isOwn && showAvatar && (
+                      <div className={`h-8 w-8 ${peer === 'Dilshad' ? 'bg-info' : 'bg-secondary'} rounded-full flex items-center justify-center flex-shrink-0 mb-1`}>
+                        <span className="text-white text-xs font-medium">
+                          {peer?.startsWith('D') ? 'D' : 'S'}
+                        </span>
+                      </div>
+                    )}
+                    <div className={`max-w-[70%] ${isOwn ? 'flex flex-col items-end' : ''}`}>
+                      <div className={`px-4 py-3 rounded-3xl ${isOwn 
+                        ? 'bg-gradient-to-br from-primary to-primary/90 text-primary-content rounded-br-md shadow-lg' 
+                        : 'bg-base-100 text-base-content border border-base-300/50 rounded-bl-md shadow-sm'
+                      }`}>
+                        <div className="text-sm whitespace-pre-wrap leading-relaxed">{m.text}</div>
+                      </div>
+                      <div className={`text-[10px] text-base-content/50 mt-1 px-1 ${isOwn ? 'text-right' : 'text-left'}`}>
+                        {new Date(m.created_at || '').toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </div>
+                    </div>
+                    {isOwn && showAvatar && (
+                      <div className="h-8 w-8 bg-gradient-to-br from-primary/20 to-primary/10 rounded-full flex items-center justify-center flex-shrink-0 mb-1 border border-primary/20">
+                        <span className="text-primary text-xs font-medium">
+                          {self?.startsWith('D') ? 'D' : 'S'}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+              <div ref={bottomRef} />
+            </div>
+          )}
         </div>
-        {/* Composer */}
-        <div
-          className="border-t border-base-300 bg-base-100 sticky bottom-0 z-[2001] p-3 flex gap-2"
-          style={{
-            paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 8px)',
-            marginBottom: keyboardOpen ? 0 : 88,
-          }}
-        >
-          <input className="input input-bordered flex-1" value={text} onChange={(e) => setText(e.target.value)} placeholder="Type a message" onKeyDown={(e) => { if (e.key === 'Enter') sendMessage(); }} />
-          <button className="btn btn-primary" onClick={sendMessage} disabled={!ready || !text.trim()}>Send</button>
+
+        {/* Enhanced Input Area */}
+        <div className="border-t border-base-300/60 bg-base-100/80 backdrop-blur-lg sticky bottom-0 z-10 p-4">
+          <div className="flex gap-3 items-end">
+            <div className="flex-1 bg-base-200 rounded-2xl border border-base-300/50 focus-within:border-primary/30 focus-within:ring-2 focus-within:ring-primary/20 transition-all">
+              <textarea
+                className="textarea textarea-ghost w-full resize-none border-0 focus:outline-none focus:ring-0 bg-transparent min-h-[48px] max-h-32 py-3 px-4"
+                value={text}
+                onChange={(e) => setText(e.target.value)}
+                placeholder={`Message ${peer}...`}
+                rows={1}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                  }
+                }}
+              />
+            </div>
+            <button 
+              className="btn btn-circle btn-primary text-primary-content shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:shadow-none"
+              onClick={sendMessage} 
+              disabled={!ready || !text.trim()}
+            >
+              <HiPaperAirplane className="w-5 h-5 transform rotate-45" />
+            </button>
+          </div>
         </div>
       </div>
     </div>
