@@ -222,17 +222,38 @@ const Chat = () => {
     return `${m.from}|${m.to}|${m.text}|${created}`;
   }
   function mergeUnique(list: Message[]): Message[] {
-    const map = new Map<string, Message>();
-    for (const m of list) {
-      const key = m.message_id || signature(m);
-      if (!key) continue;
-      if (!map.has(key)) {
-        map.set(key, m);
-        if (m.message_id) seenIdsRef.current.add(m.message_id);
-        else seenSigRef.current.add(signature(m));
+    const byKey = new Map<string, Message>();
+    const sigToKey = new Map<string, string>();
+
+    const put = (m: Message) => {
+      const sig = signature(m);
+      const id = m.message_id;
+      if (id) {
+        // If there was an entry keyed by signature, re-key it to the id
+        const existingKey = byKey.has(id) ? id : (sig && sigToKey.get(sig)) || undefined;
+        if (existingKey && existingKey !== id) {
+          const prev = byKey.get(existingKey)!;
+          byKey.delete(existingKey);
+          byKey.set(id, { ...prev, message_id: prev.message_id || id, created_at: prev.created_at || m.created_at } as Message);
+        }
+        if (!byKey.has(id)) {
+          byKey.set(id, m);
+        }
+        seenIdsRef.current.add(id);
+        if (sig) sigToKey.set(sig, id);
+      } else {
+        const key = sig;
+        if (!key) return;
+        // If we already saw this signature mapped to a real id, skip
+        if (sigToKey.has(key)) return;
+        if (!byKey.has(key)) byKey.set(key, m);
+        seenSigRef.current.add(key);
       }
-    }
-    const arr = Array.from(map.values());
+    };
+
+    for (const m of list) put(m);
+
+    const arr = Array.from(byKey.values());
     arr.sort((a, b) => new Date(a.created_at || 0).getTime() - new Date(b.created_at || 0).getTime());
     return arr;
   }
