@@ -1,6 +1,6 @@
 import moment from "moment";
 import { useMemo } from "react";
-import GoBack from "../gobackSecond";
+import CommonHeader from "@/components/commonHeader";
 import Link from 'next/link';
 import { FaPlus } from "react-icons/fa6";
 import { getCategoryIcon } from "@/utils/categoryMapper";
@@ -72,13 +72,7 @@ export default function ExpensesUi(props: UserType) {
 
   return (
     <div className="bg-base-100">
-      <div className='relative bg-primary h-[150px] rounded-b-[60px] flex justify-between items-center px-4 mb-8 overflow-hidden'>
-        <div className='absolute left-[-90px] z-[1000] bg-white/10 rounded-full w-[200px] h-[200px]'></div>
-        <div className='absolute left-[-30px] z-[1000] bg-white/10 rounded-full w-[200px] h-[200px]'></div>
-        <GoBack />
-        <span className='text-white z-[2000]'>{formTitle}</span>
-        <div />
-      </div>
+      <CommonHeader title={formTitle} />
       <div className="min-h-screen p-4 pb-[150px]">
         {loading ?
           [1, 2, 3, 4]?.map((key) => (

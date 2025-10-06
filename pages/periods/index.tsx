@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import GoBack from "../../components/gobackSecond";
+import CommonHeader from "@/components/commonHeader";
 import moment from "moment";
 import Link from "next/link";
 import { IoPencil } from "react-icons/io5";
@@ -135,26 +135,14 @@ export default function HomePage() {
 
   return (
     <div className="bg-base-100 min-h-screen relative">
-      {/* Compact Header */}
-      <div className='bg-gradient-to-br from-primary to-primary/90 px-4 py-6 flex justify-center items-center rounded-b-[24px] h-[100px] overflow-hidden relative shadow-lg'>
-        <div className='absolute left-0 -translate-x-[60px] z-[1000] bg-primary-content/10 rounded-full w-[150px] h-[150px] pointer-events-none'></div>
-        <div className='absolute left-0 -translate-x-[20px] z-[1000] bg-primary-content/15 rounded-full w-[150px] h-[150px] pointer-events-none'></div>
-        
-        <div className='absolute left-[20px] z-[1000]'>
-          <GoBack />
-        </div>
-        
-        <div className="text-center z-[2000]">
-          <h1 className='text-primary-content font-poppinsBold text-[18px]'>Period Details</h1>
-        </div>
-        
-        <Link 
-          href="/periods/update" 
-          className='text-primary-content font-poppinsBold text-[16px] bg-primary-content/20 h-[32px] w-[32px] rounded-full flex items-center justify-center absolute right-[20px] z-[1000] transition-all hover:bg-primary-content/30 hover:scale-105'
-        >
-          <IoPencil className="text-primary-content text-[14px]" />
-        </Link>
-      </div>
+      <CommonHeader
+        title="Period Details"
+        right={(
+          <Link href="/periods/update" className='text-primary-content font-poppinsBold text-[16px] bg-primary-content/20 h-[32px] w-[32px] rounded-full flex items-center justify-center transition-all hover:bg-primary-content/30 hover:scale-105'>
+            <IoPencil className="text-primary-content text-[14px]" />
+          </Link>
+        )}
+      />
 
       {/* Compact Main Content */}
       <div className="w-full pb-6 px-4 -mt-4 relative z-10">
@@ -199,24 +187,26 @@ export default function HomePage() {
               )}
             </div>
 
-            {/* Upcoming Periods - 6 items */}
+            {/* Upcoming Periods - Larger and More Readable */}
             <div className="bg-base-200 rounded-xl p-4 shadow-md border border-base-300 dark:border-base-400">
               <h2 className="text-base-content font-poppinsBold text-[14px] mb-3 flex items-center">
-                <HiCake className="mr-2 text-primary text-sm" />
                 Upcoming Periods
               </h2>
               
-              <div className="grid grid-cols-6 gap-1">
+              <div className="grid grid-cols-3 gap-3">
                 {periodInfo.nextThreePeriods?.map((item, index) => (
                   <div 
                     key={index}
-                    className="bg-base-100 rounded-lg p-1 text-center border-2 border-base-300 dark:border-base-400 transition-all hover:shadow-sm hover:border-primary/30"
+                    className="bg-base-100 rounded-xl p-3 text-center border-2 border-base-300 dark:border-base-400 transition-all hover:shadow-md hover:border-primary/40 hover:scale-105"
                   >
-                    <div className="text-base-content/80 text-[10px] font-poppinsMed mb-1">
+                    <div className="text-base-content/90 text-[16px] font-poppinsBold mb-1">
                       {moment(item).format("DD")}
                     </div>
-                    <div className="text-base-content/60 text-[8px] uppercase font-poppinsMed tracking-wide">
+                    <div className="text-base-content/70 text-[11px] uppercase font-poppinsMed tracking-wide mb-1">
                       {moment(item).format("MMM")}
+                    </div>
+                    <div className="text-base-content/50 text-[9px] font-poppins">
+                      {moment(item).format("YYYY")}
                     </div>
                   </div>
                 ))}

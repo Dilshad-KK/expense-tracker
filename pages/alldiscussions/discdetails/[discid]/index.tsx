@@ -1,7 +1,7 @@
 import React from 'react';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-import GoBack from "../../../../components/gobackSecond";
+import CommonHeader from "@/components/commonHeader";
 import moment from 'moment';
 import Link from 'next/link';
 
@@ -65,63 +65,16 @@ const DiscussionDetails = () => {
 
 
   return (
-    <div className='bg-[#e8e8fd] min-h-screen'>
-      <div>
-        <div className='bg-primary px-4 py-8 flex justify-center items-center rounded-b-[24px] h-[160px] overflow-hidden'>
-          <div className='absolute left-[-90px] z-[1000] bg-[#ffffff18] rounded-full w-[200px] h-[200px]'></div>
-          <div className='absolute left-[-30px] z-[1000] bg-[#ffffff1a] rounded-full w-[200px] h-[200px]'></div>
-          <div className='absolute left-[32px] z-[1000]'>
-            <GoBack />
+    <div className='bg-base-100 min-h-screen'>
+      <CommonHeader
+        title='Discussion Details'
+        right={(
+          <div className='flex items-center gap-2'>
+            <Link href={`/alldiscussions/discdetails/${discid}/edit`} className='btn btn-xs btn-success text-white'>Update</Link>
+            <button onClick={() => deleteDiscussion(discussion[0]?.id)} className='btn btn-xs btn-error text-white'>Delete</button>
           </div>
-          <div className='flex flex-col items-center justify-center z-[2000]'>
-            <span className='text-white z-[2000] font-poppinsBold text-[18px] mb-4'>Discussion Details</span>
-            <div className='flex'>
-              <Link href={`/alldiscussions/discdetails/${discid}/edit`} className='mr-2 bg-[#c8f7de] px-4 py-2 rounded-[24px] flex items-center justify-center cursor-pointer'>
-                <span  className='text-[#0d4a2a] text-[10px] font-poppinsMed'>Update</span>
-              </Link>
-              <div className='mr-2 bg-[#f6d2c5] px-4 py-2 rounded-[24px] flex items-center justify-center cursor-pointer'>
-                <span className='text-[#85371a] text-[10px] font-poppinsMed' onClick={()=>deleteDiscussion(discussion[0]?.id)}>Delete</span>
-              </div>
-            </div>
-          </div>
-
-          {/* {discussion?.length ?
-            <div className='flex justify-center items-center flex-col'>
-              <div className='bg-[#ffffff18] px-6 py-2 rounded-[24px] mb-4'>
-                {loan?.length && <span className='text-white text-[18px] font-poppinsBold'>{loan[0]?.title}</span>}
-              </div>
-              <div className='mr-2 bg-[#2d23b9] px-4 py-2 rounded-[24px] flex items-center justify-center mb-2'>
-                {loan?.length && <span className='text-white text-[10px] font-poppinsMed'>Total Amount &nbsp;&nbsp;&nbsp;<span className='font-poppinsBold'>{loan[0]?.currency}&nbsp;&nbsp;{loan[0]?.total_amount}</span> </span>}
-              </div>
-              <div className='flex mb-3'>
-                <div className='mr-2 bg-[#2d23b9] px-4 py-2 rounded-[24px] flex items-center justify-center'>
-                  {loan?.length && <span className='text-white text-[10px] font-poppinsMed'>Total Paid &nbsp;&nbsp;&nbsp;<span className='font-poppinsBold'>{loan[0]?.currency}&nbsp;&nbsp;{totalPaid}</span> &nbsp;&nbsp; | &nbsp;&nbsp;Total Remaining &nbsp;&nbsp;&nbsp;<span className='font-poppinsBold'>{loan[0]?.currency}&nbsp;&nbsp;{Number(loan[0]?.total_amount) - totalPaid}</span> </span>}
-                </div>
-              </div>
-              <div className='flex'>
-                <div className='mr-2 bg-[#c8f7de] px-4 py-2 rounded-[24px] flex items-center justify-center cursor-pointer'>
-                  <span className='text-[#0d4a2a] text-[10px] font-poppinsMed'>Update</span>
-                </div>
-                <div className='mr-2 bg-[#f6d2c5] px-4 py-2 rounded-[24px] flex items-center justify-center cursor-pointer' onClick={() => deleteLoan(loanId as string)}>
-                  <span className='text-[#85371a] text-[10px] font-poppinsMed'>Delete</span>
-                </div>
-              </div>
-
-            </div>
-            : <div className="flex w-[250px] flex-col gap-4 items-center justify-cenetr">
-              <div className="skeleton h-8 w-[180px] bg-[#e0e0ff]"></div>
-              <div className="skeleton h-4 w-[160px] bg-[#c4c4fa]"></div>
-              <div className="skeleton h-6 w-full bg-[#d6d6f5]"></div>
-              <div className='w-full flex items-center justify-center'>
-                <div className="skeleton h-6 w-[60px] bg-[#d6d6f5] mr-2"></div>
-                <div className="skeleton h-6 w-[60px] bg-[#d6d6f5]"></div>
-              </div>
-            </div>
-          } */}
-
-
-        </div>
-      </div>
+        )}
+      />
 
       {loading ?
         <div className='p-4'>

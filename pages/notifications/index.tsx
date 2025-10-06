@@ -50,7 +50,7 @@ export default function NotificationsPage() {
   const filtered = (activeTab === 'unread' ? itemsUnread : itemsRead);
 
   return (
-    <div className='min-h-screen bg-gray-50'>
+    <div className='min-h-screen bg-base-100'>
       <CommonHeader title='Notifications' />
       
       <div className='max-w-2xl mx-auto p-4'>
@@ -61,7 +61,7 @@ export default function NotificationsPage() {
             <button
               onClick={markAllRead}
               title='Mark all notifications as read'
-              className='flex items-center space-x-1 px-3 py-2 text-xs text-blue-600 border border-gray-300 rounded-lg bg-white hover:bg-gray-50 transition-colors flex-1 sm:flex-none justify-center'
+              className='flex items-center space-x-1 px-3 py-2 text-xs text-primary border border-base-300 dark:border-base-400 rounded-lg bg-base-100 dark:bg-base-200 hover:bg-primary/10 transition-colors flex-1 sm:flex-none justify-center'
             >
               <svg className='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                 <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M5 13l4 4L19 7' />
@@ -73,7 +73,7 @@ export default function NotificationsPage() {
             <button
               onClick={refresh}
               title='Refresh list'
-              className='flex items-center space-x-1 px-3 py-2 text-xs text-gray-600 border border-gray-300 rounded-lg bg-white hover:bg-gray-50 transition-colors flex-1 sm:flex-none justify-center'
+              className='flex items-center space-x-1 px-3 py-2 text-xs text-base-content/70 border border-base-300 dark:border-base-400 rounded-lg bg-base-100 dark:bg-base-200 hover:bg-base-200 dark:hover:bg-base-300 transition-colors flex-1 sm:flex-none justify-center'
             >
               <svg className='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                 <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15' />
@@ -87,7 +87,7 @@ export default function NotificationsPage() {
             <button
               onClick={() => dispatch(clearReadThunk())}
               title='Delete read notifications'
-              className='px-3 py-2 text-xs text-gray-600 border border-gray-300 rounded-lg bg-white hover:bg-gray-50 transition-colors flex-1 sm:flex-none justify-center text-center'
+              className='px-3 py-2 text-xs text-base-content/70 border border-base-300 dark:border-base-400 rounded-lg bg-base-100 dark:bg-base-200 hover:bg-base-200 dark:hover:bg-base-300 transition-colors flex-1 sm:flex-none justify-center text-center'
             >
               <span className='hidden xs:inline'>Clear read</span>
               <span className='xs:hidden'>Clr Read</span>
@@ -95,7 +95,7 @@ export default function NotificationsPage() {
             <button
               onClick={() => dispatch(clearAllThunk())}
               title='Delete all notifications'
-              className='px-3 py-2 text-xs text-red-600 border border-red-200 rounded-lg bg-white hover:bg-red-50 transition-colors flex-1 sm:flex-none justify-center text-center'
+              className='px-3 py-2 text-xs text-error border border-error/30 rounded-lg bg-base-100 dark:bg-base-200 hover:bg-error/10 transition-colors flex-1 sm:flex-none justify-center text-center'
             >
               <span className='hidden xs:inline'>Clear all</span>
               <span className='xs:hidden'>Clr All</span>
@@ -143,13 +143,13 @@ export default function NotificationsPage() {
         */}
 
         {/* Tabs */}
-        <div className='flex bg-white rounded-xl border border-gray-200 p-1 mb-6'>
+        <div className='flex bg-base-100 dark:bg-base-200 rounded-xl border border-base-300 dark:border-base-400 p-1 mb-6'>
           <button
             onClick={() => setActiveTab('unread')}
             className={`flex-1 px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
               activeTab === 'unread'
-                ? 'bg-blue-50 text-blue-700 border border-blue-200'
-                : 'text-gray-600 hover:text-gray-900'
+                ? 'bg-primary/10 text-primary border border-primary/30'
+                : 'text-base-content/70 hover:text-base-content'
             }`}
           >
             Unread
@@ -163,8 +163,8 @@ export default function NotificationsPage() {
             onClick={() => setActiveTab('read')}
             className={`flex-1 px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
               activeTab === 'read'
-                ? 'bg-blue-50 text-blue-700 border border-blue-200'
-                : 'text-gray-600 hover:text-gray-900'
+                ? 'bg-primary/10 text-primary border border-primary/30'
+                : 'text-base-content/70 hover:text-base-content'
             }`}
           >
             Read
@@ -180,12 +180,12 @@ export default function NotificationsPage() {
           <div className='space-y-3'>
             {filtered.length === 0 ? (
               <div className='text-center py-12'>
-                <div className='w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center'>
-                  <svg className='w-8 h-8 text-gray-400' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                <div className='w-16 h-16 mx-auto mb-4 bg-base-200 rounded-full flex items-center justify-center'>
+                  <svg className='w-8 h-8 text-base-content/50' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                     <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9' />
                   </svg>
                 </div>
-                <p className='text-gray-500 text-sm'>No {activeTab} notifications</p>
+                <p className='text-base-content/60 text-sm'>No {activeTab} notifications</p>
               </div>
             ) : (
               filtered.map((n, idx) => (
@@ -193,25 +193,25 @@ export default function NotificationsPage() {
                   key={idx}
                   className={`p-4 rounded-xl border transition-all duration-200 ${
                     !n.read
-                      ? 'bg-white border-blue-200 shadow-sm'
-                      : 'bg-white border-gray-200'
+                      ? 'bg-base-100 dark:bg-base-200 border-primary/30 shadow-sm'
+                      : 'bg-base-100 dark:bg-base-200 border-base-300 dark:border-base-400'
                   }`}
                 >
                   <div className='flex items-start justify-between'>
                     <div className='flex-1 mr-3'>
                       <div className='flex items-start space-x-3'>
                         {!n.read && (
-                          <div className='w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0'></div>
+                          <div className='w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0'></div>
                         )}
                         <div className='flex-1'>
                           <h3 className={`text-sm font-semibold mb-1 ${
-                            !n.read ? 'text-gray-900' : 'text-gray-700'
+                            !n.read ? 'text-base-content' : 'text-base-content/80'
                           }`}>
                             {n.title}
                           </h3>
-                          <p className='text-sm text-gray-600 mb-2'>{n.body}</p>
+                          <p className='text-sm text-base-content/70 mb-2'>{n.body}</p>
                           {n.created_at && (
-                            <div className='text-xs text-gray-400 flex items-center'>
+                            <div className='text-xs text-base-content/60 flex items-center'>
                               <svg className='w-3 h-3 mr-1' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                                 <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z' />
                               </svg>
@@ -226,7 +226,7 @@ export default function NotificationsPage() {
                       {n.link && (
                         <a
                           href={n.link}
-                          className='p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors'
+                          className='p-2 text-primary hover:bg-primary/10 rounded-lg transition-colors'
                           title='Open'
                         >
                           <svg className='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
@@ -238,7 +238,7 @@ export default function NotificationsPage() {
                       {!n.read && (
                         <button
                           onClick={() => markRead(n.id)}
-                          className='p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors'
+                          className='p-2 text-success hover:bg-success/10 rounded-lg transition-colors'
                           title='Mark as read'
                         >
                           <svg className='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
@@ -249,7 +249,7 @@ export default function NotificationsPage() {
                       
                       <button
                         onClick={() => dispatch(clearOneThunk(Number(n.id)))}
-                        className='p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors'
+                        className='p-2 text-error hover:bg-error/10 rounded-lg transition-colors'
                         title='Delete'
                       >
                         <svg className='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
@@ -266,8 +266,8 @@ export default function NotificationsPage() {
 
         {/* Status Message */}
         {status && (
-          <div className='mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg'>
-            <div className='text-xs text-blue-700 flex items-center'>
+          <div className='mt-4 p-3 bg-primary/10 border border-primary/30 rounded-lg'>
+            <div className='text-xs text-primary flex items-center'>
               <svg className='w-4 h-4 mr-2' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                 <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z' />
               </svg>

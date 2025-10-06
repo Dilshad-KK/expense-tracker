@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import GoBack from "../../components/gobackSecond";
+import CommonHeader from "@/components/commonHeader";
 
 export default function UpdatePage() {
   const [id, setId] = useState<string | null>(null);
@@ -41,42 +41,35 @@ export default function UpdatePage() {
   };
 
   return (
-    <div className="bg-[#ffffff] min-h-screen relative">
-      <div className='bg-primary px-4 py-8 flex justify-center items-center rounded-b-[24px] h-[120px] overflow-hidden'>
-        <div className='absolute left-[-90px] z-[1000] bg-[#ffffff18] rounded-full w-[200px] h-[200px]'></div>
-        <div className='absolute left-[-30px] z-[1000] bg-[#ffffff1a] rounded-full w-[200px] h-[200px]'></div>
-        <div className='absolute left-[32px] z-[1000]'>
-          <GoBack />
-        </div>
-        <span className='text-white z-[2000] font-poppinsBold text-[18px]'>Update Period Details</span>
-      </div>
+    <div className="bg-base-100 min-h-screen relative">
+      <CommonHeader title='Update Period Details' />
       <div className="flex items-center justify-center h-full pt-24">
-        <div className="bg-white rounded-2xl p-6 max-w-md w-full">
+        <div className="bg-base-100 rounded-2xl p-6 max-w-md w-full border border-base-300">
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-[#0f0d49] mb-1">Cycle Length (days)</label>
+              <label className="block text-sm font-medium text-base-content mb-1">Cycle Length (days)</label>
               <input
                 type="number"
                 value={cycle}
                 onChange={(e) => setCycle(Number(e.target.value))}
                 min={1}
-                className="input text-black/60 mb-2 border-[1px] border-solid border-[#d3d3fe] w-full p-4 rounded-[8px] bg-[#f3f3fd] placeholder:text-[12px]"
+                className="input input-bordered text-base-content/80 mb-2 w-full p-4 rounded-[8px] bg-base-200 placeholder:text-[12px]"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-[#0f0d49] mb-1">Last Period Start Date</label>
+              <label className="block text-sm font-medium text-base-content mb-1">Last Period Start Date</label>
               <input
                 type="date"
                 value={lastDate}
                 onChange={(e) => setLastDate(e.target.value)}
-                className="input text-black/60 mb-2 border-[1px] border-solid border-[#d3d3fe] w-full p-4 rounded-[8px] bg-[#f3f3fd] placeholder:text-[12px]"
+                className="input input-bordered text-base-content/80 mb-2 w-full p-4 rounded-[8px] bg-base-200 placeholder:text-[12px]"
               />
             </div>
 
             <button
               onClick={handleSave}
-              className="btn bg-[#514cff] text-white border-none text-[12px] my-[16px] w-full"
+              className="btn btn-primary text-white border-none text-[12px] my-[16px] w-full"
             >
               Save & Go Back
             </button>

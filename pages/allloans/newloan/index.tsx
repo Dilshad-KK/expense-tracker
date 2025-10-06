@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 // import { IoMdNotifications } from "react-icons/io";
-import GoBack from "../../../components/gobackSecond";
+import CommonHeader from "@/components/commonHeader";
 // import moment from 'moment';
 // import Link from 'next/link';
 // import { FaPlus } from "react-icons/fa6";
@@ -66,14 +66,8 @@ const NewLoan = () => {
         setLoading(false);
     }
     return (
-        <div className="bg-[#e8e8fd] min-h-screen relative">
-            <div className='relative bg-[#514cff] h-[150px] rounded-b-[60px] flex justify-between items-center px-4 mb-8'>
-                <div className='absolute left-[-90px] z-[1000] bg-[#ffffff18] rounded-full w-[200px] h-[200px]'></div>
-                <div className='absolute left-[-30px] z-[1000] bg-[#ffffff1a] rounded-full w-[200px] h-[200px]'></div>
-                <GoBack />
-                <span className='text-white z-[2000]'>Add New Loan</span>
-                <div />
-            </div>
+        <div className="bg-base-100 min-h-screen relative">
+            <CommonHeader title='Add New Loan' />
             <div className='px-4 pb-[150px]'>
                 <div className="flex items-center justify-center flex-col">
                     <input

@@ -125,22 +125,22 @@ export default function App({ Component, pageProps }: AppProps) {
     <Provider store={store}>
       {envChecked && iosPromptVisible && (
         <div style={{ position: 'fixed', bottom: 72, left: 12, right: 12, zIndex: 9999 }}>
-          <div className="shadow-lg rounded-[12px] bg-white border border-[#e5e7eb] px-4 py-3">
-            <div className="text-[12px] font-poppinsMed text-black mb-[4px]">Enable Notifications</div>
-            <div className="text-[11px] text-black/70 mb-2">Tap to allow push notifications for this PWA. You can change this later in Settings.</div>
+          <div className="shadow-lg rounded-[12px] bg-base-100 dark:bg-base-200 border border-base-300 dark:border-base-400 px-4 py-3">
+            <div className="text-[12px] font-poppinsMed text-base-content mb-[4px]">Enable Notifications</div>
+            <div className="text-[11px] text-base-content/70 mb-2">Tap to allow push notifications for this PWA. You can change this later in Settings.</div>
             <div style={{ display: 'flex', gap: 8 }}>
               <button onClick={enableIosPush} className="text-white bg-[#514cff] px-3 py-2 rounded-[8px] text-[12px]">Enable</button>
-              <button onClick={() => { setIosPromptVisible(false); localStorage.setItem('iosPushPromptDismissed','1'); }} className="text-[#514cff] bg-white border border-[#e5e7eb] px-3 py-2 rounded-[8px] text-[12px]">Later</button>
-              <div className="text-[10px] text-black/50 ml-auto self-center">{channelInfo}</div>
+              <button onClick={() => { setIosPromptVisible(false); localStorage.setItem('iosPushPromptDismissed','1'); }} className="text-primary bg-base-100 dark:bg-base-200 border border-base-300 dark:border-base-400 px-3 py-2 rounded-[8px] text-[12px]">Later</button>
+              <div className="text-[10px] text-base-content/60 ml-auto self-center">{channelInfo}</div>
             </div>
           </div>
         </div>
       )}
       {toast && (
         <div style={{ position: 'fixed', top: 12, right: 12, zIndex: 9999 }}>
-          <div className="shadow-lg rounded-[12px] bg-white border border-[#e5e7eb] px-4 py-3 max-w-[300px]">
-            <div className="text-[12px] font-poppinsMed text-black mb-[4px]">{toast.title}</div>
-            <div className="text-[11px] text-black/70">{toast.body}</div>
+          <div className="shadow-lg rounded-[12px] bg-base-100 dark:bg-base-200 border border-base-300 dark:border-base-400 px-4 py-3 max-w-[300px]">
+            <div className="text-[12px] font-poppinsMed text-base-content mb-[4px]">{toast.title}</div>
+            <div className="text-[11px] text-base-content/70">{toast.body}</div>
           </div>
         </div>
       )}

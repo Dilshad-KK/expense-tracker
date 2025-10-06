@@ -1,7 +1,7 @@
 import React from 'react';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-import GoBack from "../../../../components/gobackSecond";
+import CommonHeader from "@/components/commonHeader";
 import moment from 'moment';
 import Link from 'next/link';
 import { getCategoryIcon } from '@/utils/categoryMapper';
@@ -64,27 +64,16 @@ const ExpenseDetails = () => {
 
 
   return (
-    <div className='bg-[#ffffff] min-h-screen'>
-      <div>
-        <div className='bg-[#514cff] px-4 py-8 flex justify-center items-center rounded-b-[24px] h-[160px]'>
-          <div className='absolute left-[-90px] z-[1000] bg-[#ffffff18] rounded-full w-[200px] h-[200px]'></div>
-          <div className='absolute left-[-30px] z-[1000] bg-[#ffffff1a] rounded-full w-[200px] h-[200px]'></div>
-          <div className='absolute left-[32px] z-[1000]'>
-            <GoBack />
+    <div className='bg-base-100 min-h-screen'>
+      <CommonHeader
+        title='Expense Details'
+        right={(
+          <div className='flex items-center gap-2'>
+            <Link href={`/ikkuexpensesindia`} className='btn btn-xs btn-success text-white'>Update</Link>
+            <button onClick={() => deleteExpense()} className='btn btn-xs btn-error text-white'>Delete</button>
           </div>
-          <div className='flex flex-col items-center justify-center z-[2000]'>
-            <span className='text-white z-[2000] font-poppinsBold text-[18px] mb-4'>Expense Details</span>
-            <div className='flex'>
-              <Link href={`/ikkuexpensesindia`} className='mr-2 bg-[#c8f7de] px-4 py-2 rounded-[24px] flex items-center justify-center cursor-pointer'>
-                <span  className='text-[#0d4a2a] text-[10px] font-poppinsMed'>Update</span>
-              </Link>
-              <div className='mr-2 bg-[#f6d2c5] px-4 py-2 rounded-[24px] flex items-center justify-center cursor-pointer'>
-                <span className='text-[#85371a] text-[10px] font-poppinsMed' onClick={() => deleteExpense()}>Delete</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+        )}
+      />
 
       {loading ?
         <div className='p-4'>

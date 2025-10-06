@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import GoBack from "../../../components/gobackSecond";
+import CommonHeader from "@/components/commonHeader";
 
 
 const NewExpense = () => {
@@ -51,14 +51,8 @@ const NewExpense = () => {
 
 
     return (
-        <div className="bg-[#e8e8fd] min-h-screen relative">
-            <div className='relative bg-primary h-[150px] rounded-b-[60px] flex justify-between items-center px-4 mb-8 overflow-hidden'>
-                <div className='absolute left-[-90px] z-[1000] bg-[#ffffff18] rounded-full w-[200px] h-[200px]'></div>
-                <div className='absolute left-[-30px] z-[1000] bg-[#ffffff1a] rounded-full w-[200px] h-[200px]'></div>
-                <GoBack />
-                <span className='text-white z-[2000]'>Add New Expense</span>
-                <div />
-            </div>
+        <div className="bg-base-100 min-h-screen relative">
+            <CommonHeader title='Add New Expense' />
             <div className='px-4 pb-[150px]'>
                 <div className="flex items-center justify-center flex-col">
                     <input

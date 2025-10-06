@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import GoBack from "../../components/gobackSecond";
+import CommonHeader from "@/components/commonHeader";
 import Link from 'next/link';
 import { FaPlus } from "react-icons/fa6";
 import moment from 'moment';
@@ -37,15 +37,8 @@ const AllDiscussions = () => {
 
 
     return (
-        <div className="bg-[#e8e8fd] min-h-screen relative">
-            <div className='bg-primary px-4 py-8 flex justify-center items-center rounded-b-[24px] h-[120px] overflow-hidden'>
-                <div className='absolute left-[-90px] z-[1000] bg-[#ffffff18] rounded-full w-[200px] h-[200px]'></div>
-                <div className='absolute left-[-30px] z-[1000] bg-[#ffffff1a] rounded-full w-[200px] h-[200px]'></div>
-                <div className='absolute left-[32px] z-[1000]'>
-                    <GoBack />
-                </div>
-                <span className='text-white z-[2000] font-poppinsBold text-[18px]'>Discussions</span>
-            </div>
+        <div className="bg-base-100 min-h-screen relative">
+            <CommonHeader title='Discussions' />
             <div className='px-4 pt-4 pb-[150px]'>
                 {loading ?
                     <div>

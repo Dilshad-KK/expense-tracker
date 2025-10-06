@@ -1,4 +1,4 @@
-import GoBack from '@/components/gobackSecond';
+import CommonHeader from "@/components/commonHeader";
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import "react-datepicker/dist/react-datepicker.css";
@@ -116,28 +116,8 @@ export default function Edit() {
   };
 
   return (
-    <div className="bg-[#e8e8fd] min-h-screen flex flex-col">
-      <div className='bg-[#514cff] px-4 py-8 flex justify-center items-center rounded-b-[24px] h-[160px] relative'>
-        <div className='absolute left-[-90px] z-[1000] bg-[#ffffff18] rounded-full w-[200px] h-[200px]'></div>
-        <div className='absolute left-[-30px] z-[1000] bg-[#ffffff1a] rounded-full w-[200px] h-[200px]'></div>
-        <div className='absolute left-[32px] z-[1000]'>
-          <GoBack />
-        </div>
-        {!loading && loan?.length ?
-          <div className='flex flex-col items-center justify-center'>
-            <div className='bg-[#ffffff18] px-6 py-2 rounded-[24px] mb-3'>
-              <span className='text-white text-[18px] font-poppinsBold'>{title}</span>
-            </div>
-            <div className='bg-[#2d23b9] px-4 py-2 rounded-[24px] flex items-center justify-center mb-2'>
-              <span className='text-white text-[12px] font-poppinsMed'>Installment&nbsp;{Number(instOrder) + 1}</span>
-            </div>
-          </div> :
-          <div className="flex w-[250px] flex-col gap-4 items-center justify-cenetr">
-            <div className="skeleton h-8 w-[180px] bg-[#e0e0ff]"></div>
-            <div className="skeleton h-4 w-[160px] bg-[#c4c4fa]"></div>
-          </div>
-        }
-      </div>
+    <div className="bg-base-100 min-h-screen flex flex-col">
+      <CommonHeader title='Edit Installment' />
       {
         !loading && loan?.length && loanDetails?.length ?
           <div className='px-4 py-16 flex-1 flex items-start justify-center'>
