@@ -62,6 +62,7 @@ const Chat = () => {
   const realtimeActiveRef = useRef<boolean>(false);
   const bottomRef = useRef<HTMLDivElement | null>(null);
   const [clearing, setClearing] = useState(false);
+  const [keyboardOpen, setKeyboardOpen] = useState(false);
 
   // WebRTC state
   const pcRef = useRef<RTCPeerConnection | null>(null);
@@ -77,6 +78,36 @@ const Chat = () => {
   useEffect(() => {
     // ping the socket route to ensure server is initialized (bypass caches)
     fetch('/api/socketio?init=1', { cache: 'no-store', keepalive: true } as any).catch(() => {});
+  }, []);
+
+  // Keyboard avoidance: detect virtual keyboard and adjust layout
+  useEffect(() => {
+    const vv: any = (typeof window !== 'undefined' ? (window as any).visualViewport : null);
+    const onResize = () => {
+      try {
+        const threshold = 60;
+        const open = vv && vv.height && window.innerHeight && (window.innerHeight - vv.height) > threshold;
+        setKeyboardOpen(!!open);
+      } catch { setKeyboardOpen(false); }
+    };
+    const onFocus = (e: any) => {
+      const tag = (e?.target?.tagName || '').toLowerCase();
+      if (tag === 'input' || tag === 'textarea') setKeyboardOpen(true);
+    };
+    const onBlur = () => setKeyboardOpen(false);
+    if (vv) {
+      vv.addEventListener('resize', onResize);
+      vv.addEventListener('scroll', onResize);
+    }
+    if (typeof window !== 'undefined') {
+      window.addEventListener('focusin', onFocus);
+      window.addEventListener('focusout', onBlur);
+    }
+    onResize();
+    return () => {
+      try { vv && vv.removeEventListener('resize', onResize); vv && vv.removeEventListener('scroll', onResize); } catch {}
+      try { window.removeEventListener('focusin', onFocus); window.removeEventListener('focusout', onBlur); } catch {}
+    };
   }, []);
 
   useEffect(() => {
@@ -425,7 +456,13 @@ const Chat = () => {
           <div ref={bottomRef} />
         </div>
         {/* Composer */}
-        <div className="border-t border-base-300 bg-base-100 sticky bottom-0 z-[2001] p-3 flex gap-2 mb-[88px]" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 8px)' }}>
+        <div
+          className="border-t border-base-300 bg-base-100 sticky bottom-0 z-[2001] p-3 flex gap-2"
+          style={{
+            paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 8px)',
+            marginBottom: keyboardOpen ? 0 : 88,
+          }}
+        >
           <input className="input input-bordered flex-1" value={text} onChange={(e) => setText(e.target.value)} placeholder="Type a message" onKeyDown={(e) => { if (e.key === 'Enter') sendMessage(); }} />
           <button className="btn btn-primary" onClick={sendMessage} disabled={!ready || !text.trim()}>Send</button>
         </div>
