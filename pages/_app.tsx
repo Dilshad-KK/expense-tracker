@@ -44,6 +44,10 @@ export default function App({ Component, pageProps }: AppProps) {
         setToast({ title, body });
         // Auto-hide after 4 seconds
         setTimeout(() => setToast(null), 4000);
+        try {
+          store.dispatch(fetchUnreadCount());
+          store.dispatch(fetchNotifications('unread' as any));
+        } catch {}
       });
     })();
     return () => {
@@ -129,7 +133,7 @@ export default function App({ Component, pageProps }: AppProps) {
             <div className="text-[12px] font-poppinsMed text-base-content mb-[4px]">Enable Notifications</div>
             <div className="text-[11px] text-base-content/70 mb-2">Tap to allow push notifications for this PWA. You can change this later in Settings.</div>
             <div style={{ display: 'flex', gap: 8 }}>
-              <button onClick={enableIosPush} className="text-white bg-[#514cff] px-3 py-2 rounded-[8px] text-[12px]">Enable</button>
+              <button onClick={enableIosPush} className="btn btn-primary btn-xs normal-case text-[12px]">Enable</button>
               <button onClick={() => { setIosPromptVisible(false); localStorage.setItem('iosPushPromptDismissed','1'); }} className="text-primary bg-base-100 dark:bg-base-200 border border-base-300 dark:border-base-400 px-3 py-2 rounded-[8px] text-[12px]">Later</button>
               <div className="text-[10px] text-base-content/60 ml-auto self-center">{channelInfo}</div>
             </div>

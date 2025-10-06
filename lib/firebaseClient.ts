@@ -55,10 +55,12 @@ export async function requestFcmToken(): Promise<string | null> {
     if (token) {
       try {
         const ua = typeof navigator !== 'undefined' ? navigator.userAgent : undefined;
+        let user: string | undefined = undefined;
+        try { user = localStorage.getItem('userIdentity') || undefined; } catch {}
         await fetch('/api/registerToken', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ token, device: ua }),
+          body: JSON.stringify({ token, device: ua, user }),
         });
       } catch {
         // ignore registration errors client-side

@@ -57,10 +57,12 @@ export async function subscribeWebPush(): Promise<{ ok: boolean; reason?: string
       applicationServerKey: urlBase64ToUint8Array(publicKey),
     });
 
+    let user: string | undefined = undefined;
+    try { user = localStorage.getItem('userIdentity') || undefined; } catch {}
     const res = await fetch('/api/webpush/subscribe', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ subscription: sub, device: navigator.userAgent }),
+      body: JSON.stringify({ subscription: sub, device: navigator.userAgent, user }),
     });
     if (!res.ok) {
       const data = await res.json().catch(() => ({}));

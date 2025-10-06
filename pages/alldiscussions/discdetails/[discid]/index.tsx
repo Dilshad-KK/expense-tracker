@@ -79,11 +79,11 @@ const DiscussionDetails = () => {
       {loading ?
         <div className='p-4'>
           {[1, 2, 3, 4]?.map((key) => (
-            <div className="h-[70px] w-[100%] bg-white px-4 py-4 my-3 rounded-[12px] flex" key={key}>
-              <div className="skeleton h-full w-[10%] bg-[#d6d6fc] rounded-[12px] mr-3"></div>
+            <div className="h-[70px] w-[100%] bg-base-100 dark:bg-base-200 border-2 border-base-300 dark:border-base-400 px-4 py-4 my-3 rounded-[12px] flex" key={key}>
+              <div className="skeleton h-full w-[10%] bg-[#d6d6fc] dark:bg-base-300 rounded-[12px] mr-3"></div>
               <div className='w-full'>
-                <div className="skeleton h-4 w-[100%] bg-[#d6d6fc] mb-2"></div>
-                <div className="skeleton h-4 w-[100%] bg-[#d6d6fc]"></div>
+                <div className="skeleton h-4 w-[100%] bg-[#d6d6fc] dark:bg-base-300 mb-2"></div>
+                <div className="skeleton h-4 w-[100%] bg-[#d6d6fc] dark:bg-base-300"></div>
               </div>
             </div>
           ))}
@@ -91,27 +91,25 @@ const DiscussionDetails = () => {
         : discussion?.length ?
           <div className='px-4 pt-4 pb-[150px]'>
 
-
-
-            <div className='bg-white px-4 py-4 my-3 rounded-[12px] flex justify-between'>
+            <div className='bg-base-100 dark:bg-base-200 border-2 border-base-300 dark:border-base-400 px-4 py-4 my-3 rounded-[12px] flex justify-between'>
               <div className='flex items-center justify-center'>
                 <div className={`h-[40px] w-[40px] ${discussion[0]?.user === 'Dilshad' ? 'bg-[#126581]' : 'bg-[#8e156a]'}  rounded-full flex items-center justify-center mr-4 flex-shrink-0`}>
                   <span className='text-[18px] text-white font-poppinsMed'>{discussion[0]?.user === 'Dilshad' ? 'D' : 'S'}</span>
                 </div>
                 <div>
                   <div className='flex items-center justify-start'>
-                    <span className='mr-1 text-[10px] text-slate-600'>{discussion[0]?.user}</span>
-                    <span className='mr-1 mb-2 text-[16px] text-slate-600'>.</span>
-                    <span className='text-[10px] text-slate-600 mr-2'>{moment(discussion[0]?.created_at).fromNow().replace(/^\w/, c => c.toUpperCase())}</span>
-                    <span className='mr-1 mb-2 text-[16px] text-slate-600'>.</span>
+                    <span className='mr-1 text-[10px] text-base-content/70'>{discussion[0]?.user}</span>
+                    <span className='mr-1 mb-2 text-[16px] text-base-content/60'>.</span>
+                    <span className='text-[10px] text-base-content/70 mr-2'>{moment(discussion[0]?.created_at).fromNow().replace(/^\w/, c => c.toUpperCase())}</span>
+                    <span className='mr-1 mb-2 text-[16px] text-base-content/60'>.</span>
                     {discussion[0]?.status === "pending" ?
-                      <div className='bg-[#fbe2de] rounded-[12px] text-[8px] py-1 px-3 flex items-center justify-center uppercase text-[#8f4d43] font-poppinsMed'>{discussion[0]?.status}</div>
+                      <div className='bg-error/10 rounded-[12px] text-[8px] py-1 px-3 flex items-center justify-center uppercase text-error font-poppinsMed'>{discussion[0]?.status}</div>
                       :
-                      <div className='bg-[#a7fac5] rounded-[12px] text-[8px] py-1 px-3 flex items-center justify-center uppercase text-[#345c42] font-poppinsMed'>{discussion[0]?.status}</div>
+                      <div className='bg-success/10 rounded-[12px] text-[8px] py-1 px-3 flex items-center justify-center uppercase text-success font-poppinsMed'>{discussion[0]?.status}</div>
 
                     }
                   </div>
-                  <span className='text-black/60 text-[12px]'>{discussion[0]?.message}</span>
+                  <span className='text-base-content/80 text-[12px]'>{discussion[0]?.message}</span>
                 </div>
 
               </div>

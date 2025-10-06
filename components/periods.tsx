@@ -82,12 +82,12 @@ const getPeriodInfo = () => {
             <div>
                 {
                     loading ?
-                        <div className="h-[90px] w-[100%] bg-white px-4 py-4 rounded-[12px] flex mb-8 items-center">
-                            <div className="skeleton h-[40px] w-[50px] bg-[#d6d6fc] rounded-[12px] mr-3"></div>
+                        <div className="h-[90px] w-[100%] bg-base-100 dark:bg-base-200 border border-base-300 dark:border-base-400 px-4 py-4 rounded-[12px] flex mb-8 items-center">
+                            <div className="skeleton h-[40px] w-[50px] bg-[#d6d6fc] dark:bg-base-300 rounded-[12px] mr-3"></div>
                             <div className='w-full flex flex-col items-center justify-center'>
-                                <div className="skeleton h-3 w-[100%] bg-[#d6d6fc] mb-2 rounded-[4px]"></div>
-                                <div className="skeleton h-2 w-[100%] bg-[#d6d6fc] mb-2 rounded-[4px]"></div>
-                                <div className="skeleton h-2 w-[100%] bg-[#d6d6fc] rounded-[4px]"></div>
+                                <div className="skeleton h-3 w-[100%] bg-[#d6d6fc] dark:bg-base-300 mb-2 rounded-[4px]"></div>
+                                <div className="skeleton h-2 w-[100%] bg-[#d6d6fc] dark:bg-base-300 mb-2 rounded-[4px]"></div>
+                                <div className="skeleton h-2 w-[100%] bg-[#d6d6fc] dark:bg-base-300 rounded-[4px]"></div>
                             </div>
                         </div> :
                         <>
@@ -97,7 +97,7 @@ const getPeriodInfo = () => {
                             >
 
 
-                                <div className="relative z-20 text-black w-full">
+                                <div className="relative z-20 text-base-content w-full">
                                     <div className='flex flex-row items-center justify-start'>
                                         <div className='bg-base-100 border border-base-300 h-[50px] w-[50px] rounded-lg flex flex-row items-center justify-center mr-[16px]'>
                                             <MdWaterDrop className='text-[24px] text-[#fc3f3f]  animate-bounce' />

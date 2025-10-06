@@ -154,7 +154,7 @@ export default function NotificationsPage() {
           >
             Unread
             {itemsUnread.length > 0 && (
-              <span className='ml-2 px-1.5 py-0.5 text-xs bg-blue-100 text-blue-700 rounded-full'>
+              <span className='ml-2 px-1.5 py-0.5 text-xs bg-primary/10 text-primary rounded-full'>
                 {itemsUnread.length}
               </span>
             )}

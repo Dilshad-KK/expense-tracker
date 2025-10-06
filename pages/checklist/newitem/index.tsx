@@ -81,24 +81,24 @@ const NewItem = () => {
     }
 
     return (
-        <div className="bg-[#e8e8fd] min-h-screen relative">
+        <div className="bg-base-100 min-h-screen relative">
             <CommonHeader title='Add New Item' />
             <div className='px-4 pb-[150px] mt-8'>
                 <div className="flex items-center justify-center flex-col">
                     <input
                         type="text"
                         placeholder="Title"
-                        className="input mb-2 border-[1px] border-solid border-[#d3d3fe] w-full bg-[#f3f3fd] placeholder:text-[12px]"
+                        className="input input-bordered mb-2 w-full bg-base-100 dark:bg-base-200 border-base-300 dark:border-base-400 text-base-content placeholder:text-[12px] placeholder:text-base-content/60"
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
                     />
-                    <select className="text-black/60 mb-2 text-base select border-[1px] border-solid border-[#d3d3fe] w-full bg-[#f3f3fd] text-[12px] placeholder:text-[12px]"
+                    <select className="select select-bordered mb-2 text-base w-full bg-base-100 dark:bg-base-200 border-base-300 dark:border-base-400 text-[12px] text-base-content placeholder:text-[12px] placeholder:text-base-content/60"
                         value={priority} onChange={(e) => setPriority(e.target.value)}>
                         <option value="high">High</option>
                         <option value="medium">Medium</option>
                         <option value="low">Low</option>
                     </select>
-                    <select className="text-black/60 text-base select border-[1px] border-solid border-[#d3d3fe] w-full bg-[#f3f3fd] text-[12px] placeholder:text-[12px]"
+                    <select className="select select-bordered text-base w-full bg-base-100 dark:bg-base-200 border-base-300 dark:border-base-400 text-[12px] text-base-content placeholder:text-[12px] placeholder:text-base-content/60"
                         value={user} onChange={(e) => setUser(e.target.value)}>
                         {user === "Shifa Dilshad" ? <option value="Shifa Dilshad">Shifa Dilshad</option> :
                             <option value="Dilshad">Dilshad</option>}
@@ -107,8 +107,7 @@ const NewItem = () => {
                         <option value="Vacation">Vacation</option>
                     </select>
 
-
-                    <button className="btn bg-[#514cff] text-white border-none text-[12px] my-[16px] w-full" onClick={addChecklistItem}>
+                    <button className="btn btn-primary text-white text-[12px] my-[16px] w-full" onClick={addChecklistItem}>
                         Add Item
                     </button>
 

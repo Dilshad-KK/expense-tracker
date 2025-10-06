@@ -77,11 +77,11 @@ const ExpenseDetails = () => {
 
       {loading ?
         <div className='p-4'>
-          <div className="h-[70px] w-[100%] bg-white px-4 py-4 my-3 rounded-[12px] flex">
-            <div className="skeleton h-full w-[10%] bg-[#d6d6fc] rounded-[12px] mr-3"></div>
+          <div className="h-[70px] w-[100%] bg-base-100 dark:bg-base-200 border-2 border-base-300 dark:border-base-400 px-4 py-4 my-3 rounded-[12px] flex">
+            <div className="skeleton h-full w-[10%] bg-[#d6d6fc] dark:bg-base-300 rounded-[12px] mr-3"></div>
             <div className='w-full'>
-              <div className="skeleton h-4 w-[100%] bg-[#d6d6fc] mb-2"></div>
-              <div className="skeleton h-4 w-[100%] bg-[#d6d6fc]"></div>
+              <div className="skeleton h-4 w-[100%] bg-[#d6d6fc] dark:bg-base-300 mb-2"></div>
+              <div className="skeleton h-4 w-[100%] bg-[#d6d6fc] dark:bg-base-300"></div>
             </div>
           </div>
         </div>
@@ -90,20 +90,20 @@ const ExpenseDetails = () => {
 
             {expenses?.map(item => (
               <div className="mb-4 flex items-center">
-                <div className="flex flex-col items-center justify-start bg-white w-[30px] ml-[-4px] mr-3">
-                  <span className="text-[12px] text-black/70">{moment(item?.created_at).format("MMM")}</span>
-                  <span className="text-[12px] text-black/70">{moment(item?.created_at).format("DD")}</span>
+                <div className="flex flex-col items-center justify-start bg-base-100 dark:bg-base-200 w-[30px] ml-[-4px] mr-3">
+                  <span className="text-[12px] text-base-content/70">{moment(item?.created_at).format("MMM")}</span>
+                  <span className="text-[12px] text-base-content/70">{moment(item?.created_at).format("DD")}</span>
                 </div>
-                <div className="bg-[#e9f7ed] p-3 mr-3 flex-shrink-0">
+                <div className="bg-base-200 p-3 mr-3 flex-shrink-0">
                   <img src={getCategoryIcon(item?.note)} className="h-[20px] opacity-70" />
                 </div>
                 <div className="max-w-[220px]">
-                  <div className="text-black/70 text-[12px] mb-1">{item?.note}</div>
-                  <div className="text-black/50 text-[10px]">{item?.type}</div>
+                  <div className="text-base-content/80 text-[12px] mb-1">{item?.note}</div>
+                  <div className="text-base-content/60 text-[10px]">{item?.type}</div>
                 </div>
                 <div className="flex flex-1 items-end justify-center flex-col flex-shrink-0">
-                  <div className={`text-[8px] ${item?.type === 'Withdrawal' ? 'text-[#e7632b]' : 'text-[#1b987b]'}`}>{item?.type === 'Withdrawal' ? 'You Paid' : 'You Received'}</div>
-                  <div className={`text-[12px] ${item?.type === 'Withdrawal' ? 'text-[#e7632b]' : 'text-[#1b987b]'}`}>{'AED'}&nbsp;{item?.amount}</div>
+                  <div className={`text-[8px] ${item?.type === 'Withdrawal' ? 'text-error' : 'text-success'}`}>{item?.type === 'Withdrawal' ? 'You Paid' : 'You Received'}</div>
+                  <div className={`text-[12px] ${item?.type === 'Withdrawal' ? 'text-error' : 'text-success'}`}>{'AED'}&nbsp;{item?.amount}</div>
                 </div>
               </div>
             ))}
