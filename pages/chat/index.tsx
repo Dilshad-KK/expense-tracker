@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Head from 'next/head';
 import dynamic from 'next/dynamic';
 import { HiPhone, HiVideoCamera, HiXMark } from 'react-icons/hi2';
+import { supabase } from '@/lib/supabase';
 
 // Lazy import socket.io-client to avoid SSR issues
 const useSocket = () => {
@@ -11,7 +12,7 @@ const useSocket = () => {
     (async () => {
       const mod = await import('socket.io-client');
       if (!mounted) return;
-      const socket = mod.io({ path: '/api/socketio' });
+      const socket = mod.io({ path: '/api/socketio', transports: ['websocket', 'polling'] });
       setIoClient(socket);
       return () => { try { socket.close(); } catch {} };
     })();
@@ -20,7 +21,7 @@ const useSocket = () => {
   return ioClient;
 };
 
-type Message = { id?: string; text: string; from: string; to: string; created_at?: string };
+type Message = { id?: string; text: string; from: string; to: string; message_id?: string; created_at?: string };
 
 function resolveIdentity(): { self: string; peer: string } {
   // Use saved identity; fallback to timezone-based guess from Profile screen
@@ -67,13 +68,18 @@ const Chat = () => {
     if (!socket || !ready) return;
     const onConnect = () => setConnected(true);
     const onDisconnect = () => setConnected(false);
+    const onConnectError = () => setConnected(false);
     socket.on('connect', onConnect);
     socket.on('disconnect', onDisconnect);
+    socket.on('connect_error', onConnectError);
     socket.emit('presence:join', { userId: self });
     // Receive messages
     const onMsg = (msg: Message) => {
       if (msg.to && msg.to !== self) return; // not for me
-      setMessages((prev) => [...prev, { ...msg, created_at: msg.created_at || new Date().toISOString() }]);
+      setMessages((prev) => {
+        if (msg.message_id && prev.some((m) => m.message_id === msg.message_id)) return prev;
+        return [...prev, { ...msg, created_at: msg.created_at || new Date().toISOString() }];
+      });
     };
     socket.on('chat:message', onMsg);
 
@@ -110,27 +116,56 @@ const Chat = () => {
       socket.off('webrtc:answer', onAnswer);
       socket.off('webrtc:candidate', onCandidate);
       socket.off('webrtc:end', onEnd);
+      socket.off('connect_error', onConnectError);
     };
   }, [socket, ready, self, peer]);
 
   useEffect(() => {
     if (!ready) return;
+    let channel: ReturnType<typeof supabase.channel> | null = null;
     (async () => {
       // Load history between the two users
-      const res = await fetch(`/api/chat/messages?between=${encodeURIComponent(self)},${encodeURIComponent(peer)}`);
-      if (res.ok) {
-        const data = await res.json();
-        setMessages(data || []);
-      }
+      try {
+        const res = await fetch(`/api/chat/messages?between=${encodeURIComponent(self)},${encodeURIComponent(peer)}`);
+        if (res.ok) {
+          const data = await res.json();
+          setMessages(data || []);
+        }
+      } catch {}
+      // Realtime fallback via Supabase
+      try {
+        channel = supabase
+          .channel(`chat_${self}_${peer}`)
+          .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_messages', filter: `from=eq.${peer},to=eq.${self}` }, (payload: any) => {
+            const r = payload?.new || {};
+            setMessages((prev) => (prev.some((m) => m.message_id && m.message_id === r.message_id) ? prev : [...prev, r]));
+          })
+          .subscribe();
+      } catch {}
     })();
-  }, [ready]);
+    return () => { try { channel && supabase.removeChannel(channel); } catch {} };
+  }, [ready, self, peer]);
 
   async function sendMessage() {
     if (!text.trim() || !ready) return;
-    const msg: Message = { text: text.trim(), from: self, to: peer, created_at: new Date().toISOString() };
+    const msg: Message = { text: text.trim(), from: self, to: peer, message_id: `${Date.now()}_${Math.random().toString(36).slice(2, 10)}`, created_at: new Date().toISOString() };
     setMessages((prev) => [...prev, msg]);
     setText('');
-    try { socket?.emit('chat:message', msg); } catch {}
+    try {
+      let acked = false;
+      await new Promise<void>((resolve) => {
+        try {
+          socket?.timeout(2000).emit('chat:message', msg, (err: any, res: any) => {
+            if (!err && res && res.ok) { acked = true; }
+            resolve();
+          });
+        } catch { resolve(); }
+      });
+      if (!acked) {
+        // Fallback: persist via API
+        try { await fetch('/api/chat/messages', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(msg) }); } catch {}
+      }
+    } catch {}
   }
 
   async function ensurePeerConnection() {

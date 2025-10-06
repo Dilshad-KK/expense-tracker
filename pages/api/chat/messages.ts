@@ -21,13 +21,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   if (req.method === 'POST') {
-    const { text, from, to } = req.body || {};
+    const { text, from, to, message_id } = req.body || {};
     if (!text || !from || !to) return res.status(400).json({ error: 'text, from, to required' });
-    const { data, error } = await supabase.from('chat_messages').insert([{ text, from, to }]).select();
+    const mid = message_id || `${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+    const { data, error } = await supabase
+      .from('chat_messages')
+      .upsert([{ text, from, to, message_id: mid }], { onConflict: 'message_id' })
+      .select()
+      .single();
     if (error) return res.status(500).json({ error: error.message });
-    return res.status(201).json(data?.[0] || null);
+    return res.status(201).json(data || null);
   }
 
   return res.status(405).json({ error: `Method ${req.method} Not Allowed` });
 }
-

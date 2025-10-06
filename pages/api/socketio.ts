@@ -38,14 +38,25 @@ export default async function handler(_req: NextApiRequest, res: NextApiResponse
       });
 
       // Chat messages
-      socket.on('chat:message', async (msg: { id?: string; text: string; from: string; to: string; created_at?: string }) => {
-        const payload = { text: msg.text, from: msg.from, to: msg.to };
+      socket.on('chat:message', async (msg: { id?: string; text: string; from: string; to: string; message_id?: string; created_at?: string }, ack?: (r: { ok: boolean }) => void) => {
+        const mid = msg.message_id || `${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+        const payload = { text: msg.text, from: msg.from, to: msg.to, message_id: mid } as const;
         // Persist to Supabase if possible
         try {
-          await supabaseServer.from('chat_messages').insert(payload);
-        } catch {}
-        // Fan out to the other peer(s)
-        socket.broadcast.emit('chat:message', { ...payload, created_at: new Date().toISOString() });
+          const { data, error } = await supabaseServer
+            .from('chat_messages')
+            .upsert(payload as any, { onConflict: 'message_id' })
+            .select()
+            .single();
+          if (error) throw error;
+          if (typeof ack === 'function') ack({ ok: true });
+          // Fan out to the other peer(s) with DB timestamp
+          socket.broadcast.emit('chat:message', { ...payload, created_at: data?.created_at || new Date().toISOString() });
+        } catch {
+          if (typeof ack === 'function') ack({ ok: false });
+          // Even on failure, still fan out so peer can see it (no DB ts)
+          socket.broadcast.emit('chat:message', { ...payload, created_at: new Date().toISOString() });
+        }
 
         // Create an in-app notification row and attempt push to recipient
         try {

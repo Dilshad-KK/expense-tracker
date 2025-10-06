@@ -19,6 +19,9 @@ export default function App({ Component, pageProps }: AppProps) {
   // Using store.dispatch directly (this component defines Provider below)
 
   useEffect(() => {
+    // Initial unread fetch on app load
+    try { store.dispatch(fetchUnreadCount()); } catch {}
+    try { store.dispatch(fetchNotifications('unread' as any)); } catch {}
     // Request FCM token and listen to foreground messages
     let unsub: undefined | (() => void);
     (async () => {

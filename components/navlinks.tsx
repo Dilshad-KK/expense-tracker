@@ -5,10 +5,13 @@ import { HiHome, HiChatBubbleLeftRight, HiUser } from 'react-icons/hi2'
 import { IoHomeOutline, IoHome } from 'react-icons/io5'
 import { TbMessage, TbMessage2 } from 'react-icons/tb'
 import { CgProfile, CgUser } from 'react-icons/cg'
+import { useSelector } from 'react-redux';
+import type { RootState } from '@/lib/store';
 
 const NavLinks = () => {
   const router = useRouter()
   const currentPath = router.pathname
+  const unread = useSelector((s: RootState) => s.notifications.unreadCount);
 
   const isActive = (path: string) => currentPath === path
 
@@ -68,7 +71,14 @@ const NavLinks = () => {
                 : 'bg-transparent hover:bg-base-300/30 dark:hover:bg-base-300/20'
               }
             `}>
-              {isActive(item.path) ? item.icon.active : item.icon.inactive}
+              <div className="relative">
+                {isActive(item.path) ? item.icon.active : item.icon.inactive}
+                {item.path === '/chat' && unread > 0 && (
+                  <span className="absolute -top-2 -right-2 min-w-[18px] h-[18px] px-1 rounded-full bg-error text-error-content text-[10px] flex items-center justify-center shadow">
+                    {unread > 99 ? '99+' : unread}
+                  </span>
+                )}
+              </div>
             </div>
             
             {/* Label */}
