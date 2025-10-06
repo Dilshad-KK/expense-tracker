@@ -14,33 +14,20 @@ const NavLinks = () => {
   const [keyboardOpen, setKeyboardOpen] = useState(false);
 
   useEffect(() => {
-    const vv: any = (typeof window !== 'undefined' ? (window as any).visualViewport : null);
+    if (typeof window === 'undefined' || !(window as any).visualViewport) return;
+    const vv: any = (window as any).visualViewport;
     const onResize = () => {
       try {
-        const threshold = 60; // px; lower for Android
-        const isOpen = vv && vv.height && window.innerHeight && (window.innerHeight - vv.height) > threshold;
+        const threshold = 120; // px
+        const isOpen = vv.height && window.innerHeight && (window.innerHeight - vv.height) > threshold;
         setKeyboardOpen(!!isOpen);
       } catch { setKeyboardOpen(false); }
     };
-    const onFocus = (e: any) => {
-      const tag = (e?.target?.tagName || '').toLowerCase();
-      if (currentPath === '/chat' && (tag === 'input' || tag === 'textarea')) setKeyboardOpen(true);
-    };
-    const onBlur = () => { if (currentPath === '/chat') setKeyboardOpen(false); };
-    if (vv) {
-      vv.addEventListener('resize', onResize);
-      vv.addEventListener('scroll', onResize);
-    }
-    if (typeof window !== 'undefined') {
-      window.addEventListener('focusin', onFocus);
-      window.addEventListener('focusout', onBlur);
-    }
+    vv.addEventListener('resize', onResize);
+    vv.addEventListener('scroll', onResize);
     onResize();
-    return () => {
-      try { vv && vv.removeEventListener('resize', onResize); vv && vv.removeEventListener('scroll', onResize); } catch {}
-      try { window.removeEventListener('focusin', onFocus); window.removeEventListener('focusout', onBlur); } catch {}
-    };
-  }, [currentPath]);
+    return () => { try { vv.removeEventListener('resize', onResize); vv.removeEventListener('scroll', onResize); } catch {} };
+  }, []);
   const unread = useSelector((s: RootState) => s.notifications.unreadCount);
 
   const isActive = (path: string) => currentPath === path
