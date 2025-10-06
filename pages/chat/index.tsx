@@ -12,7 +12,17 @@ const useSocket = () => {
     (async () => {
       const mod = await import('socket.io-client');
       if (!mounted) return;
-      const socket = mod.io({ path: '/api/socketio', transports: ['websocket', 'polling'] });
+      const socket = mod.io(undefined, {
+        path: '/api/socketio',
+        transports: ['websocket', 'polling'],
+        forceNew: true,
+        withCredentials: false,
+        reconnection: true,
+        reconnectionAttempts: Infinity,
+        reconnectionDelay: 1000,
+        reconnectionDelayMax: 5000,
+        timeout: 20000,
+      });
       setIoClient(socket);
       return () => { try { socket.close(); } catch {} };
     })();
@@ -60,8 +70,8 @@ const Chat = () => {
 
   // Boot Socket.IO server once
   useEffect(() => {
-    // ping the socket route to ensure server is initialized
-    fetch('/api/socketio').catch(() => {});
+    // ping the socket route to ensure server is initialized (bypass caches)
+    fetch('/api/socketio?init=1', { cache: 'no-store', keepalive: true } as any).catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -123,6 +133,7 @@ const Chat = () => {
   useEffect(() => {
     if (!ready) return;
     let channel: ReturnType<typeof supabase.channel> | null = null;
+    let realtimeActive = false;
     (async () => {
       // Load history between the two users
       try {
@@ -139,12 +150,47 @@ const Chat = () => {
           .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_messages', filter: `from=eq.${peer},to=eq.${self}` }, (payload: any) => {
             const r = payload?.new || {};
             setMessages((prev) => (prev.some((m) => m.message_id && m.message_id === r.message_id) ? prev : [...prev, r]));
-          })
-          .subscribe();
+            }
+          );
+        channel.subscribe((status: any) => {
+          if (status === 'SUBSCRIBED') realtimeActive = true;
+        });
       } catch {}
     })();
     return () => { try { channel && supabase.removeChannel(channel); } catch {} };
   }, [ready, self, peer]);
+
+  // Polling fallback when both socket and realtime aren’t delivering
+  useEffect(() => {
+    if (!ready) return;
+    let cancelled = false;
+    let timer: any;
+    const poll = async () => {
+      try {
+        const res = await fetch(`/api/chat/messages?between=${encodeURIComponent(self)},${encodeURIComponent(peer)}`);
+        if (!res.ok) return schedule();
+        const data: Message[] = await res.json();
+        if (cancelled) return;
+        setMessages((prev) => {
+          const seen = new Set(prev.map((m) => m.message_id));
+          const merged = [...prev];
+          for (const m of data) {
+            if (m.message_id && seen.has(m.message_id)) continue;
+            merged.push(m);
+          }
+          return merged;
+        });
+      } catch {}
+      schedule();
+    };
+    const schedule = () => {
+      // If socket is connected, polling is not necessary
+      if (connected) return;
+      timer = setTimeout(poll, 5000);
+    };
+    schedule();
+    return () => { cancelled = true; if (timer) clearTimeout(timer); };
+  }, [ready, self, peer, connected]);
 
   async function sendMessage() {
     if (!text.trim() || !ready) return;
