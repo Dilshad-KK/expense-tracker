@@ -482,7 +482,7 @@ const Chat = () => {
           <div className="flex gap-3 items-end">
             <div className="flex-1 bg-base-200 rounded-2xl border border-base-300/50 focus-within:border-primary/30 focus-within:ring-2 focus-within:ring-primary/20 transition-all">
               <textarea
-                className="textarea textarea-ghost w-full resize-none border-0 focus:outline-none focus:ring-0 bg-transparent min-h-[48px] max-h-32 py-3 px-4"
+                className="textarea textarea-ghost w-full resize-none border-0 focus:outline-none focus:ring-0 bg-transparent min-h-[48px] max-h-32 py-3 px-4 text-[16px] leading-[22px] placeholder:text-[16px]"
                 value={text}
                 onChange={(e) => setText(e.target.value)}
                 placeholder={`Message ${peer}...`}
