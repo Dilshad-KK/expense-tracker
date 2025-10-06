@@ -59,6 +59,7 @@ const Chat = () => {
   const [connected, setConnected] = useState(false);
   const seenIdsRef = useRef<Set<string>>(new Set());
   const seenSigRef = useRef<Set<string>>(new Set());
+  const realtimeActiveRef = useRef<boolean>(false);
   const bottomRef = useRef<HTMLDivElement | null>(null);
 
   // WebRTC state
@@ -100,10 +101,17 @@ const Chat = () => {
     // Receive messages
     const onMsg = (msg: Message) => {
       if (msg.to && msg.to !== self) return; // not for me
-      // Fast guard against duplicates if we've already seen this id/signature
-      if (msg.message_id && seenIdsRef.current.has(msg.message_id)) return;
-      const sig = signature(msg);
-      if (!msg.message_id && sig && seenSigRef.current.has(sig)) return;
+      // If socket isn't connected, ignore socket payloads and rely on Realtime/polling
+      if (!connected) return;
+      // Fast guard + pre-mark as seen to avoid race with other sources
+      if (msg.message_id) {
+        if (seenIdsRef.current.has(msg.message_id)) return;
+        seenIdsRef.current.add(msg.message_id);
+      } else {
+        const sig = signature(msg);
+        if (sig && seenSigRef.current.has(sig)) return;
+        if (sig) seenSigRef.current.add(sig);
+      }
       setMessages((prev) => mergeUnique([...prev, { ...msg, created_at: msg.created_at || new Date().toISOString() }]));
     };
     socket.on('chat:message', onMsg);
@@ -145,9 +153,12 @@ const Chat = () => {
     };
   }, [socket, ready, self, peer]);
 
+  const supaChannelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
+
   useEffect(() => {
     // Only subscribe to Supabase Realtime when socket is not connected
     if (!ready || connected) return;
+    if (supaChannelRef.current) return; // already subscribed
     let channel: ReturnType<typeof supabase.channel> | null = null;
     let realtimeActive = false;
     (async () => {
@@ -165,17 +176,30 @@ const Chat = () => {
           .channel(`chat_${self}_${peer}`)
           .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_messages', filter: `from=eq.${peer},to=eq.${self}` }, (payload: any) => {
             const r = payload?.new || {};
-            if (r.message_id && seenIdsRef.current.has(r.message_id)) return;
-            const sig = signature(r);
-            if (!r.message_id && sig && seenSigRef.current.has(sig)) return;
+            if (r.message_id) {
+              if (seenIdsRef.current.has(r.message_id)) return;
+              seenIdsRef.current.add(r.message_id);
+            } else {
+              const sig = signature(r);
+              if (sig && seenSigRef.current.has(sig)) return;
+              if (sig) seenSigRef.current.add(sig);
+            }
             setMessages((prev) => mergeUnique([...prev, r]));
           });
         channel.subscribe((status: any) => {
-          if (status === 'SUBSCRIBED') realtimeActive = true;
+          if (status === 'SUBSCRIBED') { realtimeActive = true; realtimeActiveRef.current = true; }
         });
+        supaChannelRef.current = channel;
       } catch {}
     })();
-    return () => { try { channel && supabase.removeChannel(channel); } catch {} };
+    return () => {
+      try {
+        const ch = supaChannelRef.current || channel;
+        if (ch) supabase.removeChannel(ch);
+      } catch {}
+      supaChannelRef.current = null;
+      realtimeActiveRef.current = false;
+    };
   }, [ready, self, peer, connected]);
 
   // Polling fallback when both socket and realtime aren’t delivering
@@ -185,6 +209,8 @@ const Chat = () => {
     let timer: any;
     const poll = async () => {
       try {
+        // If socket or realtime are active, do not poll
+        if (connected || realtimeActiveRef.current) return;
         const res = await fetch(`/api/chat/messages?between=${encodeURIComponent(self)},${encodeURIComponent(peer)}`);
         if (!res.ok) return schedule();
         const data: Message[] = await res.json();
@@ -194,8 +220,8 @@ const Chat = () => {
       schedule();
     };
     const schedule = () => {
-      // If socket is connected, polling is not necessary
-      if (connected) return;
+      // If socket is connected or realtime is active, no polling
+      if (connected || realtimeActiveRef.current) return;
       timer = setTimeout(poll, 5000);
     };
     schedule();
@@ -205,6 +231,12 @@ const Chat = () => {
   async function sendMessage() {
     if (!text.trim() || !ready) return;
     const msg: Message = { text: text.trim(), from: self, to: peer, message_id: `${Date.now()}_${Math.random().toString(36).slice(2, 10)}`, created_at: new Date().toISOString() };
+    // Pre-mark optimistic message id/signature to avoid echo duplicates
+    if (msg.message_id) seenIdsRef.current.add(msg.message_id);
+    else {
+      const sig = signature(msg);
+      if (sig) seenSigRef.current.add(sig);
+    }
     setMessages((prev) => mergeUnique([...prev, msg]));
     setText('');
     try {
@@ -232,8 +264,7 @@ const Chat = () => {
   function mergeUnique(list: Message[]): Message[] {
     const byKey = new Map<string, Message>();
     const sigToKey = new Map<string, string>();
-
-    const put = (m: Message) => {
+    for (const m of list) {
       const sig = signature(m);
       const id = m.message_id;
       if (id) {
@@ -242,25 +273,23 @@ const Chat = () => {
         if (existingKey && existingKey !== id) {
           const prev = byKey.get(existingKey)!;
           byKey.delete(existingKey);
-          byKey.set(id, { ...prev, message_id: prev.message_id || id, created_at: prev.created_at || m.created_at } as Message);
-        }
-        if (!byKey.has(id)) {
+          byKey.set(id, { ...prev, ...m, message_id: id });
+        } else {
+          // Always write latest for this id
           byKey.set(id, m);
         }
         seenIdsRef.current.add(id);
         if (sig) sigToKey.set(sig, id);
-      } else {
-        const key = sig;
-        if (!key) return;
-        // If we already saw this signature mapped to a real id, skip
-        if (sigToKey.has(key)) return;
-        if (!byKey.has(key)) byKey.set(key, m);
-        seenSigRef.current.add(key);
+      } else if (sig) {
+        const mapped = sigToKey.get(sig);
+        if (mapped) {
+          // Signature already mapped to a real id; prefer the id entry
+          continue;
+        }
+        byKey.set(sig, m);
+        seenSigRef.current.add(sig);
       }
-    };
-
-    for (const m of list) put(m);
-
+    }
     const arr = Array.from(byKey.values());
     arr.sort((a, b) => new Date(a.created_at || 0).getTime() - new Date(b.created_at || 0).getTime());
     return arr;
@@ -315,19 +344,19 @@ const Chat = () => {
   }
 
   return (
-    <div className="min-h-screen bg-base-100 text-base-content pb-24 flex flex-col">
+    <div className="min-h-screen bg-neutral-100 dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 pb-24 flex flex-col">
       <Head>
         <title>Chat</title>
       </Head>
       <div className="max-w-2xl w-full mx-auto flex-1 flex flex-col">
         {/* Header */}
-        <div className="px-4 py-3 border-b border-base-300 flex items-center gap-3 bg-base-100 sticky top-0 z-10">
+        <div className="px-4 py-3 border-b border-neutral-300 dark:border-neutral-700 flex items-center gap-3 bg-neutral-100 dark:bg-neutral-900 sticky top-0 z-10">
           <div className={`h-9 w-9 ${peer === 'Dilshad' ? 'bg-info' : 'bg-secondary'} rounded-full flex items-center justify-center `}>
             <span className="text-white text-sm font-poppinsMed">{peer?.startsWith('D') ? 'D' : 'S'}</span>
           </div>
           <div className="leading-tight">
             <div className="text-sm font-poppinsMed">{peer}</div>
-            <div className={`text-[11px] ${connected ? 'text-success' : 'text-base-content/60'}`}>{connected ? 'online' : 'offline'}</div>
+            <div className={`text-[11px] ${connected ? 'text-emerald-500' : 'text-neutral-500 dark:text-neutral-400'}`}>{connected ? 'online' : 'offline'}</div>
           </div>
           <div className="ml-auto flex items-center gap-2">
             {!inCall && (
@@ -350,19 +379,19 @@ const Chat = () => {
 
         {/* Call preview */}
         {inCall && (
-          <div className="px-4 py-2 bg-base-200/60 border-b border-base-300">
+          <div className="px-4 py-2 bg-neutral-100/60 dark:bg-neutral-900/60 border-b border-neutral-300 dark:border-neutral-700">
             <div className="grid grid-cols-2 gap-2">
-              <video ref={localVideoRef} autoPlay playsInline muted className="w-full rounded border border-base-300" />
-              <video ref={remoteVideoRef} autoPlay playsInline className="w-full rounded border border-base-300" />
+              <video ref={localVideoRef} autoPlay playsInline muted className="w-full rounded border border-neutral-300 dark:border-neutral-700" />
+              <video ref={remoteVideoRef} autoPlay playsInline className="w-full rounded border border-neutral-300 dark:border-neutral-700" />
             </div>
           </div>
         )}
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto px-3 py-3 bg-base-200/40">
+        <div className="flex-1 overflow-y-auto px-3 py-3 bg-neutral-100 dark:bg-neutral-900">
           {messages.map((m, i) => (
             <div key={(m as any).message_id || (m as any).id || i} className={`mb-2 flex ${m.from === self ? 'justify-end' : 'justify-start'}`}>
-              <div className={`px-3 py-2 rounded-2xl max-w-[80%] ${m.from === self ? 'bg-primary text-primary-content rounded-tr-sm' : 'bg-base-300 text-base-content rounded-tl-sm'}`}>
+              <div className={`px-3 py-2 rounded-2xl max-w-[80%] shadow-sm ${m.from === self ? 'bg-emerald-500 text-white rounded-tr-sm' : 'bg-neutral-200 dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 rounded-tl-sm'}`}>
                 <div className="text-[10px] opacity-75 mb-1">{new Date(m.created_at || '').toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
                 <div className="text-sm whitespace-pre-wrap leading-relaxed">{m.text}</div>
               </div>
@@ -371,9 +400,15 @@ const Chat = () => {
           <div ref={bottomRef} />
         </div>
         {/* Composer */}
-        <div className="border-t border-base-300 bg-base-100 sticky bottom-0 p-3 flex gap-2">
-          <input className="input input-bordered flex-1" value={text} onChange={(e) => setText(e.target.value)} placeholder="Type a message" onKeyDown={(e) => { if (e.key === 'Enter') sendMessage(); }} />
-          <button className="btn btn-primary" onClick={sendMessage} disabled={!ready || !text.trim()}>Send</button>
+        <div className="border-t border-neutral-300 dark:border-neutral-700 bg-neutral-100 dark:bg-neutral-900 sticky bottom-0 p-3 flex gap-2" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 12px)' }}>
+          <input
+            className="input input-bordered flex-1 bg-white dark:bg-neutral-800 border-neutral-300 dark:border-neutral-700 text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 dark:placeholder-neutral-500"
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            placeholder="Type a message"
+            onKeyDown={(e) => { if (e.key === 'Enter') sendMessage(); }}
+          />
+          <button className="btn min-w-[72px] bg-emerald-500 hover:bg-emerald-600 border-emerald-600 text-white" onClick={sendMessage} disabled={!ready || !text.trim()}>Send</button>
         </div>
       </div>
     </div>
