@@ -1,15 +1,17 @@
 import React from 'react'
 import GoBack from './gobackSecond'
 
-const CommonHeader = (props:{title:string}) => {
+const CommonHeader = (props: { title: string }) => {
     return (
-        <div className='bg-primary px-4 py-8 flex justify-center items-center rounded-b-[24px] h-[120px] overflow-hidden'>
-            <div className='absolute left-[-90px] top-[-80px] z-[1000] bg-[#ffffff18] rounded-full w-[200px] h-[200px]'></div>
-            <div className='absolute left-[-30px] top-[-80px] z-[1000] bg-[#ffffff1a] rounded-full w-[200px] h-[200px]'></div>
-            <div className='absolute left-[32px] z-[1000]'>
+        <div className='bg-gradient-to-br from-primary to-primary/90 dark:from-primary-dark dark:to-primary-dark/90 px-4 py-6 flex justify-center items-center rounded-b-3xl h-[100px] relative shadow-lg overflow-hidden'>
+            
+            <div className='absolute left-5 z-[1003]'>
                 <GoBack />
             </div>
-            <span className='text-white z-[2000] font-semibold text-[16px]'>{props.title}</span>
+            
+            <span className='text-primary-content z-[2000] font-poppinsBold text-[18px] drop-shadow-sm'>
+                {props.title}
+            </span>
         </div>
     )
 }

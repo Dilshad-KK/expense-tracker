@@ -13,8 +13,6 @@ import Categories from '@/components/categories';
 import Periods from '@/components/periods';
 import Jan8CounterCard from '@/components/jan8Counter';
 
-// import CountdownTimer from "@/components/timer";
-
 const Home = () => {
 
   const [user, setUser] = useState("");
@@ -75,29 +73,29 @@ const Home = () => {
   }, []);
 
   return (
-    <div className='bg-base-100'>
-      <div className='relative bg-primary h-[150px] rounded-b-[60px] flex justify-between items-center px-4 overflow-hidden'>
-        <div className='absolute left-[-90px] z-[1000] bg-white/10 rounded-full w-[200px] h-[200px]'></div>
-        <div className='absolute left-[-30px] z-[1000] bg-white/10 rounded-full w-[200px] h-[200px]'></div>
-        <div className='h-[50px] w-[50px] bg-white rounded-full flex items-center justify-center mb-3 z-[2000]'>
+    <div className='bg-base-100 dark:bg-base-400'>
+      <div className='relative bg-primary dark:bg-primary/80 h-[150px] rounded-b-[60px] flex justify-between items-center px-4 overflow-hidden'>
+        <div className='absolute left-[-90px] z-[1000] bg-white/10 dark:bg-white/3 rounded-full w-[200px] h-[200px]'></div>
+        <div className='absolute left-[-30px] z-[1000] bg-white/10 dark:bg-white/3 rounded-full w-[200px] h-[200px]'></div>
+        <div className='h-[50px] w-[50px] bg-white dark:bg-white/80 rounded-full flex items-center justify-center mb-3 z-[2000]'>
           <img src="/assets/icons/avatar.png" className='h-[35px]' />
         </div>
         <div className='flex flex-col items-start w-[200px]'>
           <Clock />
-          <span className='text-white z-[2000] font-poppinsMed mb-2'>Welcome Back {user}</span>
-          <span className='text-white/90 z-[2000] font-poppinsMed text-[12px]'>Have a nice day...!</span>
+          <span className='text-white dark:text-white/90 z-[2000] font-poppinsMed mb-2'>Welcome Back {user}</span>
+          <span className='text-white/90 dark:text-white/70 z-[2000] font-poppinsMed text-[12px]'>Have a nice day...!</span>
         </div>
-        <Link href="/notifications" className='h-[50px] w-[50px] bg-white rounded-full flex items-center justify-center mb-3 z-[2000] relative'>
+        <Link href="/notifications" className='h-[50px] w-[50px] bg-white dark:bg-white/80 rounded-full flex items-center justify-center mb-3 z-[2000] relative'>
           <IoMdNotifications className='text-[24px]' />
           {unread > 0 && (
             <span className='absolute -top-1 -right-1 bg-error text-white text-[10px] rounded-full px-[6px] py-[2px] font-poppinsMed'>{unread}</span>
           )}
         </Link>
       </div>
-      <div className='min-h-screen px-4 py-8'>
+      <div className='min-h-screen px-4 py-8 dark:bg-base-400'>
         <Categories />
         {showJan8 && <Jan8CounterCard />}
-        <div className="h-[1px] bg-base-300 w-full my-8" />
+        <div className="h-px bg-base-content/20 dark:bg-base-content/5 w-full my-8" />
         <Loans />
         <Discussions />
         <Periods /> 

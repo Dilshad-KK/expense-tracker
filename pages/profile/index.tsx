@@ -4,6 +4,9 @@ import { setTheme } from '@/utils/theme';
 import { useDispatch, useSelector } from 'react-redux';
 import type { RootState } from '@/lib/store';
 import { setThemeName } from '@/store/uiSlice';
+import type { ThemeName } from '@/store/uiSlice';
+import { HiUser, HiMoon, HiSun, HiCheck, HiClock } from 'react-icons/hi2';
+import { HiGlobe } from 'react-icons/hi';
 
 const Profile = () => {
   const tz = useMemo(() => Intl.DateTimeFormat().resolvedOptions().timeZone, []);
@@ -34,7 +37,6 @@ const Profile = () => {
       if (selected === 'auto') value = suggestedUser;
       localStorage.setItem('userIdentity', value);
       localStorage.setItem('userIdentityMode', selected);
-      // Theme is saved via Redux action when toggled
       setSaved('Settings saved successfully!');
       setTimeout(() => setSaved(''), 3000);
     } catch {}
@@ -42,53 +44,86 @@ const Profile = () => {
 
   const RadioButton = ({ value, label, isSelected }: { value: string; label: string; isSelected: boolean }) => (
     <div
-      className={`flex items-center p-3 rounded-xl border-2 cursor-pointer transition-all duration-200 ${
+      className={`flex items-center p-3 rounded-lg border-2 cursor-pointer transition-all duration-200 group ${
         isSelected
-          ? 'border-blue-500 bg-blue-50'
-          : 'border-gray-200 bg-white hover:border-gray-300'
+          ? 'border-primary bg-primary/10 dark:bg-primary/20'
+          : 'border-base-300 dark:border-base-700 bg-base-100 dark:bg-base-300 hover:border-primary/50 dark:hover:border-primary/40'
       }`}
       onClick={() => setSelected(value as any)}
     >
-      <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center mr-3 ${
-        isSelected ? 'border-blue-500 bg-blue-500' : 'border-gray-400'
+      <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center mr-3 transition-all ${
+        isSelected 
+          ? 'border-primary bg-primary' 
+          : 'border-base-400 dark:border-base-600 group-hover:border-primary/70'
       }`}>
-        {isSelected && <div className='w-1.5 h-1.5 rounded-full bg-white' />}
+        {isSelected && <HiCheck className="w-2 h-2 text-white" />}
       </div>
-      <span className='text-sm text-gray-800'>{label}</span>
+      <span className={`text-xs font-poppinsMed ${
+        isSelected 
+          ? 'text-primary dark:text-primary-light' 
+          : 'text-base-content dark:text-base-content/80'
+      }`}>
+        {label}
+      </span>
     </div>
   );
 
+  const ThemeButton = ({ themeName, label, icon, isActive }: { themeName: string; label: string; icon: React.ReactNode; isActive: boolean }) => (
+    <button
+      onClick={() => dispatch(setThemeName(themeName as ThemeName))}
+      className={`flex-1 flex items-center justify-center gap-2 p-3 rounded-lg border-2 transition-all duration-200 ${
+        isActive
+          ? 'border-primary bg-primary/10 dark:bg-primary/20'
+          : 'border-base-300 dark:border-base-700 bg-base-100 dark:bg-base-300 hover:border-primary/50 dark:hover:border-primary/40'
+      }`}
+    >
+      <div className={`transition-colors ${
+        isActive ? 'text-primary' : 'text-base-content/60 dark:text-base-content/50'
+      }`}>
+        {icon}
+      </div>
+      <span className={`text-xs font-poppinsMed ${
+        isActive 
+          ? 'text-primary dark:text-primary-light' 
+          : 'text-base-content dark:text-base-content/80'
+      }`}>
+        {label}
+      </span>
+    </button>
+  );
+
   return (
-    <div className='min-h-screen bg-gray-50 pb-28'>
+    <div className='min-h-screen bg-base-100 dark:bg-base-200 pb-24'>
       <CommonHeader title='Profile Settings' />
       
-      <div className='max-w-md mx-auto p-6'>
+      <div className='max-w-md mx-auto p-4 space-y-4'>
         {/* Time Zone Card */}
-        <div className='bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6'>
+        <div className='bg-base-200 dark:bg-base-300 rounded-xl border border-base-300 dark:border-base-700 p-4'>
           <div className='flex items-start space-x-3'>
-            <div className='w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center'>
-              <svg className='w-4 h-4 text-blue-600' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z' />
-              </svg>
+            <div className='w-8 h-8 bg-primary/10 dark:bg-primary/20 rounded-lg flex items-center justify-center flex-shrink-0'>
+              <HiGlobe className='w-4 h-4 text-primary' />
             </div>
             <div className='flex-1'>
-              <h3 className='text-sm font-semibold text-gray-900 mb-1'>Time Zone</h3>
-              <p className='text-sm text-gray-700 mb-2'>{tz}</p>
-              <div className='text-xs text-gray-500 bg-gray-50 rounded-lg px-3 py-2'>
-                Suggested user: <span className='font-semibold text-gray-900'>{suggestedUser}</span>
+              <h3 className='text-xs font-poppinsBold text-base-content dark:text-base-content/90 mb-1'>Time Zone</h3>
+              <p className='text-xs text-base-content/70 dark:text-base-content/60 mb-2'>{tz}</p>
+              <div className='text-xs text-base-content/60 dark:text-base-content/50 bg-base-100 dark:bg-base-400 rounded px-2 py-1 border border-base-300 dark:border-base-600'>
+                Suggested user: <span className='font-poppinsBold text-base-content dark:text-base-content/90'>{suggestedUser}</span>
               </div>
             </div>
           </div>
         </div>
 
         {/* User Selection Card */}
-        <div className='bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6'>
-          <h3 className='text-sm font-semibold text-gray-900 mb-4'>Choose User Identity</h3>
+        <div className='bg-base-200 dark:bg-base-300 rounded-xl border border-base-300 dark:border-base-700 p-4'>
+          <div className='flex items-center mb-3'>
+            <HiUser className='w-3 h-3 text-base-content/60 dark:text-base-content/50 mr-2' />
+            <h3 className='text-xs font-poppinsBold text-base-content dark:text-base-content/90'>Choose User Identity</h3>
+          </div>
           
-          <div className='space-y-3'>
+          <div className='space-y-2'>
             <RadioButton
               value='auto'
-              label={`Auto (Based on timezone) — ${suggestedUser}`}
+              label={`Auto — ${suggestedUser}`}
               isSelected={selected === 'auto'}
             />
             <RadioButton
@@ -104,37 +139,42 @@ const Profile = () => {
           </div>
         </div>
 
-        {/* Theme */}
-        <div className='bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6'>
-          <h3 className='text-sm font-semibold text-gray-900 mb-4'>Theme</h3>
-          <div className='flex items-center gap-3'>
-            <button
-              onClick={() => dispatch(setThemeName('ikbu'))}
-              className={`px-3 py-2 rounded-lg text-xs border ${theme==='ikbu' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-700 border-gray-300'}`}
-            >Light</button>
-            <button
-              onClick={() => dispatch(setThemeName('ikbu-dark'))}
-              className={`px-3 py-2 rounded-lg text-xs border ${theme==='ikbu-dark' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-700 border-gray-300'}`}
-            >Dark</button>
+        {/* Theme Selection Card */}
+        <div className='bg-base-200 dark:bg-base-300 rounded-xl border border-base-300 dark:border-base-700 p-4'>
+          <div className='flex items-center mb-3'>
+            <HiMoon className='w-3 h-3 text-base-content/60 dark:text-base-content/50 mr-2' />
+            <h3 className='text-xs font-poppinsBold text-base-content dark:text-base-content/90'>Theme</h3>
           </div>
-          <div className='text-xs text-gray-500 mt-2'>Applies to headings and components using theme colors. We can migrate more screens from hard-coded colors over time.</div>
+          
+          <div className='flex gap-2'>
+            <ThemeButton
+              themeName='ikbu'
+              label='Light'
+              icon={<HiSun className="w-4 h-4" />}
+              isActive={theme === 'ikbu'}
+            />
+            <ThemeButton
+              themeName='ikbu-dark'
+              label='Dark'
+              icon={<HiMoon className="w-4 h-4" />}
+              isActive={theme === 'ikbu-dark'}
+            />
+          </div>
         </div>
 
         {/* Save Button */}
         <button
           onClick={handleSave}
-          className='w-full bg-blue-600 text-white py-3 px-4 rounded-xl font-medium text-sm hover:bg-blue-700 active:bg-blue-800 transition-colors duration-200 shadow-sm hover:shadow-md'
+          className='w-full bg-primary text-primary-content py-3 px-4 rounded-lg font-poppinsMed text-sm hover:bg-primary-focus active:bg-primary/90 transition-all duration-200 shadow-sm hover:shadow active:scale-[0.98]'
         >
           Save Changes
         </button>
 
         {/* Success Message */}
         {saved && (
-          <div className='flex items-center justify-center space-x-2 mt-4 p-3 bg-green-50 border border-green-200 rounded-xl'>
-            <svg className='w-4 h-4 text-green-600' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-              <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M5 13l4 4L19 7' />
-            </svg>
-            <span className='text-sm text-green-700 font-medium'>{saved}</span>
+          <div className='flex items-center justify-center space-x-2 p-3 bg-success/10 dark:bg-success/20 border border-success/20 dark:border-success/30 rounded-lg animate-fade-in'>
+            <HiCheck className='w-4 h-4 text-success' />
+            <span className='text-xs text-success font-poppinsMed'>{saved}</span>
           </div>
         )}
       </div>

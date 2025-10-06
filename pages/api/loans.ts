@@ -10,12 +10,32 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       .select("*")
       .order("date_started", { ascending: false });
     if (loanId) {
-      query = query.eq("id", loanId)
+      query = query.eq("id", loanId);
     }
     const { data, error } = await query;
-
     if (error) return res.status(500).json({ error: error.message });
-    return res.status(200).json(data);
+
+    // Enrich with paid installments count in a single extra query
+    try {
+      const ids = (data || []).map((l: any) => l.id);
+      if (ids.length === 0) return res.status(200).json(data);
+      const { data: details, error: detailsError } = await supabase
+        .from("loanDetails")
+        .select("loan_id,status")
+        .in("loan_id", ids)
+        .eq("status", "paid");
+      if (detailsError) return res.status(200).json(data);
+      const counts: Record<string, number> = {};
+      for (const d of details || []) {
+        const k = String((d as any).loan_id);
+        counts[k] = (counts[k] || 0) + 1;
+      }
+      const enriched = (data || []).map((l: any) => ({ ...l, times: counts[String(l.id)] || 0 }));
+      return res.status(200).json(enriched);
+    } catch {
+      // Fallback to raw data if anything fails
+      return res.status(200).json(data);
+    }
   }
 
   if (req.method === "POST") {

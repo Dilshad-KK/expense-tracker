@@ -9,6 +9,11 @@ export default function Document() {
         <link rel="apple-touch-icon" href="/assets/favicon.png" />
       </Head>
       <body className="antialiased">
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(() => { try { var t=null; var raw=localStorage.getItem('ui_prefs_v1'); if (raw) { var p=JSON.parse(raw||'{}'); var st=p&&p.theme; if (st==='ikbu'||st==='ikbu-dark') t=st; } if (!t) { t = 'ikbu-dark'; } document.documentElement.setAttribute('data-theme', t); } catch(e){} })();`
+          }}
+        />
         <Main />
         <NextScript />
       </body>

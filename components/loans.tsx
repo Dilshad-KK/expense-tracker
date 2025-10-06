@@ -51,18 +51,19 @@ const Loans = () => {
             const res = await fetch('/api/loans');
             const data: Loan[] = await res.json();
 
-            // Use Promise.all to await all fetchLoanDetails
-            const enrichedLoans = await Promise.all(
-                data.map(async (item) => {
-                    const times = await fetchLoanDetails(item.id);
-                    return {
-                        ...item,
-                        times: times ?? 0, // fallback to 0 if undefined
-                    };
-                })
-            );
-
-            setLoans(enrichedLoans);
+            // If API already returned precomputed times, use directly; otherwise enrich client-side
+            const hasTimes = Array.isArray(data) && data.length > 0 && typeof (data[0] as any).times === 'number';
+            if (hasTimes) {
+                setLoans(data as any);
+            } else {
+                const enrichedLoans = await Promise.all(
+                    data.map(async (item) => {
+                        const times = await fetchLoanDetails(item.id);
+                        return { ...item, times: times ?? 0 };
+                    })
+                );
+                setLoans(enrichedLoans);
+            }
         } catch (error) {
             console.error("Error fetching loans:", error);
         } finally {

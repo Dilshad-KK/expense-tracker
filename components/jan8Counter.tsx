@@ -59,18 +59,21 @@ export default function Jan8CounterCard() {
     return () => clearInterval(id);
   }, []);
 
-  const circleStyle: React.CSSProperties = {
-    background: `conic-gradient(hsl(var(--p)) ${percentRemaining}%, hsl(var(--b3)) ${percentRemaining}%)`,
-  };
+  const percentDone = Math.round(100 - percentRemaining);
 
   return (
     <div className='mt-8 p-4 rounded-lg bg-base-100 border border-base-300 shadow-sm hover:shadow-xs transition-shadow duration-200'>
       <div className='flex items-center justify-between'>
         <div className='flex items-center space-x-3'>
-          <div className='relative h-12 w-12 rounded-full border border-base-content/20' style={circleStyle}>
-            <div className='absolute inset-1 bg-base-100 rounded-full flex items-center justify-center border border-base-content/10'>
-              <span className='text-xs text-base-content font-medium'>{remainingDays}d</span>
-            </div>
+          <div
+            className='radial-progress text-primary'
+            style={{ ['--value' as any]: percentDone, ['--size' as any]: '3rem', ['--thickness' as any]: '6px' }}
+            role='progressbar'
+            aria-valuenow={percentDone}
+            aria-valuemin={0}
+            aria-valuemax={100}
+          >
+            <span className='text-xs text-base-content font-medium'>{remainingDays}d</span>
           </div>
           <div className='flex flex-col'>
             <span className='text-sm text-base-content font-medium'>Jan 8 Countdown</span>
@@ -79,7 +82,7 @@ export default function Jan8CounterCard() {
           </div>
         </div>
         <div className='text-xs text-primary font-medium bg-primary/10 px-2 py-1 rounded-full'>
-          {Math.round(100 - percentRemaining)}% • {elapsedDays}/{totalDays} days
+          {percentDone}% • {elapsedDays}/{totalDays} days
         </div>
       </div>
     </div>

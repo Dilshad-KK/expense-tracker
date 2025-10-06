@@ -1,7 +1,10 @@
 import React from 'react'
 import Link from 'next/link';
-import { FaRegUser } from "react-icons/fa6";
 import { useRouter } from 'next/router'
+import { HiHome, HiChatBubbleLeftRight, HiUser } from 'react-icons/hi2'
+import { IoHomeOutline, IoHome } from 'react-icons/io5'
+import { TbMessage, TbMessage2 } from 'react-icons/tb'
+import { CgProfile, CgUser } from 'react-icons/cg'
 
 const NavLinks = () => {
   const router = useRouter()
@@ -9,25 +12,77 @@ const NavLinks = () => {
 
   const isActive = (path: string) => currentPath === path
 
+  const navItems = [
+    {
+      path: "/",
+      label: "Home",
+      icon: {
+        active: <IoHome className="text-primary text-lg" />,
+        inactive: <IoHomeOutline className="text-[#A19F9F] dark:text-base-content/60 text-lg" />
+      }
+    },
+    {
+      path: "/chat",
+      label: "Chat",
+      icon: {
+        active: <TbMessage className="text-primary text-lg" />,
+        inactive: <TbMessage2 className="text-[#A19F9F] dark:text-base-content/60 text-lg" />
+      }
+    },
+    {
+      path: "/profile",
+      label: "Profile",
+      icon: {
+        active: <CgUser className="text-primary text-lg" />,
+        inactive: <CgProfile className="text-[#A19F9F] dark:text-base-content/60 text-lg" />
+      }
+    }
+  ]
+
   return (
-    <div className='bottom-0 w-full h-[90px] bg-white fixed shadow-[0_-4px_10px_rgba(0,0,0,0.1)] z-[2000] rounded-t-[24px]'>
-      <div className='flex justify-between px-12 w-full h-full'>
-        <Link href={"/"} className={`col-span-3  flex items-center justify-center flex-col cursor-pointer`}>
-          <img src={isActive("/") ? "/assets/icons/home-active.png" : "/assets/icons/home.png"} className='h-[22px]' />
-          <span className={`text-[12px]  font-poppinsMed ${isActive("/") ? 'text-[#534fd6]' : 'text-[#A19F9F]'}`}>Home</span>
-        </Link>
-        {/* <Link href={"/features"} className={`col-span-3  flex items-center justify-center flex-col cursor-pointer ${isActive("/features") ? 'text-[#4f4bf0]' : 'text-black'}`}>
-          <BsViewList className="text-[18px] mb-1" />
-          <span className="text-[14px]">Features</span>
-        </Link> */}
-        <Link href={"/chat"} className={`col-span-3  flex items-center justify-center flex-col cursor-pointer`}>
-          <img src={isActive("/chat") ? "/assets/icons/chat-active.png" : "/assets/icons/chat.png"} className='h-[24px]' />
-          <span className={`text-[12px]  font-poppinsMed ${isActive("/chat") ? 'text-[#534fd6]' : 'text-[#A19F9F]'}`}>Chat</span>
-        </Link>
-        <Link href={"/profile"} className={`col-span-3  flex items-center justify-center flex-col cursor-pointer`}>
-          <img src={isActive("/profile") ? "/assets/icons/profile-active.png" : "/assets/icons/profile.png"} className='h-[24px]' />
-          <span className={`text-[12px]  font-poppinsMed ${isActive("/profile") ? 'text-[#534fd6]' : 'text-[#A19F9F]'}`}>Profile</span>
-        </Link>
+    <div className='fixed bottom-0 w-full h-[88px] bg-white dark:bg-base-200 
+                    shadow-[0_-8px_30px_rgba(0,0,0,0.1)] dark:shadow-[0_-8px_30px_rgba(0,0,0,0.4)]
+                    border-t border-base-300/50 dark:border-base-400 z-[2000] 
+                    rounded-t-3xl backdrop-blur-sm bg-white/95 dark:bg-base-200/95'>
+      <div className='flex justify-around items-center w-full h-full px-6'>
+        {navItems.map((item) => (
+          <Link 
+            key={item.path}
+            href={item.path} 
+            className={`flex flex-col items-center justify-center cursor-pointer transition-all duration-300 flex-1 max-w-[80px] group ${
+              isActive(item.path) 
+                ? 'transform -translate-y-1' 
+                : 'hover:-translate-y-0.5'
+            }`}
+          >
+            {/* Active Indicator */}
+            {isActive(item.path) && (
+              <div className='w-1 h-1 bg-primary rounded-full mb-2 animate-bounce' />
+            )}
+            
+            {/* Icon Container */}
+            <div className={`
+              rounded-2xl p-3 transition-all duration-300 mb-1 group-hover:scale-110
+              ${isActive(item.path) 
+                ? 'bg-primary/15 dark:bg-primary/25 shadow-lg scale-110' 
+                : 'bg-transparent hover:bg-base-300/30 dark:hover:bg-base-300/20'
+              }
+            `}>
+              {isActive(item.path) ? item.icon.active : item.icon.inactive}
+            </div>
+            
+            {/* Label */}
+            <span className={`
+              text-[11px] transition-all duration-300 font-poppinsMed
+              ${isActive(item.path) 
+                ? 'text-primary dark:text-primary-light font-poppinsBold scale-105' 
+                : 'text-[#A19F9F] dark:text-base-content/60 group-hover:text-base-content dark:group-hover:text-base-content/80'
+              }
+            `}>
+              {item.label}
+            </span>
+          </Link>
+        ))}
       </div>
     </div>
   )

@@ -4,7 +4,7 @@ import GoBack from "../../components/gobackSecond";
 import moment from "moment";
 import Link from "next/link";
 import { IoPencil } from "react-icons/io5";
-import { HiSparkles } from "react-icons/hi2";
+import { HiSparkles, HiCalendar, HiClock, HiCake } from "react-icons/hi2";
 
 type PeriodData = {
   id: string;
@@ -36,29 +36,6 @@ export default function HomePage() {
     fetchData();
   }, []);
 
-  // const handleConfirmStart = async () => {
-  //   if (!data) return;
-  //   setLoading(true);
-  //   const res = await fetch(`/api/periods?id=${data.id}`, {
-  //     method: "PUT",
-  //     headers: { "Content-Type": "application/json" },
-  //     body: JSON.stringify({
-  //       last_period_date: today,
-  //       cycle_length: data.cycle_length,
-  //     }),
-  //   });
-
-  //   if (res.ok) {
-  //     const updated = await res.json();
-  //     setData(updated[0]);
-  //     const next = new Date(today);
-  //     next.setDate(next.getDate() + data.cycle_length);
-  //     setNextDate(next.toISOString().split("T")[0]);
-  //     setLoading(false);
-  //   }
-  //   setLoading(false);
-  // };
-
   const getPhaseDetails = () => {
     if (!data?.last_period_date || !data?.cycle_length) return null;
 
@@ -67,23 +44,34 @@ export default function HomePage() {
     const cycleLength = data.cycle_length;
 
     const daysSinceLastPeriod = today.diff(lastPeriod, "days");
-    // Normalize modulo to [0, cycleLength-1]
     const currentDayInCycle = ((daysSinceLastPeriod % cycleLength) + cycleLength) % cycleLength;
 
     let phase = "";
+    let phaseColor = "";
+    let phaseDescription = "";
 
     if (currentDayInCycle >= 0 && currentDayInCycle <= 5) {
       phase = "Menstruation";
+      phaseColor = "text-error";
+      phaseDescription = "Your period phase";
     } else if (currentDayInCycle >= 6 && currentDayInCycle <= 13) {
       phase = "Follicular";
+      phaseColor = "text-info";
+      phaseDescription = "Pre-ovulation phase";
     } else if (currentDayInCycle >= 14 && currentDayInCycle <= 16) {
       phase = "Ovulation";
+      phaseColor = "text-warning";
+      phaseDescription = "Fertile window";
     } else {
       phase = "Luteal";
+      phaseColor = "text-success";
+      phaseDescription = "Post-ovulation phase";
     }
 
     return {
       phase,
+      phaseColor,
+      phaseDescription,
       currentDayInCycle,
       daysSinceLastPeriod,
     };
@@ -103,21 +91,26 @@ export default function HomePage() {
       };
     }
 
-    // Calculate the next period date
     const nextPeriodDate = lastPeriodDate.clone().add(cycleLength, "days");
     const daysLeft = nextPeriodDate.diff(today, "days");
 
-    // Prepare the text
     let text = "";
+    let alertType = "bg-info/10 border-info/20 text-info";
+    
     if (daysLeft <= 0) {
-      text = "Next Period Is Expected Today";
+      text = "Expected Today";
+      alertType = "bg-warning/10 border-warning/20 text-warning";
     } else if (daysLeft === 1) {
-      text = "Next Period Is Expected Tomorrow";
+      text = "Expected Tomorrow";
+      alertType = "bg-warning/10 border-warning/20 text-warning";
+    } else if (daysLeft <= 3) {
+      text = `In ${daysLeft} days`;
+      alertType = "bg-warning/10 border-warning/20 text-warning";
     } else {
-      text = `Next Period Is Expected In ${daysLeft} days`;
+      text = `In ${daysLeft} days`;
+      alertType = "bg-success/10 border-success/20 text-success";
     }
 
-    // Generate the next 6 expected period dates starting from upcoming
     const nextThreePeriods: any[] = [];
     const nextPeriodDateMoment = nextPeriodDate.clone();
     for (let i = 0; i < 6; i++) {
@@ -132,80 +125,131 @@ export default function HomePage() {
         : nextPeriodDate.format("MMM Do YY"),
       nextThreePeriods,
       text,
-      lastPeriodDate
+      lastPeriodDate,
+      alertType
     };
   };
 
+  const phaseDetails = getPhaseDetails();
+  const periodInfo = getPeriodInfo();
 
   return (
     <div className="bg-base-100 min-h-screen relative">
-      <div className='bg-primary px-4 py-8 flex justify-center items-center rounded-b-[24px] h-[120px] overflow-hidden'>
-        <div className='absolute left-[-90px] z-[1000] bg-[#ffffff18] rounded-full w-[200px] h-[200px]'></div>
-        <div className='absolute left-[-30px] z-[1000] bg-[#ffffff1a] rounded-full w-[200px] h-[200px]'></div>
-        <div className='absolute left-[32px] z-[1000]'>
+      {/* Compact Header */}
+      <div className='bg-gradient-to-br from-primary to-primary/90 px-4 py-6 flex justify-center items-center rounded-b-[24px] h-[100px] overflow-hidden relative shadow-lg'>
+        <div className='absolute left-0 -translate-x-[60px] z-[1000] bg-primary-content/10 rounded-full w-[150px] h-[150px] pointer-events-none'></div>
+        <div className='absolute left-0 -translate-x-[20px] z-[1000] bg-primary-content/15 rounded-full w-[150px] h-[150px] pointer-events-none'></div>
+        
+        <div className='absolute left-[20px] z-[1000]'>
           <GoBack />
         </div>
-        <span className='text-white z-[2000] font-poppinsBold text-[18px]'>Period Details</span>
-        <Link href="/periods/update" className='text-white font-poppinsBold text-[18px] bg-[#ffffff4d] 
-        h-[30px] w-[30px] rounded-full flex items-center justify-center absolute right-[32px] z-[1000]'>
-          <IoPencil className="text-white text-[14px]" /></Link>
+        
+        <div className="text-center z-[2000]">
+          <h1 className='text-primary-content font-poppinsBold text-[18px]'>Period Details</h1>
+        </div>
+        
+        <Link 
+          href="/periods/update" 
+          className='text-primary-content font-poppinsBold text-[16px] bg-primary-content/20 h-[32px] w-[32px] rounded-full flex items-center justify-center absolute right-[20px] z-[1000] transition-all hover:bg-primary-content/30 hover:scale-105'
+        >
+          <IoPencil className="text-primary-content text-[14px]" />
+        </Link>
       </div>
-      <div className="w-full text-center pb-[200px]">
-        {loading ? <div className="flex items-center justify-center min-h-[50vh]">
-          <span className="loading loading-spinner loading-lg text-primary/60"></span>
-        </div> :
-          data && nextDate ? (
-            <div className="flex items-center justify-center flex-col mt-16">
-              <div className="mb-2 flex">
-                <div className="flex flex-col bg-base-100 px-4 py-2 rounded-md items-start justify-center border border-base-300 mr-2">
-                  <div className="text-[12px] text-neutral font-poppinsMed">Cycle Length</div>
-                  <div className="text-[16px] text-neutral font-poppinsMed"> {data?.cycle_length}</div>
-                </div>
-                <div className="flex flex-col bg-base-100 px-4 py-2 rounded-md items-start justify-center border border-base-300 mr-2">
-                  <div className="text-[12px] text-neutral font-poppinsMed">Day</div>
-                  <div className="text-[16px] text-neutral font-poppinsMed"> {(getPhaseDetails()?.currentDayInCycle ?? 0) + 1}</div>
-                </div>
-                <div className="flex flex-col bg-base-100 px-4 py-2 rounded-md items-start justify-center border border-base-300">
-                  <div className="text-[12px] text-neutral font-poppins">Phase</div>
-                  <div className="text-[14px] text-neutral font-poppinsMed"> {getPhaseDetails()?.phase}</div>
-                </div>
 
+      {/* Compact Main Content */}
+      <div className="w-full pb-6 px-4 -mt-4 relative z-10">
+        {loading ? (
+          <div className="flex items-center justify-center min-h-[40vh]">
+            <span className="loading loading-spinner loading-lg text-primary/60"></span>
+          </div>
+        ) : data && nextDate ? (
+          <div className="max-w-md mx-auto space-y-4">
+            {/* Current Cycle Compact Card */}
+            <div className="bg-base-200 rounded-xl p-4 shadow-md border border-base-300 dark:border-base-400">
+              <div className="grid grid-cols-3 gap-2 mb-3">
+                <div className="bg-base-100 rounded-lg p-2 text-center border-2 border-base-300 dark:border-base-400">
+                  <div className="text-[9px] text-base-content/60 font-poppinsMed uppercase tracking-wide mb-1">Cycle</div>
+                  <div className="text-[14px] text-base-content font-poppinsBold flex items-center justify-center">
+                    <HiClock className="mr-1 text-primary/70 text-xs" />
+                    {data?.cycle_length}
+                  </div>
+                </div>
+                
+                <div className="bg-base-100 rounded-lg p-2 text-center border-2 border-base-300 dark:border-base-400">
+                  <div className="text-[9px] text-base-content/60 font-poppinsMed uppercase tracking-wide mb-1">Day</div>
+                  <div className="text-[14px] text-base-content font-poppinsBold">
+                    {(phaseDetails?.currentDayInCycle ?? 0) + 1}
+                  </div>
+                </div>
+                
+                <div className="bg-base-100 rounded-lg p-2 text-center border-2 border-base-300 dark:border-base-400">
+                  <div className="text-[9px] text-base-content/60 font-poppinsMed uppercase tracking-wide mb-1">Phase</div>
+                  <div className={`text-[12px] font-poppinsBold ${phaseDetails?.phaseColor}`}>
+                    {phaseDetails?.phase}
+                  </div>
+                </div>
               </div>
+              
+              {phaseDetails?.phaseDescription && (
+                <div className="text-center">
+                  <span className="text-base-content/70 text-[10px] font-poppins">
+                    {phaseDetails.phaseDescription}
+                  </span>
+                </div>
+              )}
+            </div>
 
-              <div className="h-[1px] bg-[#cccccc4c] w-full my-6" />
-
-              <div className="text-base-content text-[14px] font-poppinsMed mb-4">Upcoming Periods</div>
-              <div className="flex flex-wrap gap-3 justify-center w-full mb-4">
-                {getPeriodInfo()?.nextThreePeriods?.map((item, index) => (
-                  <div className='bg-base-200 rounded-[12px] h-[60px] w-[60px] flex items-center justify-center flex-col' key={index}>
-                    <span className='text-base-content/80 text-[12px] font-poppinsMed'>{moment(item).format("DD")}</span>
-                    <span className='text-base-content/80 text-[10px] uppercase font-poppinsMed'>{moment(item).format("MMM")}</span>
-                    <span className='text-base-content/80 text-[8px] uppercase font-poppinsMed'>{moment(item).format("YYYY")}</span>
+            {/* Upcoming Periods - 6 items */}
+            <div className="bg-base-200 rounded-xl p-4 shadow-md border border-base-300 dark:border-base-400">
+              <h2 className="text-base-content font-poppinsBold text-[14px] mb-3 flex items-center">
+                <HiCake className="mr-2 text-primary text-sm" />
+                Upcoming Periods
+              </h2>
+              
+              <div className="grid grid-cols-6 gap-1">
+                {periodInfo.nextThreePeriods?.map((item, index) => (
+                  <div 
+                    key={index}
+                    className="bg-base-100 rounded-lg p-1 text-center border-2 border-base-300 dark:border-base-400 transition-all hover:shadow-sm hover:border-primary/30"
+                  >
+                    <div className="text-base-content/80 text-[10px] font-poppinsMed mb-1">
+                      {moment(item).format("DD")}
+                    </div>
+                    <div className="text-base-content/60 text-[8px] uppercase font-poppinsMed tracking-wide">
+                      {moment(item).format("MMM")}
+                    </div>
                   </div>
                 ))}
               </div>
-              <div className="h-[1px] bg-base-300 w-full my-6" />
-              <div className="alert alert-success w-[340px] mb-2 justify-center">
-                <HiSparkles className="mr-2 text-[16px]" />
-                <span className='text-sm'>{getPeriodInfo()?.text}</span>
+            </div>
+
+            {/* Compact Single Row Notifications */}
+            <div className="grid grid-cols-2 gap-2">
+              <div className={`rounded-lg border-2 py-2 px-3 text-[11px] font-poppinsMed flex items-center justify-center ${periodInfo.alertType}`}>
+                <HiSparkles className="text-xs mr-1" />
+                <span>{periodInfo.text}</span>
               </div>
-              <div className="alert alert-info w-[340px] mb-1 justify-center">
-                <HiSparkles className="mr-2 text-[16px]" />
-                <span className='text-sm'>Last period was on {getPeriodInfo()?.lastPeriodDate?.format("MMM Do YY")}</span>
+              
+              <div className="bg-base-200 border-2 border-base-300 dark:border-base-400 rounded-lg py-2 px-3 text-[11px] font-poppinsMed flex items-center justify-center text-base-content">
+                <HiSparkles className="text-xs mr-1" />
+                <span>Last: {periodInfo.lastPeriodDate?.format("MMM Do")}</span>
               </div>
             </div>
-          ) : (
-            <>
-              <p className="text-error text-lg mb-4">No period data found.</p>
+          </div>
+        ) : (
+          <div className="text-center max-w-md mx-auto mt-6">
+            <div className="bg-base-200 rounded-xl p-6 shadow-md border border-base-300 dark:border-base-400">
+              <HiCalendar className="text-3xl text-base-content/40 mx-auto mb-3" />
+              <p className="text-base-content text-base mb-3 font-poppinsMed">No period data found</p>
               <button
                 onClick={() => router.push("/periods/update")}
-                className="btn btn-primary btn-sm"
+                className="btn btn-primary btn-sm w-full rounded-lg font-poppinsMed text-sm"
               >
                 Add Period Info
               </button>
-            </>
-          )
-        }
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

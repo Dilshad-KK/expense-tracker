@@ -9,17 +9,24 @@ export type UIState = {
 const KEY = 'ui_prefs_v1';
 
 function loadState(): UIState {
-  if (typeof window === 'undefined') return { showJan8Counter: true, theme: 'ikbu' };
+  if (typeof window === 'undefined') return { showJan8Counter: true, theme: 'ikbu-dark' };
   try {
     const raw = localStorage.getItem(KEY);
-    if (!raw) return { showJan8Counter: true, theme: 'ikbu' };
-    const parsed = JSON.parse(raw);
+    if (!raw) return { showJan8Counter: true, theme: 'ikbu-dark' };
+
+    const parsed = JSON.parse(raw) || {};
+    const storedTheme = parsed.theme;
+    const theme: ThemeName = storedTheme === 'ikbu' || storedTheme === 'ikbu-dark'
+      ? storedTheme
+      : 'ikbu-dark';
+
     return {
       showJan8Counter: typeof parsed.showJan8Counter === 'boolean' ? parsed.showJan8Counter : true,
-      theme: parsed.theme === 'ikbu-dark' ? 'ikbu-dark' : 'ikbu',
+      theme,
     };
   } catch {
-    return { showJan8Counter: true, theme: 'ikbu' };
+    // Fallback to dark on any error
+    return { showJan8Counter: true, theme: 'ikbu-dark' };
   }
 }
 

@@ -3,9 +3,10 @@ export type ThemeName = 'ikbu' | 'ikbu-dark';
 const THEME_KEY = 'ui_theme';
 
 export function getSavedTheme(): ThemeName {
-  if (typeof window === 'undefined') return 'ikbu';
+  if (typeof window === 'undefined') return 'ikbu-dark';
   const t = localStorage.getItem(THEME_KEY) as ThemeName | null;
-  return (t === 'ikbu' || t === 'ikbu-dark') ? t : 'ikbu';
+  if (t === 'ikbu' || t === 'ikbu-dark') return t;
+  return 'ikbu-dark';
 }
 
 export function applyTheme(theme: ThemeName) {
@@ -18,4 +19,3 @@ export function setTheme(theme: ThemeName) {
   localStorage.setItem(THEME_KEY, theme);
   applyTheme(theme);
 }
-
