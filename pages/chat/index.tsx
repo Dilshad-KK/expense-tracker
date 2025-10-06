@@ -187,11 +187,9 @@ const Chat = () => {
         const data: Message[] = await res.json();
         if (cancelled) return;
         setMessages((prev) => {
-          const seen = new Set(prev.map((m) => m.message_id));
           const merged = [...prev];
           for (const m of data) {
-            if (m.message_id && seen.has(m.message_id)) continue;
-            merged.push(m);
+            if (markIfNew(m)) merged.push(m);
           }
           return merged;
         });
