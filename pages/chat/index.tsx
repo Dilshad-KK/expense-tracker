@@ -60,6 +60,8 @@ const Chat = () => {
   const seenSigRef = useRef<Set<string>>(new Set());
   const realtimeActiveRef = useRef<boolean>(false);
   const bottomRef = useRef<HTMLDivElement | null>(null);
+  const listRef = useRef<HTMLDivElement | null>(null);
+  const initialScrollDoneRef = useRef(false);
   const [clearing, setClearing] = useState(false);
 
   // WebRTC state
@@ -279,7 +281,13 @@ const Chat = () => {
   }
 
   useEffect(() => {
-    try { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }); } catch {}
+    const el = listRef.current;
+    if (!el) return;
+    const behavior: ScrollBehavior = initialScrollDoneRef.current ? 'smooth' : 'auto';
+    requestAnimationFrame(() => {
+      try { el.scrollTo({ top: el.scrollHeight, behavior }); } catch {}
+      initialScrollDoneRef.current = true;
+    });
   }, [messages.length]);
 
   async function ensurePeerConnection() {
@@ -425,7 +433,7 @@ const Chat = () => {
         )}
 
         {/* Enhanced Messages Area */}
-        <div className="flex-1 overflow-y-auto px-4 py-6 bg-base-200/30">
+        <div ref={listRef} className="flex-1 overflow-y-auto px-4 py-6 bg-base-200/30">
           {messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-base-content/60">
               <div className="w-16 h-16 bg-base-300 rounded-full flex items-center justify-center mb-4">

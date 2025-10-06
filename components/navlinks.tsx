@@ -12,22 +12,44 @@ const NavLinks = () => {
   const router = useRouter()
   const currentPath = router.pathname
   const [keyboardOpen, setKeyboardOpen] = useState(false);
+  const [bottomOffset, setBottomOffset] = useState<number>(0);
 
   useEffect(() => {
-    if (typeof window === 'undefined' || !(window as any).visualViewport) return;
-    const vv: any = (window as any).visualViewport;
-    const onResize = () => {
+    const vv: any = (typeof window !== 'undefined' ? (window as any).visualViewport : null);
+    const compute = () => {
       try {
-        const threshold = 120; // px
-        const isOpen = vv.height && window.innerHeight && (window.innerHeight - vv.height) > threshold;
-        setKeyboardOpen(!!isOpen);
-      } catch { setKeyboardOpen(false); }
+        const h = window.innerHeight || 0;
+        const vvH = vv?.height || h;
+        const vvTop = vv?.offsetTop || 0;
+        const kb = Math.max(0, h - vvH - vvTop);
+        const isOpen = kb > 40; // smaller threshold for Android/iOS
+        setKeyboardOpen(isOpen);
+        // Only adjust on chat route; elsewhere keep anchored bottom
+        setBottomOffset(currentPath === '/chat' ? (isOpen ? kb : 0) : 0);
+      } catch {
+        setKeyboardOpen(false);
+        setBottomOffset(0);
+      }
     };
-    vv.addEventListener('resize', onResize);
-    vv.addEventListener('scroll', onResize);
-    onResize();
-    return () => { try { vv.removeEventListener('resize', onResize); vv.removeEventListener('scroll', onResize); } catch {} };
-  }, []);
+    const onFocus = (e: any) => {
+      const tag = (e?.target?.tagName || '').toLowerCase();
+      if (currentPath === '/chat' && (tag === 'input' || tag === 'textarea')) compute();
+    };
+    const onBlur = () => compute();
+    if (vv) {
+      vv.addEventListener('resize', compute);
+      vv.addEventListener('scroll', compute);
+    }
+    if (typeof window !== 'undefined') {
+      window.addEventListener('focusin', onFocus);
+      window.addEventListener('focusout', onBlur);
+    }
+    compute();
+    return () => {
+      try { vv && vv.removeEventListener('resize', compute); vv && vv.removeEventListener('scroll', compute); } catch {}
+      try { window.removeEventListener('focusin', onFocus); window.removeEventListener('focusout', onBlur); } catch {}
+    };
+  }, [currentPath]);
   const unread = useSelector((s: RootState) => s.notifications.unreadCount);
 
   const isActive = (path: string) => currentPath === path
@@ -59,13 +81,12 @@ const NavLinks = () => {
     }
   ]
 
-  if (currentPath === '/chat' && keyboardOpen) return null;
-
   return (
     <div className='fixed bottom-0 w-full h-[88px] bg-white dark:bg-base-200 
                     shadow-[0_-8px_30px_rgba(0,0,0,0.1)] dark:shadow-[0_-8px_30px_rgba(0,0,0,0.4)]
                     border-t border-base-300/50 dark:border-base-400 z-[2000] 
-                    rounded-t-3xl backdrop-blur-sm bg-white/95 dark:bg-base-200/95'>
+                    rounded-t-3xl backdrop-blur-sm bg-white/95 dark:bg-base-200/95'
+         style={{ bottom: bottomOffset }}>
       <div className='flex justify-around items-center w-full h-full px-6'>
         {navItems.map((item) => (
           <Link 
