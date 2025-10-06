@@ -57,6 +57,9 @@ const Chat = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [text, setText] = useState('');
   const [connected, setConnected] = useState(false);
+  const seenIdsRef = useRef<Set<string>>(new Set());
+  const seenSigRef = useRef<Set<string>>(new Set());
+  const bottomRef = useRef<HTMLDivElement | null>(null);
 
   // WebRTC state
   const pcRef = useRef<RTCPeerConnection | null>(null);
@@ -86,10 +89,8 @@ const Chat = () => {
     // Receive messages
     const onMsg = (msg: Message) => {
       if (msg.to && msg.to !== self) return; // not for me
-      setMessages((prev) => {
-        if (msg.message_id && prev.some((m) => m.message_id === msg.message_id)) return prev;
-        return [...prev, { ...msg, created_at: msg.created_at || new Date().toISOString() }];
-      });
+      if (!markIfNew(msg)) return;
+      setMessages((prev) => [...prev, { ...msg, created_at: msg.created_at || new Date().toISOString() }]);
     };
     socket.on('chat:message', onMsg);
 
@@ -139,8 +140,22 @@ const Chat = () => {
       try {
         const res = await fetch(`/api/chat/messages?between=${encodeURIComponent(self)},${encodeURIComponent(peer)}`);
         if (res.ok) {
-          const data = await res.json();
-          setMessages(data || []);
+          const data: Message[] = await res.json();
+          const unique: Message[] = [];
+          const localIds = new Set<string>();
+          for (const m of data || []) {
+            if (m.message_id) {
+              if (localIds.has(m.message_id)) continue;
+              localIds.add(m.message_id);
+              seenIdsRef.current.add(m.message_id);
+            } else {
+              const sig = signature(m);
+              if (seenSigRef.current.has(sig)) continue;
+              seenSigRef.current.add(sig);
+            }
+            unique.push(m);
+          }
+          setMessages(unique);
         }
       } catch {}
       // Realtime fallback via Supabase
@@ -149,9 +164,9 @@ const Chat = () => {
           .channel(`chat_${self}_${peer}`)
           .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_messages', filter: `from=eq.${peer},to=eq.${self}` }, (payload: any) => {
             const r = payload?.new || {};
-            setMessages((prev) => (prev.some((m) => m.message_id && m.message_id === r.message_id) ? prev : [...prev, r]));
-            }
-          );
+            if (!markIfNew(r)) return;
+            setMessages((prev) => [...prev, r]);
+          });
         channel.subscribe((status: any) => {
           if (status === 'SUBSCRIBED') realtimeActive = true;
         });
@@ -195,6 +210,7 @@ const Chat = () => {
   async function sendMessage() {
     if (!text.trim() || !ready) return;
     const msg: Message = { text: text.trim(), from: self, to: peer, message_id: `${Date.now()}_${Math.random().toString(36).slice(2, 10)}`, created_at: new Date().toISOString() };
+    markIfNew(msg);
     setMessages((prev) => [...prev, msg]);
     setText('');
     try {
@@ -213,6 +229,30 @@ const Chat = () => {
       }
     } catch {}
   }
+
+  // Compute a simple signature for messages without message_id
+  function signature(m: Partial<Message>) {
+    const created = m.created_at ? new Date(m.created_at).getTime() : 0;
+    return `${m.from}|${m.to}|${m.text}|${created}`;
+  }
+
+  // Mark a message as seen if new; return true if should add
+  function markIfNew(m: Partial<Message>): boolean {
+    if (m.message_id) {
+      if (seenIdsRef.current.has(m.message_id)) return false;
+      seenIdsRef.current.add(m.message_id);
+      return true;
+    }
+    const sig = signature(m);
+    if (seenSigRef.current.has(sig)) return false;
+    seenSigRef.current.add(sig);
+    return true;
+  }
+
+  // Auto-scroll to the latest message when list changes
+  useEffect(() => {
+    try { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }); } catch {}
+  }, [messages.length]);
 
   async function ensurePeerConnection() {
     if (pcRef.current) return pcRef.current;
@@ -311,6 +351,7 @@ const Chat = () => {
               </div>
             </div>
           ))}
+          <div ref={bottomRef} />
         </div>
         {/* Composer */}
         <div className="border-t border-base-300 bg-base-100 sticky bottom-0 p-3 flex gap-2">
