@@ -15,4 +15,36 @@ module.exports = {
     },
   },
   plugins: [require('daisyui')],
+  daisyui: {
+    themes: [
+      {
+        ikbu: {
+          primary: '#514cff',
+          secondary: '#59afc9',
+          accent: '#e7632b',
+          neutral: '#3D4451',
+          'base-100': '#ffffff',
+          'base-200': '#f3f4f6',
+          info: '#308dff',
+          success: '#1b987b',
+          warning: '#d8c627',
+          error: '#fc3f3f',
+        },
+      },
+      {
+        'ikbu-dark': {
+          primary: '#7c83ff',
+          secondary: '#59afc9',
+          accent: '#ff8a4c',
+          neutral: '#1f2937',
+          'base-100': '#0f172a',
+          'base-200': '#111827',
+          info: '#60a5fa',
+          success: '#34d399',
+          warning: '#f59e0b',
+          error: '#f87171',
+        },
+      },
+    ],
+  },
 }

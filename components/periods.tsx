@@ -59,9 +59,9 @@ const getPeriodInfo = () => {
       text = `Next Period Is Expected In ${daysLeft} days`;
     }
 
-    // Next 3 expected periods starting from the upcoming one
+    // Next 6 expected periods starting from the upcoming one
     const nextThreePeriods: string[] = [];
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < 6; i++) {
       const futureDate = nextPeriodDate.clone().add(cycleLength * i, "days");
       nextThreePeriods.push(futureDate.format("MMM Do YY"));
     }

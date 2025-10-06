@@ -71,10 +71,10 @@ export default function ExpensesUi(props: UserType) {
 
 
   return (
-    <div className="bg-[#ffffff]">
-      <div className='relative bg-[#514cff] h-[150px] rounded-b-[60px] flex justify-between items-center px-4 mb-8'>
-        <div className='absolute left-[-90px] z-[1000] bg-[#ffffff18] rounded-full w-[200px] h-[200px]'></div>
-        <div className='absolute left-[-30px] z-[1000] bg-[#ffffff1a] rounded-full w-[200px] h-[200px]'></div>
+    <div className="bg-base-100">
+      <div className='relative bg-primary h-[150px] rounded-b-[60px] flex justify-between items-center px-4 mb-8'>
+        <div className='absolute left-[-90px] z-[1000] bg-white/10 rounded-full w-[200px] h-[200px]'></div>
+        <div className='absolute left-[-30px] z-[1000] bg-white/10 rounded-full w-[200px] h-[200px]'></div>
         <GoBack />
         <span className='text-white z-[2000]'>{formTitle}</span>
         <div />
@@ -82,11 +82,11 @@ export default function ExpensesUi(props: UserType) {
       <div className="min-h-screen p-4 pb-[150px]">
         {loading ?
           [1, 2, 3, 4]?.map((key) => (
-            <div className="h-[70px] w-[100%] bg-white py-4 ounded-[12px] flex" key={key}>
-              <div className="skeleton h-full w-[10%] bg-[#d6d6fc] rounded-[12px] mr-3"></div>
+            <div className="h-[70px] w-[100%] bg-base-100 py-4 rounded-[12px] flex" key={key}>
+              <div className="skeleton h-full w-[10%] bg-base-200 rounded-[12px] mr-3"></div>
               <div className='w-full'>
-                <div className="skeleton h-4 w-[100%] bg-[#d6d6fc] mb-2"></div>
-                <div className="skeleton h-4 w-[100%] bg-[#d6d6fc]"></div>
+                <div className="skeleton h-4 w-[100%] bg-base-200 mb-2"></div>
+                <div className="skeleton h-4 w-[100%] bg-base-200"></div>
               </div>
             </div>
           ))
@@ -101,44 +101,44 @@ export default function ExpensesUi(props: UserType) {
                     onClick={() => { handleFilter(option) }}>{option}</div>
                 ))}
               </div> */}
-              <div className="mb-8 px-4 py-3 rounded-[4px] flex items-center justify-between border-solid border-[1px] 
-                border-[#ddddf6] bg-[#ffffff]">
+              <div className="mb-8 px-4 py-3 rounded-[8px] flex items-center justify-between border 
+                border-base-300 bg-base-100">
                 <div>
-                  <div className="text-[12px] text-black/70 font-poppinsMed mb-1">Total Expense</div>
-                  <div className="text-[10px] text-black/60">{currency}&nbsp;{totalExpense}</div>
+                  <div className="text-[12px] text-base-content/70 font-poppinsMed mb-1">Total Expense</div>
+                  <div className="text-[10px] text-base-content/60">{currency}&nbsp;{totalExpense}</div>
                 </div>
                 <div>
-                  <div className="text-[12px] text-black/70 font-poppinsMed mb-1">Total Deposit</div>
-                  <div className="text-[10px] text-black/60">{currency}&nbsp;{totalDeposit}</div>
+                  <div className="text-[12px] text-base-content/70 font-poppinsMed mb-1">Total Deposit</div>
+                  <div className="text-[10px] text-base-content/60">{currency}&nbsp;{totalDeposit}</div>
                 </div>
                 <div>
-                  <div className="text-[12px] text-black/70 font-poppinsMed mb-1">Closing Balance</div>
-                  <div className="text-[10px] text-black/60">{currency}&nbsp;{closingBalance}</div>
+                  <div className="text-[12px] text-base-content/70 font-poppinsMed mb-1">Closing Balance</div>
+                  <div className="text-[10px] text-base-content/60">{currency}&nbsp;{closingBalance}</div>
                 </div>
               </div>
               {Object?.keys(grouped)?.map(item => (
-                <div className="mb-6">
+                <div className="mb-6" key={item}>
 
-                  <div className="text-black/80 font-poppinsMed text-[14px] mb-4">
+                  <div className="text-base-content/80 font-poppinsMed text-[14px] mb-4">
                     {item}
                   </div>
 
                   {grouped[item]?.map(item => (
-                    <Link href={`${detailshref}${item?.id}`} className="mb-4 flex items-center">
-                      <div className="flex flex-col items-center justify-start bg-white w-[30px] ml-[-4px] mr-3">
-                        <span className="text-[12px] text-black/70">{moment(item?.created_at).format("MMM")}</span>
-                        <span className="text-[12px] text-black/70">{moment(item?.created_at).format("DD")}</span>
+                    <Link href={`${detailshref}${item?.id}`} className="mb-4 flex items-center" key={item.id}>
+                      <div className="flex flex-col items-center justify-start bg-base-100 w-[30px] ml-[-4px] mr-3">
+                        <span className="text-[12px] text-base-content/70">{moment(item?.created_at).format("MMM")}</span>
+                        <span className="text-[12px] text-base-content/70">{moment(item?.created_at).format("DD")}</span>
                       </div>
-                      <div className="bg-[#e9f7ed] p-3 mr-3 flex-shrink-0">
+                      <div className="bg-base-200 p-3 mr-3 flex-shrink-0">
                         <img src={getCategoryIcon(item?.note)} className="h-[20px] opacity-70" />
                       </div>
                       <div className="max-w-[200px]">
-                        <div className="text-black/70 text-[12px] mb-1">{item?.note}</div>
-                        <div className="text-black/50 text-[10px]">{item?.type}</div>
+                        <div className="text-base-content/80 text-[12px] mb-1">{item?.note}</div>
+                        <div className="text-base-content/60 text-[10px]">{item?.type}</div>
                       </div>
                       <div className="flex flex-1 items-end justify-center flex-col flex-shrink-0">
-                        <div className={`text-[8px] font-poppinsMed ${item?.type === 'Withdrawal' ? 'text-[#e7632b]' : 'text-[#1b987b]'}`}>{item?.type === 'Withdrawal' ? 'You Paid' : 'You Received'}</div>
-                        <div className={`text-[12px] font-poppinsMed ${item?.type === 'Withdrawal' ? 'text-[#e7632b]' : 'text-[#1b987b]'}`}>{currency}&nbsp;{item?.amount}</div>
+                        <div className={`text-[8px] font-poppinsMed ${item?.type === 'Withdrawal' ? 'text-error' : 'text-success'}`}>{item?.type === 'Withdrawal' ? 'You Paid' : 'You Received'}</div>
+                        <div className={`text-[12px] font-poppinsMed ${item?.type === 'Withdrawal' ? 'text-error' : 'text-success'}`}>{currency}&nbsp;{item?.amount}</div>
                       </div>
                     </Link>
                   ))}

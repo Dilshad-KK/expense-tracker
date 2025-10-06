@@ -74,17 +74,17 @@ const Home = () => {
   }, []);
 
   return (
-    <div className='bg-[#ffffff]'>
-      <div className='relative bg-[#514cff] h-[150px] rounded-b-[60px] flex justify-between items-center px-4'>
-        <div className='absolute left-[-90px] z-[1000] bg-[#ffffff18] rounded-full w-[200px] h-[200px]'></div>
-        <div className='absolute left-[-30px] z-[1000] bg-[#ffffff1a] rounded-full w-[200px] h-[200px]'></div>
+    <div className='bg-base-100'>
+      <div className='relative bg-primary h-[150px] rounded-b-[60px] flex justify-between items-center px-4'>
+        <div className='absolute left-[-90px] z-[1000] bg-white/10 rounded-full w-[200px] h-[200px]'></div>
+        <div className='absolute left-[-30px] z-[1000] bg-white/10 rounded-full w-[200px] h-[200px]'></div>
         <div className='h-[50px] w-[50px] bg-white rounded-full flex items-center justify-center mb-3 z-[2000]'>
           <img src="/assets/icons/avatar.png" className='h-[35px]' />
         </div>
         <div className='flex flex-col items-start w-[200px]'>
           <Clock />
           <span className='text-white z-[2000] font-poppinsMed mb-2'>Welcome Back {user}</span>
-          <span className='text-[#ffffffe9] z-[2000] font-poppinsMed text-[12px]'>Have a nice day...!</span>
+          <span className='text-white/90 z-[2000] font-poppinsMed text-[12px]'>Have a nice day...!</span>
         </div>
         <Link href="/notifications" className='h-[50px] w-[50px] bg-white rounded-full flex items-center justify-center mb-3 z-[2000] relative'>
           <IoMdNotifications className='text-[24px]' />
@@ -96,7 +96,7 @@ const Home = () => {
       <div className='min-h-screen px-4 py-8'>
         <Categories />
         <Jan8CounterCard />
-        <div className="h-[1px] bg-[#cccccc4c] w-full my-8" />
+        <div className="h-[1px] bg-base-300 w-full my-8" />
         <Loans />
         <Discussions />
         <Periods /> 

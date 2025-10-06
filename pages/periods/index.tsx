@@ -117,10 +117,10 @@ export default function HomePage() {
       text = `Next Period Is Expected In ${daysLeft} days`;
     }
 
-    // Generate the next 3 expected period dates starting from upcoming
+    // Generate the next 6 expected period dates starting from upcoming
     const nextThreePeriods: any[] = [];
     const nextPeriodDateMoment = nextPeriodDate.clone();
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < 6; i++) {
       const futureDate = nextPeriodDateMoment.clone().add(cycleLength * i, "days");
       nextThreePeriods.push(futureDate);
     }
@@ -138,7 +138,7 @@ export default function HomePage() {
 
 
   return (
-    <div className="bg-[#ffffff] min-h-screen relative">
+    <div className="bg-base-100 min-h-screen relative">
       <div className='bg-[#514cff] px-4 py-8 flex justify-center items-center rounded-b-[24px] h-[120px]'>
         <div className='absolute left-[-90px] z-[1000] bg-[#ffffff18] rounded-full w-[200px] h-[200px]'></div>
         <div className='absolute left-[-30px] z-[1000] bg-[#ffffff1a] rounded-full w-[200px] h-[200px]'></div>
@@ -152,54 +152,54 @@ export default function HomePage() {
       </div>
       <div className="w-full text-center pb-[200px]">
         {loading ? <div className="flex items-center justify-center min-h-[50vh]">
-          <span className="loading loading-spinner loading-lg text-[#524cff5a]"></span>
+          <span className="loading loading-spinner loading-lg text-primary/60"></span>
         </div> :
           data && nextDate ? (
             <div className="flex items-center justify-center flex-col mt-16">
               <div className="mb-2 flex">
-                <div className="flex flex-col bg-[#f3fafa] px-4 py-2 rounded-md items-start justify-center border-[1px] border-solid border-[#9ebfbf6f] mr-2">
-                  <div className="text-[12px] text-[#177777] font-poppinsMed">Cycle Length</div>
-                  <div className="text-[16px] text-[#177777] font-poppinsMed"> {data?.cycle_length}</div>
+                <div className="flex flex-col bg-base-100 px-4 py-2 rounded-md items-start justify-center border border-base-300 mr-2">
+                  <div className="text-[12px] text-neutral font-poppinsMed">Cycle Length</div>
+                  <div className="text-[16px] text-neutral font-poppinsMed"> {data?.cycle_length}</div>
                 </div>
-                <div className="flex flex-col bg-[#f3fafa] px-4 py-2 rounded-md items-start justify-center border-[1px] border-solid border-[#9ebfbf6f] mr-2">
-                  <div className="text-[12px] text-[#177777] font-poppinsMed">Day</div>
-                  <div className="text-[16px] text-[#177777] font-poppinsMed"> {(getPhaseDetails()?.currentDayInCycle ?? 0) + 1}</div>
+                <div className="flex flex-col bg-base-100 px-4 py-2 rounded-md items-start justify-center border border-base-300 mr-2">
+                  <div className="text-[12px] text-neutral font-poppinsMed">Day</div>
+                  <div className="text-[16px] text-neutral font-poppinsMed"> {(getPhaseDetails()?.currentDayInCycle ?? 0) + 1}</div>
                 </div>
-                <div className="flex flex-col bg-[#f3fafa] px-4 py-2 rounded-md items-start justify-center border-[1px] border-solid border-[#9ebfbf6f]">
-                  <div className="text-[12px] text-[#177777] font-poppins">Phase</div>
-                  <div className="text-[14px] text-[#177777] font-poppinsMed"> {getPhaseDetails()?.phase}</div>
+                <div className="flex flex-col bg-base-100 px-4 py-2 rounded-md items-start justify-center border border-base-300">
+                  <div className="text-[12px] text-neutral font-poppins">Phase</div>
+                  <div className="text-[14px] text-neutral font-poppinsMed"> {getPhaseDetails()?.phase}</div>
                 </div>
 
               </div>
 
               <div className="h-[1px] bg-[#cccccc4c] w-full my-6" />
 
-              <div className="text-black text-[14px] font-poppinsMed mb-4">Upcoming Periods</div>
-              <div className="flex justify-between w-[300px] mb-4">
+              <div className="text-base-content text-[14px] font-poppinsMed mb-4">Upcoming Periods</div>
+              <div className="flex flex-wrap gap-3 justify-center w-full mb-4">
                 {getPeriodInfo()?.nextThreePeriods?.map((item, index) => (
-                  <div className='bg-[#a5a5fe2d] rounded-[12px] h-[60px] w-[60px] flex items-center justify-center flex-col' key={index}>
-                    <span className='text-black/80 text-[12px] font-poppinsMed'>{moment(item).format("DD")}</span>
-                    <span className='text-black/80 text-[10px] uppercase font-poppinsMed'>{moment(item).format("MMM")}</span>
-                    <span className='text-black/80 text-[8px] uppercase font-poppinsMed'>{moment(item).format("YYYY")}</span>
+                  <div className='bg-base-200 rounded-[12px] h-[60px] w-[60px] flex items-center justify-center flex-col' key={index}>
+                    <span className='text-base-content/80 text-[12px] font-poppinsMed'>{moment(item).format("DD")}</span>
+                    <span className='text-base-content/80 text-[10px] uppercase font-poppinsMed'>{moment(item).format("MMM")}</span>
+                    <span className='text-base-content/80 text-[8px] uppercase font-poppinsMed'>{moment(item).format("YYYY")}</span>
                   </div>
                 ))}
               </div>
-              <div className="h-[1px] bg-[#cccccc4c] w-full my-6" />
-              <div className="text-green-800 w-[340px] bg-[#d9fae4] py-4 px-8 text-[14px] mb-2 rounded-md border-[1px] border-solid border-[#adf4c6] flex items-center justify-center">
+              <div className="h-[1px] bg-base-300 w-full my-6" />
+              <div className="alert alert-success w-[340px] mb-2 justify-center">
                 <HiSparkles className="mr-2 text-[16px]" />
-                {getPeriodInfo()?.text}
+                <span className='text-sm'>{getPeriodInfo()?.text}</span>
               </div>
-              <div className="text-[#ad219a] w-[340px] bg-[#fcf4fb] py-4 px-8 text-[14px] mb-1 rounded-md border-[1px] border-solid border-[#fed9f9] flex items-center justify-center">
+              <div className="alert alert-info w-[340px] mb-1 justify-center">
                 <HiSparkles className="mr-2 text-[16px]" />
-                Last period was on {getPeriodInfo()?.lastPeriodDate?.format("MMM Do YY")}
+                <span className='text-sm'>Last period was on {getPeriodInfo()?.lastPeriodDate?.format("MMM Do YY")}</span>
               </div>
             </div>
           ) : (
             <>
-              <p className="text-pink-700 text-lg mb-4">No period data found.</p>
+              <p className="text-error text-lg mb-4">No period data found.</p>
               <button
                 onClick={() => router.push("/periods/update")}
-                className="bg-pink-500 text-white px-4 py-2 rounded-lg hover:bg-pink-600"
+                className="btn btn-primary btn-sm"
               >
                 Add Period Info
               </button>

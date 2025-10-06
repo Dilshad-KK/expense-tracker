@@ -1,11 +1,13 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import CommonHeader from '@/components/commonHeader';
+import { getSavedTheme, setTheme } from '@/utils/theme';
 
 const Profile = () => {
   const tz = useMemo(() => Intl.DateTimeFormat().resolvedOptions().timeZone, []);
   const suggestedUser = useMemo(() => (tz?.includes('Asia/Dubai') ? 'Dilshad' : 'Shifa Dilshad'), [tz]);
   const [selected, setSelected] = useState<'auto' | 'dilshad' | 'shifa'>('auto');
   const [saved, setSaved] = useState('');
+  const [theme, setThemeState] = useState<'ikbu' | 'ikbu-dark'>(getSavedTheme());
 
   useEffect(() => {
     try {
@@ -28,6 +30,7 @@ const Profile = () => {
       if (selected === 'auto') value = suggestedUser;
       localStorage.setItem('userIdentity', value);
       localStorage.setItem('userIdentityMode', selected);
+      setTheme(theme);
       setSaved('Settings saved successfully!');
       setTimeout(() => setSaved(''), 3000);
     } catch {}
@@ -95,6 +98,22 @@ const Profile = () => {
               isSelected={selected === 'shifa'}
             />
           </div>
+        </div>
+
+        {/* Theme */}
+        <div className='bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6'>
+          <h3 className='text-sm font-semibold text-gray-900 mb-4'>Theme</h3>
+          <div className='flex items-center gap-3'>
+            <button
+              onClick={() => setThemeState('ikbu')}
+              className={`px-3 py-2 rounded-lg text-xs border ${theme==='ikbu' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-700 border-gray-300'}`}
+            >Light</button>
+            <button
+              onClick={() => setThemeState('ikbu-dark')}
+              className={`px-3 py-2 rounded-lg text-xs border ${theme==='ikbu-dark' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-700 border-gray-300'}`}
+            >Dark</button>
+          </div>
+          <div className='text-xs text-gray-500 mt-2'>Applies to headings and components using theme colors. We can migrate more screens from hard-coded colors over time.</div>
         </div>
 
         {/* Save Button */}

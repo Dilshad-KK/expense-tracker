@@ -60,23 +60,25 @@ export default function NotificationsPage() {
           <div className='flex items-center justify-between sm:justify-start gap-2 w-full sm:w-auto'>
             <button
               onClick={markAllRead}
+              title='Mark all notifications as read'
               className='flex items-center space-x-1 px-3 py-2 text-xs text-blue-600 border border-gray-300 rounded-lg bg-white hover:bg-gray-50 transition-colors flex-1 sm:flex-none justify-center'
             >
               <svg className='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                 <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M5 13l4 4L19 7' />
               </svg>
               <span className='hidden xs:inline'>Mark all read</span>
-              <span className='xs:hidden'>Read</span>
+              <span className='xs:hidden'>Mark</span>
             </button>
             
             <button
               onClick={refresh}
+              title='Refresh list'
               className='flex items-center space-x-1 px-3 py-2 text-xs text-gray-600 border border-gray-300 rounded-lg bg-white hover:bg-gray-50 transition-colors flex-1 sm:flex-none justify-center'
             >
               <svg className='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                 <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15' />
               </svg>
-              <span className='hidden xs:inline'>Refresh</span>
+              <span className=''>Refresh</span>
             </button>
           </div>
           
@@ -84,17 +86,19 @@ export default function NotificationsPage() {
           <div className='flex items-center justify-between sm:justify-end gap-2 w-full sm:w-auto'>
             <button
               onClick={() => dispatch(clearReadThunk())}
+              title='Delete read notifications'
               className='px-3 py-2 text-xs text-gray-600 border border-gray-300 rounded-lg bg-white hover:bg-gray-50 transition-colors flex-1 sm:flex-none justify-center text-center'
             >
               <span className='hidden xs:inline'>Clear read</span>
-              <span className='xs:hidden'>Read</span>
+              <span className='xs:hidden'>Clr Read</span>
             </button>
             <button
               onClick={() => dispatch(clearAllThunk())}
+              title='Delete all notifications'
               className='px-3 py-2 text-xs text-red-600 border border-red-200 rounded-lg bg-white hover:bg-red-50 transition-colors flex-1 sm:flex-none justify-center text-center'
             >
               <span className='hidden xs:inline'>Clear all</span>
-              <span className='xs:hidden'>All</span>
+              <span className='xs:hidden'>Clr All</span>
             </button>
           </div>
         </div>

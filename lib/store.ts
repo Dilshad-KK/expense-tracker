@@ -2,10 +2,12 @@ import { configureStore } from '@reduxjs/toolkit';
 import { useDispatch } from 'react-redux';
 import notificationsReducer from '@/store/notificationsSlice';
 import { api } from '@/store/api';
+import uiReducer from '@/store/uiSlice';
 
 export const store = configureStore({
   reducer: {
     notifications: notificationsReducer,
+    ui: uiReducer,
     [api.reducerPath]: api.reducer,
   },
   middleware: (getDefault) => getDefault({ serializableCheck: false }).concat(api.middleware),
