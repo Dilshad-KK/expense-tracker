@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import Link from 'next/link';
 import { useRouter } from 'next/router'
 import { HiHome, HiChatBubbleLeftRight, HiUser } from 'react-icons/hi2'
@@ -11,6 +11,23 @@ import type { RootState } from '@/lib/store';
 const NavLinks = () => {
   const router = useRouter()
   const currentPath = router.pathname
+  const [keyboardOpen, setKeyboardOpen] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !(window as any).visualViewport) return;
+    const vv: any = (window as any).visualViewport;
+    const onResize = () => {
+      try {
+        const threshold = 120; // px
+        const isOpen = vv.height && window.innerHeight && (window.innerHeight - vv.height) > threshold;
+        setKeyboardOpen(!!isOpen);
+      } catch { setKeyboardOpen(false); }
+    };
+    vv.addEventListener('resize', onResize);
+    vv.addEventListener('scroll', onResize);
+    onResize();
+    return () => { try { vv.removeEventListener('resize', onResize); vv.removeEventListener('scroll', onResize); } catch {} };
+  }, []);
   const unread = useSelector((s: RootState) => s.notifications.unreadCount);
 
   const isActive = (path: string) => currentPath === path
@@ -41,6 +58,8 @@ const NavLinks = () => {
       }
     }
   ]
+
+  if (currentPath === '/chat' && keyboardOpen) return null;
 
   return (
     <div className='fixed bottom-0 w-full h-[88px] bg-white dark:bg-base-200 

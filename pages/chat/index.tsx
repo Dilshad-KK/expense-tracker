@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Head from 'next/head';
 import dynamic from 'next/dynamic';
-import { HiPhone, HiVideoCamera, HiXMark } from 'react-icons/hi2';
+import { HiPhone, HiVideoCamera, HiXMark, HiOutlineTrash } from 'react-icons/hi2';
 import { supabase } from '@/lib/supabase';
 
 // Lazy import socket.io-client to avoid SSR issues
@@ -61,6 +61,7 @@ const Chat = () => {
   const seenSigRef = useRef<Set<string>>(new Set());
   const realtimeActiveRef = useRef<boolean>(false);
   const bottomRef = useRef<HTMLDivElement | null>(null);
+  const [clearing, setClearing] = useState(false);
 
   // WebRTC state
   const pcRef = useRef<RTCPeerConnection | null>(null);
@@ -344,21 +345,45 @@ const Chat = () => {
   }
 
   return (
-    <div className="min-h-screen bg-neutral-100 dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 pb-24 flex flex-col">
+    <div className="min-h-screen bg-base-100 text-base-content pb-24 flex flex-col">
       <Head>
         <title>Chat</title>
       </Head>
       <div className="max-w-2xl w-full mx-auto flex-1 flex flex-col">
         {/* Header */}
-        <div className="px-4 py-3 border-b border-neutral-300 dark:border-neutral-700 flex items-center gap-3 bg-neutral-100 dark:bg-neutral-900 sticky top-0 z-10">
+        <div className="px-4 py-3 border-b border-base-300 flex items-center gap-3 bg-base-100 sticky top-0 z-10">
           <div className={`h-9 w-9 ${peer === 'Dilshad' ? 'bg-info' : 'bg-secondary'} rounded-full flex items-center justify-center `}>
             <span className="text-white text-sm font-poppinsMed">{peer?.startsWith('D') ? 'D' : 'S'}</span>
           </div>
           <div className="leading-tight">
             <div className="text-sm font-poppinsMed">{peer}</div>
-            <div className={`text-[11px] ${connected ? 'text-emerald-500' : 'text-neutral-500 dark:text-neutral-400'}`}>{connected ? 'online' : 'offline'}</div>
+            <div className={`text-[11px] ${connected ? 'text-success' : 'text-base-content/60'}`}>{connected ? 'online' : 'offline'}</div>
           </div>
           <div className="ml-auto flex items-center gap-2">
+            {/* Subtle clear button */}
+            <button
+              className="btn btn-ghost btn-xs text-base-content/60 hover:text-error"
+              title="Clear chat"
+              disabled={!ready || clearing}
+              onClick={async () => {
+                try {
+                  if (!confirm('Clear all messages in this chat?')) return;
+                  setClearing(true);
+                  await fetch('/api/chat/clear', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ between: `${self},${peer}` }),
+                  });
+                  // Reset local state and seen caches
+                  setMessages([]);
+                  try { seenIdsRef.current.clear(); seenSigRef.current.clear(); } catch {}
+                } finally {
+                  setClearing(false);
+                }
+              }}
+            >
+              <HiOutlineTrash className="w-4 h-4" />
+            </button>
             {!inCall && (
               <>
                 <button className="btn btn-ghost btn-sm" title="Voice call" onClick={() => startCall(true)}>
@@ -379,19 +404,19 @@ const Chat = () => {
 
         {/* Call preview */}
         {inCall && (
-          <div className="px-4 py-2 bg-neutral-100/60 dark:bg-neutral-900/60 border-b border-neutral-300 dark:border-neutral-700">
+          <div className="px-4 py-2 bg-base-200/60 border-b border-base-300">
             <div className="grid grid-cols-2 gap-2">
-              <video ref={localVideoRef} autoPlay playsInline muted className="w-full rounded border border-neutral-300 dark:border-neutral-700" />
-              <video ref={remoteVideoRef} autoPlay playsInline className="w-full rounded border border-neutral-300 dark:border-neutral-700" />
+              <video ref={localVideoRef} autoPlay playsInline muted className="w-full rounded border border-base-300" />
+              <video ref={remoteVideoRef} autoPlay playsInline className="w-full rounded border border-base-300" />
             </div>
           </div>
         )}
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto px-3 py-3 bg-neutral-100 dark:bg-neutral-900">
+        <div className="flex-1 overflow-y-auto px-3 py-3 bg-base-200/40">
           {messages.map((m, i) => (
             <div key={(m as any).message_id || (m as any).id || i} className={`mb-2 flex ${m.from === self ? 'justify-end' : 'justify-start'}`}>
-              <div className={`px-3 py-2 rounded-2xl max-w-[80%] shadow-sm ${m.from === self ? 'bg-emerald-500 text-white rounded-tr-sm' : 'bg-neutral-200 dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 rounded-tl-sm'}`}>
+              <div className={`px-3 py-2 rounded-2xl max-w-[80%] ${m.from === self ? 'bg-primary text-primary-content rounded-tr-sm' : 'bg-base-300 text-base-content rounded-tl-sm'}`}>
                 <div className="text-[10px] opacity-75 mb-1">{new Date(m.created_at || '').toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
                 <div className="text-sm whitespace-pre-wrap leading-relaxed">{m.text}</div>
               </div>
@@ -400,15 +425,9 @@ const Chat = () => {
           <div ref={bottomRef} />
         </div>
         {/* Composer */}
-        <div className="border-t border-neutral-300 dark:border-neutral-700 bg-neutral-100 dark:bg-neutral-900 sticky bottom-0 p-3 flex gap-2" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 12px)' }}>
-          <input
-            className="input input-bordered flex-1 bg-white dark:bg-neutral-800 border-neutral-300 dark:border-neutral-700 text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 dark:placeholder-neutral-500"
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            placeholder="Type a message"
-            onKeyDown={(e) => { if (e.key === 'Enter') sendMessage(); }}
-          />
-          <button className="btn min-w-[72px] bg-emerald-500 hover:bg-emerald-600 border-emerald-600 text-white" onClick={sendMessage} disabled={!ready || !text.trim()}>Send</button>
+        <div className="border-t border-base-300 bg-base-100 sticky bottom-0 z-[2001] p-3 flex gap-2 mb-[88px]" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 8px)' }}>
+          <input className="input input-bordered flex-1" value={text} onChange={(e) => setText(e.target.value)} placeholder="Type a message" onKeyDown={(e) => { if (e.key === 'Enter') sendMessage(); }} />
+          <button className="btn btn-primary" onClick={sendMessage} disabled={!ready || !text.trim()}>Send</button>
         </div>
       </div>
     </div>
