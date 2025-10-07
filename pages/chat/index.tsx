@@ -119,7 +119,23 @@ const Chat = () => {
     // Signaling handlers
     const onOffer = async (data: any) => {
       if (data.to && data.to !== self) return;
+      const wantVideo = !!(data?.offer?.sdp && String(data.offer.sdp).includes('m=video'));
       await ensurePeerConnection();
+      try {
+        // If callee has no local stream yet, acquire mic/camera to send back media
+        if (!localStreamRef.current) {
+          const stream = await navigator.mediaDevices.getUserMedia({ video: wantVideo, audio: true });
+          localStreamRef.current = stream;
+          stream.getTracks().forEach((t) => pcRef.current!.addTrack(t, stream));
+          if (localVideoRef.current) localVideoRef.current.srcObject = stream;
+          setIsAudioOnly(!wantVideo);
+        }
+        setInCall(true);
+      } catch (err) {
+        // If user denies permissions, still proceed to set remote so at least one-way works
+        // eslint-disable-next-line no-console
+        console.warn('getUserMedia (callee) failed:', err);
+      }
       await pcRef.current!.setRemoteDescription(new RTCSessionDescription(data.offer));
       const answer = await pcRef.current!.createAnswer();
       await pcRef.current!.setLocalDescription(answer);
