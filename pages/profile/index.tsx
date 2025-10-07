@@ -4,7 +4,6 @@ import { setTheme } from '@/utils/theme';
 import { useDispatch, useSelector } from 'react-redux';
 import type { RootState } from '@/lib/store';
 import { setThemeName } from '@/store/uiSlice';
-import type { ThemeName } from '@/store/uiSlice';
 import { HiUser, HiMoon, HiSun, HiCheck, HiClock } from 'react-icons/hi2';
 import { HiGlobe } from 'react-icons/hi';
 
@@ -70,7 +69,7 @@ const Profile = () => {
 
   const ThemeButton = ({ themeName, label, icon, isActive }: { themeName: string; label: string; icon: React.ReactNode; isActive: boolean }) => (
     <button
-      onClick={() => dispatch(setThemeName(themeName as ThemeName))}
+      onClick={() => dispatch(setThemeName(themeName))}
       className={`flex-1 flex items-center justify-center gap-2 p-3 rounded-lg border-2 transition-all duration-200 ${
         isActive
           ? 'border-primary bg-primary/10 dark:bg-primary/20'
@@ -146,20 +145,14 @@ const Profile = () => {
             <h3 className='text-xs font-poppinsBold text-base-content dark:text-base-content/90'>Theme</h3>
           </div>
           
-          <div className='flex gap-2'>
-            <ThemeButton
-              themeName='ikbu'
-              label='Light'
-              icon={<HiSun className="w-4 h-4" />}
-              isActive={theme === 'ikbu'}
-            />
-            <ThemeButton
-              themeName='ikbu-dark'
-              label='Dark'
-              icon={<HiMoon className="w-4 h-4" />}
-              isActive={theme === 'ikbu-dark'}
-            />
+          {/* Quick toggle between our defaults */}
+          <div className='flex gap-2 mb-3'>
+            <ThemeButton themeName='ikbu' label='Light' icon={<HiSun className="w-4 h-4" />} isActive={theme === 'ikbu'} />
+            <ThemeButton themeName='ikbu-dark' label='Dark' icon={<HiMoon className="w-4 h-4" />} isActive={theme === 'ikbu-dark'} />
           </div>
+
+          {/* Full theme gallery */}
+          <ThemeGallery active={theme} onSelect={(t) => dispatch(setThemeName(t))} />
         </div>
 
         {/* Save Button */}
@@ -183,3 +176,28 @@ const Profile = () => {
 };
 
 export default Profile;
+
+// DaisyUI built-in themes plus our customs
+const ALL_THEMES: string[] = [
+  'ikbu', 'ikbu-dark',
+  'light','dark','cupcake','bumblebee','emerald','corporate','synthwave','retro','cyberpunk','valentine','halloween','garden','forest','aqua','lofi','pastel','fantasy','wireframe','black','luxury','dracula','cmyk','autumn','business','acid','lemonade','night','coffee','winter','dim','nord','sunset'
+];
+
+function ThemeGallery({ active, onSelect }: { active: string; onSelect: (t: string) => void }) {
+  return (
+    <div className='grid grid-cols-3 gap-2 max-h-64 overflow-auto pr-1'>
+      {ALL_THEMES.map((t) => (
+        <button
+          key={t}
+          onClick={() => onSelect(t)}
+          className={`text-[11px] px-2 py-2 rounded-lg border transition-all truncate ${
+            active === t ? 'border-primary bg-primary/10 text-primary' : 'border-base-300 dark:border-base-700 hover:border-primary/50 text-base-content/70'
+          }`}
+          aria-label={`Switch to ${t} theme`}
+        >
+          {t}
+        </button>
+      ))}
+    </div>
+  );
+}

@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-export type ThemeName = 'ikbu' | 'ikbu-dark';
+export type ThemeName = string;
 export type UIState = {
   showJan8Counter: boolean;
   theme: ThemeName;
@@ -16,9 +16,7 @@ function loadState(): UIState {
 
     const parsed = JSON.parse(raw) || {};
     const storedTheme = parsed.theme;
-    const theme: ThemeName = storedTheme === 'ikbu' || storedTheme === 'ikbu-dark'
-      ? storedTheme
-      : 'ikbu-dark';
+    const theme: ThemeName = (typeof storedTheme === 'string' && storedTheme) ? storedTheme : 'ikbu-dark';
 
     return {
       showJan8Counter: typeof parsed.showJan8Counter === 'boolean' ? parsed.showJan8Counter : true,

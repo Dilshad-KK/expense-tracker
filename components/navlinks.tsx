@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import Link from 'next/link';
 import { useRouter } from 'next/router'
 import { HiHome, HiChatBubbleLeftRight, HiUser } from 'react-icons/hi2'
@@ -11,45 +11,7 @@ import type { RootState } from '@/lib/store';
 const NavLinks = () => {
   const router = useRouter()
   const currentPath = router.pathname
-  const [keyboardOpen, setKeyboardOpen] = useState(false);
-  const [bottomOffset, setBottomOffset] = useState<number>(0);
-
-  useEffect(() => {
-    const vv: any = (typeof window !== 'undefined' ? (window as any).visualViewport : null);
-    const compute = () => {
-      try {
-        const h = window.innerHeight || 0;
-        const vvH = vv?.height || h;
-        const vvTop = vv?.offsetTop || 0;
-        const kb = Math.max(0, h - vvH - vvTop);
-        const isOpen = kb > 40; // smaller threshold for Android/iOS
-        setKeyboardOpen(isOpen);
-        // Only adjust on chat route; elsewhere keep anchored bottom
-        setBottomOffset(currentPath === '/chat' ? (isOpen ? kb : 0) : 0);
-      } catch {
-        setKeyboardOpen(false);
-        setBottomOffset(0);
-      }
-    };
-    const onFocus = (e: any) => {
-      const tag = (e?.target?.tagName || '').toLowerCase();
-      if (currentPath === '/chat' && (tag === 'input' || tag === 'textarea')) compute();
-    };
-    const onBlur = () => compute();
-    if (vv) {
-      vv.addEventListener('resize', compute);
-      vv.addEventListener('scroll', compute);
-    }
-    if (typeof window !== 'undefined') {
-      window.addEventListener('focusin', onFocus);
-      window.addEventListener('focusout', onBlur);
-    }
-    compute();
-    return () => {
-      try { vv && vv.removeEventListener('resize', compute); vv && vv.removeEventListener('scroll', compute); } catch {}
-      try { window.removeEventListener('focusin', onFocus); window.removeEventListener('focusout', onBlur); } catch {}
-    };
-  }, [currentPath]);
+  // Keep bottom tab fixed to screen bottom; no dynamic keyboard offset
   const unread = useSelector((s: RootState) => s.notifications.unreadCount);
 
   const isActive = (path: string) => currentPath === path
@@ -89,7 +51,7 @@ const NavLinks = () => {
                     shadow-[0_-8px_30px_rgba(0,0,0,0.1)] dark:shadow-[0_-8px_30px_rgba(0,0,0,0.4)]
                     border-t border-base-300/50 dark:border-base-400 z-[2000] 
                     rounded-t-3xl backdrop-blur-sm bg-white/95 dark:bg-base-200/95'
-         style={{ bottom: bottomOffset }}>
+         style={{ bottom: 0 }}>
       <div className='flex justify-around items-center w-full h-full px-6'>
         {navItems.map((item) => (
           <Link 

@@ -1,11 +1,11 @@
-export type ThemeName = 'ikbu' | 'ikbu-dark';
+export type ThemeName = string;
 
 const THEME_KEY = 'ui_theme';
 
 export function getSavedTheme(): ThemeName {
   if (typeof window === 'undefined') return 'ikbu-dark';
   const t = localStorage.getItem(THEME_KEY) as ThemeName | null;
-  if (t === 'ikbu' || t === 'ikbu-dark') return t;
+  if (t && typeof t === 'string') return t;
   return 'ikbu-dark';
 }
 
