@@ -9,7 +9,7 @@ type Props = {
 
 const CommonHeader = ({ title, right, showBack = true }: Props) => {
   return (
-    <div className='bg-gradient-to-br from-primary to-primary/90 px-4 py-6 flex justify-center items-center rounded-b-3xl h-[100px] relative shadow-lg overflow-hidden'>
+    <div className='bg-gradient-to-br from-primary to-primary/90 px-4 py-6 flex justify-center items-center rounded-b-3xl h-[100px] relative shadow-lg overflow-hidden mb-8'>
       {showBack && (
         <div className='absolute left-5 z-[1003]'>
           <GoBack />
