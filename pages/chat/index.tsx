@@ -4,6 +4,8 @@ import dynamic from 'next/dynamic';
 import { HiPhone, HiVideoCamera, HiXMark, HiOutlineTrash, HiPaperAirplane, HiArrowLeft } from 'react-icons/hi2';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/router';
+import { useSelector } from 'react-redux';
+import type { RootState } from '@/lib/store';
 import { getChannel } from '@/src/utils/realtime';
 import type { ChatEvent, RTCEvent } from '@/src/types/realtime';
 
@@ -30,6 +32,7 @@ function resolveIdentity(): { self: string; peer: string } {
 
 const Chat = () => {
   const router = useRouter();
+  const authUser = useSelector((s: RootState) => (s as any).user?.user) as { uid: string; phoneNumber?: string | null } | null;
   const [{ self, peer }, setIdent] = useState<{ self: string; peer: string }>(() => resolveIdentity());
   const [messages, setMessages] = useState<Message[]>([]);
   const [text, setText] = useState('');
@@ -69,9 +72,29 @@ const Chat = () => {
   const [inCall, setInCall] = useState(false);
   const [isAudioOnly, setIsAudioOnly] = useState(false);
 
+  // When auth is present, prefer phone-based identities and conversation id
+  useEffect(() => {
+    if (!authUser?.phoneNumber) return;
+    const allowEnv = (process.env.NEXT_PUBLIC_ALLOWED_PHONES || process.env.ALLOWED_PHONES || '+919645096941').split(',').map(s=>s.trim());
+    const phones = allowEnv.filter(Boolean);
+    const selfPhone = authUser.phoneNumber;
+    const peerPhone = phones.find((p) => p !== selfPhone);
+    if (selfPhone) {
+      setIdent({ self: selfPhone, peer: peerPhone || 'peer' });
+    }
+  }, [authUser?.phoneNumber]);
+
   const ready = useMemo(() => !!self && !!peer, [self, peer]);
   const conversationId = useMemo(() => [self, peer].sort().join('__'), [self, peer]);
   const roomId = conversationId;
+
+  // Redirect to auth if no user and phone-based allowlist configured
+  useEffect(() => {
+    const allowEnv = (process.env.NEXT_PUBLIC_ALLOWED_PHONES || process.env.ALLOWED_PHONES || '+919645096941').split(',').map(s=>s.trim());
+    if (allowEnv.length > 0 && !authUser?.phoneNumber) {
+      router.replace('/auth/phone');
+    }
+  }, [authUser?.phoneNumber]);
 
   // Initialize Supabase Realtime channels for chat + rtc
   useEffect(() => {
@@ -181,7 +204,12 @@ const Chat = () => {
     try {
       // Broadcast via Realtime then persist
       try { chatChannelRef.current?.send({ type: 'broadcast', event: 'message:new', payload: msg }); } catch {}
-      try { await fetch('/api/chat/messages', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(msg) }); } catch {}
+      try {
+        const { getAuth } = await import('firebase/auth');
+        const u = getAuth().currentUser;
+        const t = u ? await u.getIdToken() : '';
+        await fetch('/api/chat/messages', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': t ? `Bearer ${t}` : '' }, body: JSON.stringify(msg) });
+      } catch {}
     } catch {}
   }
 
@@ -349,9 +377,11 @@ const Chat = () => {
                 try {
                   if (!confirm('Clear all messages in this chat?')) return;
                   setClearing(true);
+                  const { getAuth } = await import('firebase/auth');
+                  const u = getAuth().currentUser; const t = u ? await u.getIdToken() : '';
                   await fetch('/api/chat/clear', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 'Content-Type': 'application/json', 'Authorization': t ? `Bearer ${t}` : '' },
                     body: JSON.stringify({ between: `${self},${peer}` }),
                   });
                   setMessages([]);

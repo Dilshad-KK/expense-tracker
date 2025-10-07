@@ -4,8 +4,8 @@ import { CiReceipt } from "react-icons/ci";
 import { PiBankLight } from "react-icons/pi";
 import { HiOutlineChatBubbleBottomCenter } from "react-icons/hi2";
 import { IoIosFemale } from "react-icons/io";
-import { BsGem } from "react-icons/bs";
 import { PiListPlusLight } from "react-icons/pi";
+import { TbChartPie } from "react-icons/tb";
 
 const Categories = () => {
     return (
@@ -56,11 +56,11 @@ const Categories = () => {
                     </div>
                     <div className='font-poppinsMed text-[12px] text-base-content/70 text-center'>CHECKLISTS</div>
                 </Link>
-                <Link className='flex items-center justify-center flex-col' href={"/milestones"}>
+                <Link className='flex items-center justify-center flex-col' href={"/dubai-plan"}>
                     <div className='h-[60px] w-[60px] flex items-center justify-center bg-base-200 mb-2 rounded-[14px] border border-base-content/10 shadow-sm'>
-                        <BsGem className='text-[26px] text-success' />
+                        <TbChartPie className='text-[26px] text-primary' />
                     </div>
-                    <div className='font-poppinsMed text-[12px] text-base-content/70 text-center'>MILESTONES</div>
+                    <div className='font-poppinsMed text-[12px] text-base-content/70 text-center'>DUBAI PLAN</div>
                 </Link>
             </div>
         </>

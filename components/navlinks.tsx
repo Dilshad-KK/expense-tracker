@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router'
 import { HiHome, HiChatBubbleLeftRight, HiUser } from 'react-icons/hi2'
 import { IoHomeOutline, IoHome } from 'react-icons/io5'
-import { TbMessage, TbMessage2 } from 'react-icons/tb'
+import { TbMessage, TbMessage2, TbChartPie } from 'react-icons/tb'
 import { CgProfile, CgUser } from 'react-icons/cg'
 import { useSelector } from 'react-redux';
 import type { RootState } from '@/lib/store';
