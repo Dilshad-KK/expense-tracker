@@ -1,5 +1,6 @@
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import CommonHeader from "@/components/commonHeader";
+import { getAllCategories, getSuggestedCategory, trainCategoryForToken } from '@/utils/categoryMapper';
 
 
 const NewExpense = () => {
@@ -9,6 +10,9 @@ const NewExpense = () => {
     const [note, setNote] = useState("");
     const [type, setType] = useState("Withdrawal");
     const [showSuccessMessage, setShowSuccessMessage] = useState("");
+    const [chosenCategory, setChosenCategory] = useState<string | null>(null);
+    const suggestion = useMemo(() => getSuggestedCategory(note), [note]);
+    const categories = useMemo(() => getAllCategories(), []);
 
 
 
@@ -33,6 +37,10 @@ const NewExpense = () => {
         const data = await response.json();
         console.log(data);
         if (response.ok) {
+            try {
+              const token = (note || '').toLowerCase().split(/[^a-z0-9]+/g).filter(Boolean)[0] || note;
+              if (token) trainCategoryForToken(token, (chosenCategory || suggestion.key));
+            } catch {}
             setShowSuccessMessage("Expense Added Successfully...!");
             // sendNotification(`Expense Added For ${formTitle}`);
             setAmount("");
@@ -65,11 +73,26 @@ const NewExpense = () => {
                     <input
                         type="text"
                         placeholder="Enter Description"
-                        className="input text-black/60 mb-2 border-[1px] border-solid border-[#d3d3fe] w-full p-4 rounded-[8px] bg-[#f3f3fd] placeholder:text-[12px]"
+                        className="input input-bordered mb-2 w-full p-4 rounded-[8px] bg-base-100 dark:bg-base-200 border-base-300 dark:border-base-400 text-base-content placeholder:text-[12px] placeholder:text-base-content/60"
                         value={note}
                         onChange={(e) => setNote(e.target.value)}
                     />
-                    <select className="text-black/60 select border-[1px] border-solid border-[#d3d3fe] w-full bg-[#f3f3fd] text-[12px] placeholder:text-[12px]"
+                    {note && (
+                      <div className="w-full mb-2 flex items-center justify-between bg-base-100 dark:bg-base-200 border border-base-300 dark:border-base-400 rounded-lg p-2">
+                        <div className="flex items-center gap-2">
+                          <img src={suggestion.icon} className="h-4 w-4 dark:invert" />
+                          <span className="text-xs text-base-content/70">Suggested: <span className="font-poppinsMed text-base-content">{suggestion.label}</span></span>
+                        </div>
+                        <select
+                          className="select select-xs select-bordered bg-base-100 dark:bg-base-200 border-base-300 dark:border-base-400"
+                          value={chosenCategory || suggestion.key}
+                          onChange={(e) => setChosenCategory(e.target.value)}
+                        >
+                          {categories.map(c => <option key={c.key} value={c.key}>{c.label}</option>)}
+                        </select>
+                      </div>
+                    )}
+                    <select className="select select-bordered w-full bg-base-100 dark:bg-base-200 border-base-300 dark:border-base-400 text-[12px] text-base-content placeholder:text-[12px] placeholder:text-base-content/60"
                         value={type} onChange={(e) => setType(e.target.value)}>
                         <option value="Withdrawal">Withdrawal</option>
                         <option value="Deposit">Deposit</option>
