@@ -139,12 +139,14 @@ const DubaiPlan: React.FC = () => {
   }, [incomes, expenses, deductions]);
 
   // Computations
+  const overallDeductionsTotal = useMemo(() => deductions.reduce((s, d) => s + (Number(d.amount) || 0), 0), [deductions]);
   const totalIncome = useMemo(() => incomes.reduce((s, i) => s + (Number(i.amount) || 0), 0), [incomes]);
   const totalHours = useMemo(() => totalIncome / HOURLY_RATE, [totalIncome]);
-  const remainingTarget = useMemo(() => Math.max(0, TARGET_AMOUNT - totalIncome), [totalIncome]);
+  const effectiveTarget = useMemo(() => TARGET_AMOUNT + overallDeductionsTotal, [overallDeductionsTotal]);
+  const remainingTarget = useMemo(() => Math.max(0, effectiveTarget - totalIncome), [effectiveTarget, totalIncome]);
   const remainingHours = useMemo(() => Math.ceil(remainingTarget / HOURLY_RATE), [remainingTarget]);
   const totalExpenses = useMemo(() => expenses.reduce((s, e) => s + (Number(e.amount) || 0), 0), [expenses]);
-  const progressPct = useMemo(() => Math.min(100, Math.round((totalIncome / TARGET_AMOUNT) * 100)), [totalIncome]);
+  const progressPct = useMemo(() => Math.min(100, Math.round((totalIncome / Math.max(1, effectiveTarget)) * 100)), [totalIncome, effectiveTarget]);
 
   // Monthly computations
   const now = new Date();
@@ -159,10 +161,8 @@ const DubaiPlan: React.FC = () => {
     [incomes, monthStart.getTime(), monthEnd.getTime()]
   );
   const monthlyHours = useMemo(() => monthlyIncome / HOURLY_RATE, [monthlyIncome]);
-  // Treat deductions as overall one-time amounts (not monthly)
-  const overallDeductionsTotal = useMemo(() => deductions.reduce((s, d) => s + (Number(d.amount) || 0), 0), [deductions]);
   const monthlyNetIncome = useMemo(() => Math.max(0, monthlyIncome), [monthlyIncome]);
-  const monthlyTargetAmount = useMemo(() => TARGET_AMOUNT / Math.max(1, monthsPlan), [monthsPlan]);
+  const monthlyTargetAmount = useMemo(() => (TARGET_AMOUNT + overallDeductionsTotal) / Math.max(1, monthsPlan), [monthsPlan, overallDeductionsTotal]);
   // Monthly need is based only on monthly target vs income; overall deductions impact total target, not monthly
   const baseMonthlyRemainingAmount = useMemo(() => Math.max(0, monthlyTargetAmount - monthlyIncome), [monthlyTargetAmount, monthlyIncome]);
   const monthlyRemainingAmount = useMemo(() => baseMonthlyRemainingAmount, [baseMonthlyRemainingAmount]);
@@ -180,8 +180,8 @@ const DubaiPlan: React.FC = () => {
   const daysUntilJan11 = useMemo(() => Math.max(0, Math.ceil((jan11.getTime() - now.getTime()) / msPerDay)), [jan11, now.getTime()]);
   const daysUntilJan23 = useMemo(() => Math.max(0, Math.ceil((jan23.getTime() - now.getTime()) / msPerDay)), [jan23, now.getTime()]);
   const totalRemainingHours = useMemo(() => Math.ceil(remainingTarget / HOURLY_RATE), [remainingTarget]);
-  // Show total needed including overall deductions as a breakdown
-  const totalNeededWithDeductions = useMemo(() => Math.max(0, remainingTarget + overallDeductionsTotal), [remainingTarget, overallDeductionsTotal]);
+  // Total needed = effective target - earned
+  const totalNeededWithDeductions = useMemo(() => Math.max(0, effectiveTarget - totalIncome), [effectiveTarget, totalIncome]);
   const dailyHoursToJan11 = useMemo(() => (daysUntilJan11 > 0 ? (totalRemainingHours / daysUntilJan11) : totalRemainingHours), [totalRemainingHours, daysUntilJan11]);
   const dailyHoursToJan23 = useMemo(() => (daysUntilJan23 > 0 ? (totalRemainingHours / daysUntilJan23) : totalRemainingHours), [totalRemainingHours, daysUntilJan23]);
 
@@ -276,9 +276,9 @@ const DubaiPlan: React.FC = () => {
   const earnedVsRemaining = useMemo(
     () => [
       { name: 'Earned', value: totalIncome },
-      { name: 'Remaining', value: Math.max(0, TARGET_AMOUNT - totalIncome) },
+      { name: 'Remaining', value: Math.max(0, (TARGET_AMOUNT + overallDeductionsTotal) - totalIncome) },
     ],
-    [totalIncome]
+    [totalIncome, overallDeductionsTotal]
   );
 
   const expenseBreakdown = useMemo(() => expenses.map((e) => ({ name: e.category, value: Number(e.amount) || 0 })), [expenses]);
@@ -295,7 +295,7 @@ const DubaiPlan: React.FC = () => {
               </Link>
               <div>
                 <h1 className="text-xl font-poppinsBold text-base-content">Dubai Plan</h1>
-                <p className="text-sm text-base-content/70">Target: {CURRENCY(TARGET_AMOUNT)} • Rate: {CURRENCY(HOURLY_RATE)}/hr</p>
+                <p className="text-sm text-base-content/70">Target: {CURRENCY(TARGET_AMOUNT)}{overallDeductionsTotal > 0 ? ` + ${CURRENCY(overallDeductionsTotal)} = ${CURRENCY(effectiveTarget)}` : ''} • Rate: {CURRENCY(HOURLY_RATE)}/hr</p>
               </div>
             </div>
             <button
@@ -317,6 +317,11 @@ const DubaiPlan: React.FC = () => {
               <div className="bg-base-100 dark:bg-base-300 rounded-xl p-3">
                 <div className="text-base-content/60">Total Earned</div>
                 <div className="font-poppinsBold">{CURRENCY(totalIncome)}</div>
+                {overallDeductionsTotal > 0 && (
+                  <div className="text-[11px] text-base-content/70 mt-1">
+                    After Deductions: <span className="text-base-content">{CURRENCY(Math.max(0, totalIncome - overallDeductionsTotal))}</span>
+                  </div>
+                )}
               </div>
               <div className="bg-base-100 dark:bg-base-300 rounded-xl p-3">
                 <div className="text-base-content/60">Total Hours Worked</div>
@@ -329,12 +334,11 @@ const DubaiPlan: React.FC = () => {
               <div className="bg-base-100 dark:bg-base-300 rounded-xl p-3">
                 <div className="text-base-content/60">Remaining Target</div>
                 <div className="font-poppinsBold">{CURRENCY(remainingTarget)}</div>
-                {overallDeductionsTotal > 0 && (
-                  <div className="text-[11px] text-base-content/70 mt-1">
-                    + Deductions (overall): <span className="text-base-content">{CURRENCY(overallDeductionsTotal)}</span>
-                    <div className="mt-0.5">Total Needed: <span className="font-poppinsBold text-base-content">{CURRENCY(totalNeededWithDeductions)}</span></div>
-                  </div>
-                )}
+                <div className="text-[11px] text-base-content/70 mt-1">
+                  Target: {CURRENCY(TARGET_AMOUNT)}{overallDeductionsTotal > 0 ? ` + ${CURRENCY(overallDeductionsTotal)} deductions` : ''}
+                  <div className="mt-0.5">Effective Target: <span className="font-poppinsBold text-base-content">{CURRENCY(effectiveTarget)}</span></div>
+                  <div>Total Needed: <span className="font-poppinsBold text-base-content">{CURRENCY(totalNeededWithDeductions)}</span></div>
+                </div>
               </div>
             </div>
           </div>
