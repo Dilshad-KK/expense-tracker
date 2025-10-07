@@ -14,14 +14,21 @@ type ExpenseEntry = {
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === "GET") {
-    // Fetch expenses
-      const { id } = req.query;
+    // Fetch expenses with optional filters
+      const { id, filter } = req.query as { id?: string; filter?: string };
       let query = supabase
         .from("ikkuexpensesindia")
         .select("*")
         .order("created_at", { ascending: false })
       if (id) {
         query = query.eq("id", id)
+      }
+      if (filter === 'thisMonth') {
+        const startOfMonth = moment().startOf('month').toISOString();
+        query = query.gte('created_at', startOfMonth);
+      } else if (filter === 'last3Months') {
+        const threeMonthsAgo = moment().subtract(3, 'months').startOf('day').toISOString();
+        query = query.gte('created_at', threeMonthsAgo);
       }
       const { data, error } = await query;
 

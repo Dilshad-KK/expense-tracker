@@ -47,6 +47,7 @@ const NewExpense = () => {
             setAmount("");
             setNote("");
             setType("Withdrawal");
+            loadSuggestions();
             setLoading(false);
             setTimeout(() => {
                 setShowSuccessMessage("");
@@ -74,30 +75,30 @@ const NewExpense = () => {
             } else {
                 alert(`Error: ${data.error}`);
             }
+            loadSuggestions();
         } finally { setLoading(false); }
     }
 
-    useEffect(() => {
-        (async () => {
-            try {
-                const res = await fetch('/api/ikkuexpensesuae');
-                const json = await res.json();
-                const grouped = json?.grouped || {};
-                const flat = Object.values(grouped).flat() as any[];
-                const freq = new Map<string, { amount: string; note: string; type:'Withdrawal'|'Deposit'; count: number }>();
-                for (const e of flat) {
-                    const noteKey = String(e.note || '').trim().toLowerCase();
-                    const amtKey = String(e.amount || '').trim();
-                    const typeKey = String(e.type || 'Withdrawal');
-                    const key = `${noteKey}|${amtKey}|${typeKey}`;
-                    const cur = freq.get(key) || { amount: amtKey, note: e.note, type: typeKey, count: 0 };
-                    cur.count += 1; freq.set(key, cur);
-                }
-                const list = Array.from(freq.values()).filter(x => x.count >= 2).sort((a,b)=>b.count-a.count).slice(0,5);
-                setSuggestions(list);
-            } catch {}
-        })();
-    }, []);
+    async function loadSuggestions() {
+        try {
+            const res = await fetch('/api/ikkuexpensesuae?filter=last3Months');
+            const json = await res.json();
+            const grouped = json?.grouped || {};
+            const flat = Object.values(grouped).flat() as any[];
+            const freq = new Map<string, { amount: string; note: string; type:'Withdrawal'|'Deposit'; count: number }>();
+            for (const e of flat) {
+                const noteKey = String(e.note || '').trim().toLowerCase();
+                const amtKey = String(e.amount || '').trim();
+                const typeKey = (e.type === 'Deposit' ? 'Deposit' : 'Withdrawal') as 'Withdrawal'|'Deposit';
+                const key = `${noteKey}|${amtKey}|${typeKey}`;
+                const cur = freq.get(key) || { amount: amtKey, note: String(e.note || ''), type: typeKey, count: 0 };
+                cur.count += 1; freq.set(key, cur);
+            }
+            const list = Array.from(freq.values()).filter(x => x.count >= 2).sort((a,b)=>b.count-a.count).slice(0,5);
+            setSuggestions(list);
+        } catch {}
+    }
+    useEffect(() => { loadSuggestions(); }, []);
 
     // Voice input removed (no API key). Use iOS keyboard dictation instead.
 
