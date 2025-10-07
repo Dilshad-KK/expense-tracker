@@ -121,21 +121,21 @@ export default function ExpensesUi(props: UserType) {
                   </div>
 
                   {grouped[item]?.map(item => (
-                    <Link href={`${detailshref}${item?.id}`} className="mb-4 flex items-center" key={item.id}>
-                      <div className="flex flex-col items-center justify-start bg-base-100 w-[30px] ml-[-4px] mr-3">
-                        <span className="text-[12px] text-base-content/70">{moment(item?.created_at).format("MMM")}</span>
-                        <span className="text-[12px] text-base-content/70">{moment(item?.created_at).format("DD")}</span>
+                    <Link href={`${detailshref}${item?.id}`} className="mb-3 flex items-center rounded-xl bg-base-100/40 hover:bg-base-200/50 transition-colors p-2" key={item.id}>
+                      <div className="flex flex-col items-center justify-start w-[36px] mr-3">
+                        <span className="text-[12px] text-base-content/70 leading-none">{moment(item?.created_at).format("MMM")}</span>
+                        <span className="text-[12px] text-base-content/70 leading-none">{moment(item?.created_at).format("DD")}</span>
                       </div>
-                      <div className="bg-base-200 p-3 mr-3 flex-shrink-0 rounded-md">
-                        <img src={getCategoryIcon(item?.note)} alt="category" className="h-6 filter saturate-150" />
+                      <div className="bg-base-200 p-3 mr-3 flex-shrink-0 rounded-xl ring-1 ring-base-300/60 dark:ring-base-300/40">
+                        <img src={getCategoryIcon(item?.note)} alt="category" className="h-5 opacity-90 dark:invert" />
                       </div>
                       <div className="max-w-[200px]">
                         <div className="text-base-content/80 text-[12px] mb-1">{item?.note}</div>
                         <div className="text-base-content/60 text-[10px]">{item?.type}</div>
                       </div>
                       <div className="flex flex-1 items-end justify-center flex-col flex-shrink-0">
-                        <div className={`text-[8px] font-poppinsMed ${item?.type === 'Withdrawal' ? 'text-error' : 'text-success'}`}>{item?.type === 'Withdrawal' ? 'You Paid' : 'You Received'}</div>
-                        <div className={`text-[12px] font-poppinsMed ${item?.type === 'Withdrawal' ? 'text-error' : 'text-success'}`}>{currency}&nbsp;{item?.amount}</div>
+                        <div className={`text-[10px] font-poppinsMed ${item?.type === 'Withdrawal' ? 'text-error' : 'text-success'}`}>{item?.type === 'Withdrawal' ? 'You Paid' : 'You Received'}</div>
+                        <div className={`text-[13px] font-poppinsBold ${item?.type === 'Withdrawal' ? 'text-error' : 'text-success'}`}>{currency}&nbsp;{item?.amount}</div>
                       </div>
                     </Link>
                   ))}
