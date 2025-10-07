@@ -598,7 +598,7 @@ const DubaiPlan: React.FC = () => {
 
 
         {/* Expense Tracker */}
-        <div className="bg-white dark:bg-base-200 rounded-2xl shadow-sm p-4">
+        {/* <div className="bg-white dark:bg-base-200 rounded-2xl shadow-sm p-4">
           <div className="flex items-center justify-between mb-3">
             <h2 className="font-poppinsBold text-base-content">Expense Tracker</h2>
             <div className="flex items-center gap-2">
@@ -674,7 +674,7 @@ const DubaiPlan: React.FC = () => {
             </ResponsiveContainer>
           </div>
           <div className="text-right text-sm text-base-content/60 mt-2">Total Expenses: <span className="font-poppinsBold text-base-content">{CURRENCY(totalExpenses)}</span></div>
-        </div>
+        </div> */}
       </div>
 
       {/* Add/Edit Hours Modal */}
