@@ -95,7 +95,7 @@ const Home = () => {
       <div className='min-h-screen px-4 py-8 dark:bg-base-400'>
         <Categories />
         {showJan8 && <Jan8CounterCard />}
-        <div className="h-px bg-base-content/20 dark:bg-base-content/5 w-full my-8" />
+        <div className="h-px bg-base-content/20 dark:bg-base-content/5 w-full my-4" />
         <Loans />
         <Discussions />
         <Periods /> 

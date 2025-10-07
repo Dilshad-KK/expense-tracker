@@ -62,7 +62,7 @@ export default function Jan8CounterCard() {
   const percentDone = Math.round(100 - percentRemaining);
 
   return (
-    <div className='mt-8 p-4 rounded-lg bg-base-100 border border-base-300 shadow-sm hover:shadow-xs transition-shadow duration-200'>
+    <div className='mt-8 py-4 rounded-lg bg-base-100 border border-base-300 shadow-sm hover:shadow-xs transition-shadow duration-200'>
       <div className='flex items-center justify-between'>
         <div className='flex items-center space-x-3'>
           <div
