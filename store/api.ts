@@ -15,6 +15,10 @@ export const api = createApi({
   reducerPath: 'api',
   baseQuery: fetchBaseQuery({ baseUrl: '/' }),
   tagTypes: ['Expenses'],
+  // Make cached data short‑lived and refresh-friendly
+  refetchOnFocus: true,
+  refetchOnReconnect: true,
+  keepUnusedDataFor: 0,
   endpoints: (builder) => ({
     getGroupedExpenses: builder.query<{ grouped: GroupedExpenses }, { apiPath: string; filter?: string }>(
       {
@@ -22,6 +26,7 @@ export const api = createApi({
           const f = filter ?? 'all';
           return `${apiPath}?filter=${encodeURIComponent(f)}`;
         },
+        // Always refetch when component mounts/args change to pick latest server state
         providesTags: (res, err, arg) => [{ type: 'Expenses', id: arg.apiPath }],
       }
     ),
@@ -29,4 +34,3 @@ export const api = createApi({
 });
 
 export const { useGetGroupedExpensesQuery } = api;
-

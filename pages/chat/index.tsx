@@ -88,13 +88,13 @@ const Chat = () => {
   const conversationId = useMemo(() => [self, peer].sort().join('__'), [self, peer]);
   const roomId = conversationId;
 
-  // Redirect to auth if no user and phone-based allowlist configured
-  useEffect(() => {
-    const allowEnv = (process.env.NEXT_PUBLIC_ALLOWED_PHONES || process.env.ALLOWED_PHONES || '+919645096941').split(',').map(s=>s.trim());
-    if (allowEnv.length > 0 && !authUser?.phoneNumber) {
-      router.replace('/auth/phone');
-    }
-  }, [authUser?.phoneNumber]);
+  // Auth temporarily disabled: do not redirect to phone auth
+  // useEffect(() => {
+  //   const allowEnv = (process.env.NEXT_PUBLIC_ALLOWED_PHONES || process.env.ALLOWED_PHONES || '+919645096941').split(',').map(s=>s.trim());
+  //   if (allowEnv.length > 0 && !authUser?.phoneNumber) {
+  //     router.replace('/auth/phone');
+  //   }
+  // }, [authUser?.phoneNumber]);
 
   // Initialize Supabase Realtime channels for chat + rtc
   useEffect(() => {

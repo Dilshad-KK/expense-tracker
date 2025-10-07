@@ -81,8 +81,8 @@ const NavLinks = () => {
     }
   ]
 
-  // Hide tabs entirely on chat screen
-  if (currentPath === '/chat') return null;
+  // Hide tabs on chat and Dubai Plan screens
+  if (currentPath === '/chat' || currentPath === '/dubai-plan') return null;
 
   return (
     <div className='fixed bottom-0 w-full h-[88px] bg-white dark:bg-base-200 

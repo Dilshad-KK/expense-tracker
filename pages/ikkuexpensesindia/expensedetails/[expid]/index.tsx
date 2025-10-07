@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import CommonHeader from "@/components/commonHeader";
 import moment from 'moment';
 import Link from 'next/link';
+import { HiPencilSquare, HiTrash } from 'react-icons/hi2';
 import { getCategoryIcon } from '@/utils/categoryMapper';
 
 type Expense = {
@@ -69,8 +70,22 @@ const ExpenseDetails = () => {
         title='Expense Details'
         right={(
           <div className='flex items-center gap-2'>
-            <Link href={`/ikkuexpensesindia`} className='btn btn-xs btn-success text-white'>Update</Link>
-            <button onClick={() => deleteExpense()} className='btn btn-xs btn-error text-white'>Delete</button>
+            <Link
+              href={`/ikkuexpensesindia`}
+              aria-label='Edit'
+              className='btn btn-circle btn-ghost hover:bg-base-200 text-base-content'
+              title='Edit'
+            >
+              <HiPencilSquare className='w-5 h-5' />
+            </Link>
+            <button
+              onClick={() => deleteExpense()}
+              aria-label='Delete'
+              title='Delete'
+              className='btn btn-circle btn-ghost hover:bg-error/10 text-error'
+            >
+              <HiTrash className='w-5 h-5' />
+            </button>
           </div>
         )}
       />

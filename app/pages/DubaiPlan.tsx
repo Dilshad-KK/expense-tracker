@@ -1,4 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import Link from 'next/link';
+import { IoChevronBack } from 'react-icons/io5';
 import {
   PieChart,
   Pie,
@@ -24,6 +26,12 @@ type ExpenseItem = {
 type Persisted = {
   incomes: IncomeItem[];
   expenses: ExpenseItem[];
+};
+
+type DeductionItem = {
+  id: string;
+  title: string;
+  amount: number;
 };
 
 const TARGET_AMOUNT = 100000; // ₹
@@ -61,6 +69,7 @@ const DubaiPlan: React.FC = () => {
   const [expenses, setExpenses] = useState<ExpenseItem[]>(defaultExpenses);
   const [userId, setUserId] = useState<string>('');
   const [monthsPlan, setMonthsPlan] = useState<number>(4);
+  const [deductions, setDeductions] = useState<DeductionItem[]>([]);
 
   // Add Income modal state
   const [showIncomeModal, setShowIncomeModal] = useState(false);
@@ -99,6 +108,14 @@ const DubaiPlan: React.FC = () => {
           const data = await incRes.json();
           setIncomes(Array.isArray(data) ? data.map((d: any) => ({ id: d.id, source: d.source, amount: Number(d.amount) || 0, date: d.date })) : []);
         }
+        // Load monthly deductions
+        try {
+          const dedRes = await fetch(`/api/dubaiplan/deductions?user=${encodeURIComponent(user)}`);
+          if (dedRes.ok) {
+            const list = await dedRes.json();
+            setDeductions(Array.isArray(list) ? list.map((d: any) => ({ id: d.id, title: d.title, amount: Number(d.amount) || 0 })) : []);
+          }
+        } catch {}
         if (expRes.ok) {
           const data = await expRes.json();
           setExpenses(Array.isArray(data) ? data.map((d: any) => ({ id: d.id, category: d.category, amount: Number(d.amount) || 0 })) : defaultExpenses);
@@ -108,9 +125,10 @@ const DubaiPlan: React.FC = () => {
         try {
           const raw = localStorage.getItem(STORAGE_KEY);
           if (raw) {
-            const parsed = JSON.parse(raw) as Persisted;
+            const parsed = JSON.parse(raw) as any;
             if (Array.isArray(parsed.incomes)) setIncomes(parsed.incomes);
             if (Array.isArray(parsed.expenses)) setExpenses(parsed.expenses);
+            if (Array.isArray(parsed.deductions)) setDeductions(parsed.deductions);
           }
         } catch {}
       }
@@ -118,11 +136,11 @@ const DubaiPlan: React.FC = () => {
     init();
   }, []);
 
-  // Cache to localStorage on change
+  // Cache to localStorage on change (also include deductions when present)
   useEffect(() => {
-    const payload: Persisted = { incomes, expenses };
+    const payload: any = { incomes, expenses, deductions };
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(payload)); } catch {}
-  }, [incomes, expenses]);
+  }, [incomes, expenses, deductions]);
 
   // Computations
   const totalIncome = useMemo(() => incomes.reduce((s, i) => s + (Number(i.amount) || 0), 0), [incomes]);
@@ -145,23 +163,18 @@ const DubaiPlan: React.FC = () => {
     [incomes, monthStart.getTime(), monthEnd.getTime()]
   );
   const monthlyHours = useMemo(() => monthlyIncome / HOURLY_RATE, [monthlyIncome]);
+  const monthlyDeductionsTotal = useMemo(() => deductions.reduce((s, d) => s + (Number(d.amount) || 0), 0), [deductions]);
+  const monthlyNetIncome = useMemo(() => Math.max(0, monthlyIncome - monthlyDeductionsTotal), [monthlyIncome, monthlyDeductionsTotal]);
   const monthlyTargetAmount = useMemo(() => TARGET_AMOUNT / Math.max(1, monthsPlan), [monthsPlan]);
-  const monthlyRemainingAmount = useMemo(() => Math.max(0, monthlyTargetAmount - monthlyIncome), [monthlyTargetAmount, monthlyIncome]);
+  const monthlyRemainingAmount = useMemo(() => Math.max(0, monthlyTargetAmount - monthlyNetIncome), [monthlyTargetAmount, monthlyNetIncome]);
   const monthlyRemainingHours = useMemo(() => Math.ceil(monthlyRemainingAmount / HOURLY_RATE), [monthlyRemainingAmount]);
-  const monthlyProgressPct = useMemo(() => Math.min(100, Math.round((monthlyIncome / monthlyTargetAmount) * 100)), [monthlyIncome, monthlyTargetAmount]);
+  const monthlyProgressPct = useMemo(() => Math.min(100, Math.round((monthlyNetIncome / monthlyTargetAmount) * 100)), [monthlyNetIncome, monthlyTargetAmount]);
   const remainingDaysInMonth = useMemo(() => Math.max(0, Math.ceil((monthEnd.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))), [monthEnd.getTime(), now.getTime()]);
   const requiredDailyHours = useMemo(() => (remainingDaysInMonth > 0 ? (monthlyRemainingHours / remainingDaysInMonth) : monthlyRemainingHours), [monthlyRemainingHours, remainingDaysInMonth]);
 
   // Deadlines/Payday helpers
   const msPerDay = 1000 * 60 * 60 * 24;
-  const nextPayday = useMemo(() => {
-    // 11th of this month if in future, else 11th of next month
-    const base = new Date(now.getFullYear(), now.getMonth(), 11);
-    if (now.getTime() <= base.getTime()) return base;
-    return new Date(now.getFullYear(), now.getMonth() + 1, 11);
-  }, [now.getFullYear(), now.getMonth(), now.getDate()]);
-  const daysUntilPayday = useMemo(() => Math.max(0, Math.ceil((nextPayday.getTime() - now.getTime()) / msPerDay)), [nextPayday.getTime(), now.getTime()]);
-  const dailyHoursUntilPayday = useMemo(() => (daysUntilPayday > 0 ? (monthlyRemainingHours / daysUntilPayday) : monthlyRemainingHours), [monthlyRemainingHours, daysUntilPayday]);
+  // Removed payday-specific monthly metrics per request
 
   // Fixed deadlines in January 2026
   const jan11 = useMemo(() => new Date(2026, 0, 11), []);
@@ -186,14 +199,16 @@ const DubaiPlan: React.FC = () => {
   const openEditIncome = (id: string) => {
     const item = incomes.find((x) => x.id === id);
     if (!item) return;
-    setIncomeForm({ id, source: item.source, amount: String(item.amount), date: item.date.slice(0, 10) });
+    // Prefill hours instead of amount
+    setIncomeForm({ id, source: item.source, amount: String((item.amount || 0) / HOURLY_RATE), date: item.date.slice(0, 10) });
     setEditingIncomeId(id);
     setShowIncomeModal(true);
   };
 
   const saveIncome = async () => {
-    const amt = Number(incomeForm.amount);
-    if (!incomeForm.source.trim() || !amt || !incomeForm.date) return;
+    const hrs = Number(incomeForm.amount);
+    if (!incomeForm.source.trim() || !hrs || !incomeForm.date) return;
+    const amt = hrs * HOURLY_RATE;
     if (editingIncomeId) {
       try {
         const res = await fetch('/api/dubaiplan/incomes', {
@@ -231,17 +246,10 @@ const DubaiPlan: React.FC = () => {
     } catch {}
   };
 
-  // Handlers: Expense
-  const updateExpenseAmount = async (id: string, value: string) => {
+  // Handlers: Expense (no API calls on change; persisted via Save button)
+  const updateExpenseAmount = (id: string, value: string) => {
     const amt = Number(value);
     setExpenses((prev) => prev.map((e) => (e.id === id ? { ...e, amount: isNaN(amt) ? 0 : amt } : e)));
-    try {
-      await fetch('/api/dubaiplan/expenses', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id, amount: isNaN(amt) ? 0 : amt }),
-      });
-    } catch {}
   };
 
   const addCategory = async () => {
@@ -260,15 +268,8 @@ const DubaiPlan: React.FC = () => {
     } catch {}
   };
 
-  const updateExpenseCategory = async (id: string, value: string) => {
+  const updateExpenseCategory = (id: string, value: string) => {
     setExpenses((prev) => prev.map((e) => (e.id === id ? { ...e, category: value } : e)));
-    try {
-      await fetch('/api/dubaiplan/expenses', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id, category: value }),
-      });
-    } catch {}
   };
 
   // Chart data
@@ -288,15 +289,20 @@ const DubaiPlan: React.FC = () => {
         {/* Header Summary Card */}
         <div className="md:col-span-2 bg-white dark:bg-base-200 rounded-2xl shadow-sm p-4">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div>
-              <h1 className="text-xl font-poppinsBold text-base-content">Dubai Plan</h1>
-              <p className="text-sm text-base-content/70">Target: {CURRENCY(TARGET_AMOUNT)} • Rate: {CURRENCY(HOURLY_RATE)}/hr</p>
+            <div className="flex items-center gap-3">
+              <Link href="/" className="btn btn-ghost btn-sm rounded-xl px-2">
+                <IoChevronBack className="text-base-content text-lg" />
+              </Link>
+              <div>
+                <h1 className="text-xl font-poppinsBold text-base-content">Dubai Plan</h1>
+                <p className="text-sm text-base-content/70">Target: {CURRENCY(TARGET_AMOUNT)} • Rate: {CURRENCY(HOURLY_RATE)}/hr</p>
+              </div>
             </div>
             <button
               onClick={openAddIncome}
               className="bg-primary text-white px-4 py-2 rounded-xl font-poppinsMed hover:opacity-95 active:opacity-90"
             >
-              + Add Income
+              + Add Hours
             </button>
           </div>
           {/* Overall Progress */}
@@ -354,7 +360,7 @@ const DubaiPlan: React.FC = () => {
               <div className="h-full" style={{ width: `${monthlyProgressPct}%`, backgroundColor: BRAND_COLORS.primary }} />
             </div>
 
-            <div className="mt-2 grid grid-cols-2 md:grid-cols-5 gap-2 text-sm">
+            <div className="mt-2 grid grid-cols-2 md:grid-cols-6 gap-2 text-sm">
               <div className="bg-base-100 dark:bg-base-300 rounded-xl p-3">
                 <div className="text-base-content/60">Month Earned</div>
                 <div className="font-poppinsBold">{CURRENCY(monthlyIncome)}</div>
@@ -375,17 +381,18 @@ const DubaiPlan: React.FC = () => {
                 <div className="text-base-content/60">Daily Hours (to Month End)</div>
                 <div className="font-poppinsBold">{requiredDailyHours.toFixed(1)} h/day</div>
               </div>
+              <div className="bg-base-100 dark:bg-base-300 rounded-xl p-3">
+                <div className="text-base-content/60">Deductions (Monthly)</div>
+                <div className="font-poppinsBold">{CURRENCY(monthlyDeductionsTotal)}</div>
+              </div>
             </div>
             <div className="mt-2 grid grid-cols-2 md:grid-cols-3 gap-2 text-sm">
               <div className="bg-base-100 dark:bg-base-300 rounded-xl p-3">
-                <div className="text-base-content/60">Days Until Payday (11th)</div>
-                <div className="font-poppinsBold">{daysUntilPayday} days</div>
-              </div>
-              <div className="bg-base-100 dark:bg-base-300 rounded-xl p-3">
-                <div className="text-base-content/60">Daily Hours (to 11th)</div>
-                <div className="font-poppinsBold">{dailyHoursUntilPayday.toFixed(1)} h/day</div>
+                <div className="text-base-content/60">Month Net (after deductions)</div>
+                <div className="font-poppinsBold">{CURRENCY(monthlyNetIncome)}</div>
               </div>
             </div>
+            {/* Payday-specific tiles removed as requested */}
           </div>
 
           {/* Deadlines */}
@@ -416,7 +423,7 @@ const DubaiPlan: React.FC = () => {
               onClick={openAddIncome}
               className="bg-primary text-white px-3 py-2 rounded-xl text-sm font-poppinsMed hover:opacity-95"
             >
-              + Add
+              + Add Hours
             </button>
           </div>
           <div className="overflow-auto -mx-2 md:mx-0">
@@ -470,7 +477,27 @@ const DubaiPlan: React.FC = () => {
         <div className="bg-white dark:bg-base-200 rounded-2xl shadow-sm p-4">
           <div className="flex items-center justify-between mb-3">
             <h2 className="font-poppinsBold text-base-content">Expense Tracker</h2>
-            <button onClick={addCategory} className="bg-primary text-white px-3 py-2 rounded-xl text-sm font-poppinsMed hover:opacity-95">+ Add Category</button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={async () => {
+                  try {
+                    await Promise.all(
+                      expenses.map((e) =>
+                        fetch('/api/dubaiplan/expenses', {
+                          method: 'PUT',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ id: e.id, category: e.category, amount: e.amount })
+                        })
+                      )
+                    );
+                  } catch {}
+                }}
+                className="bg-primary text-white px-3 py-2 rounded-xl text-sm font-poppinsMed hover:opacity-95"
+              >
+                Save
+              </button>
+              <button onClick={addCategory} className="bg-primary text-white px-3 py-2 rounded-xl text-sm font-poppinsMed hover:opacity-95">+ Add Category</button>
+            </div>
           </div>
           <div className="overflow-auto -mx-2 md:mx-0">
             <table className="min-w-full text-sm">
@@ -499,6 +526,95 @@ const DubaiPlan: React.FC = () => {
                         onChange={(e) => updateExpenseAmount(exp.id, e.target.value)}
                         min={0}
                       />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Monthly Deductions (Recurring) */}
+        <div className="bg-white dark:bg-base-200 rounded-2xl shadow-sm p-4">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="font-poppinsBold text-base-content">Monthly Deductions</h2>
+            <button
+              onClick={async () => {
+                const title = prompt('Deduction title (e.g., Rent)');
+                if (!title || !userId) return;
+                const amtStr = prompt('Monthly amount (₹)') || '0';
+                const amt = Number(amtStr) || 0;
+                try {
+                  const res = await fetch('/api/dubaiplan/deductions', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user: userId, title: title.trim(), amount: amt })
+                  });
+                  if (res.ok) {
+                    const row = await res.json();
+                    setDeductions((prev) => [...prev, { id: row.id, title: row.title, amount: Number(row.amount) || 0 }]);
+                  }
+                } catch {}
+              }}
+              className="bg-primary text-white px-3 py-2 rounded-xl text-sm font-poppinsMed hover:opacity-95"
+            >
+              + Add Deduction
+            </button>
+          </div>
+          <div className="overflow-auto -mx-2 md:mx-0">
+            <table className="min-w-full text-sm">
+              <thead>
+                <tr className="text-left text-base-content/60">
+                  <th className="px-2 py-2">Title</th>
+                  <th className="px-2 py-2">Amount</th>
+                  <th className="px-2 py-2">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {deductions.length === 0 && (
+                  <tr>
+                    <td colSpan={3} className="px-2 py-6 text-center text-base-content/50">No monthly deductions</td>
+                  </tr>
+                )}
+                {deductions.map((d) => (
+                  <tr key={d.id} className="border-t border-base-200/60">
+                    <td className="px-2 py-2">
+                      <input
+                        className="input input-sm input-bordered rounded-xl w-48"
+                        value={d.title}
+                        onChange={async (e) => {
+                          const title = e.target.value;
+                          setDeductions((prev) => prev.map((x) => (x.id === d.id ? { ...x, title } : x)));
+                          try { await fetch('/api/dubaiplan/deductions', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: d.id, title }) }); } catch {}
+                        }}
+                      />
+                    </td>
+                    <td className="px-2 py-2">
+                      <input
+                        type="number"
+                        inputMode="decimal"
+                        className="input input-sm input-bordered rounded-xl w-40"
+                        value={d.amount}
+                        onChange={async (e) => {
+                          const amount = Number(e.target.value) || 0;
+                          setDeductions((prev) => prev.map((x) => (x.id === d.id ? { ...x, amount } : x)));
+                          try { await fetch('/api/dubaiplan/deductions', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: d.id, amount }) }); } catch {}
+                        }}
+                        min={0}
+                      />
+                    </td>
+                    <td className="px-2 py-2">
+                      <button
+                        onClick={async () => {
+                          try {
+                            const res = await fetch(`/api/dubaiplan/deductions?id=${encodeURIComponent(d.id)}`, { method: 'DELETE' });
+                            if (res.ok) setDeductions((prev) => prev.filter((x) => x.id !== d.id));
+                          } catch {}
+                        }}
+                        className="text-error font-poppinsMed hover:underline"
+                      >
+                        Delete
+                      </button>
                     </td>
                   </tr>
                 ))}
@@ -544,11 +660,11 @@ const DubaiPlan: React.FC = () => {
         </div>
       </div>
 
-      {/* Add/Edit Income Modal */}
+      {/* Add/Edit Hours Modal */}
       {showIncomeModal && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[3000]" onClick={() => setShowIncomeModal(false)}>
           <div className="bg-white dark:bg-base-200 rounded-2xl shadow-xl p-4 w-full max-w-md mx-4" onClick={(e) => e.stopPropagation()}>
-            <h3 className="font-poppinsBold text-base-content mb-4">{editingIncomeId ? 'Edit Income' : 'Add Income'}</h3>
+            <h3 className="font-poppinsBold text-base-content mb-4">{editingIncomeId ? 'Edit Hours' : 'Add Hours'}</h3>
             <div className="space-y-3">
               <div>
                 <label className="block text-sm mb-1 text-base-content/70">Source</label>
@@ -561,12 +677,12 @@ const DubaiPlan: React.FC = () => {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-sm mb-1 text-base-content/70">Amount</label>
+                  <label className="block text-sm mb-1 text-base-content/70">Hours</label>
                   <input
                     type="number"
                     inputMode="decimal"
                     className="input input-bordered rounded-xl w-full"
-                    placeholder="₹"
+                    placeholder="hrs"
                     value={incomeForm.amount}
                     onChange={(e) => setIncomeForm((s) => ({ ...s, amount: e.target.value }))}
                   />

@@ -53,7 +53,10 @@ export default function ExpensesUi(props: UserType) {
   }
 
   // Fetch grouped expenses via RTK Query using the resolved apiPath
-  const { data: expData, isFetching: loading } = useGetGroupedExpensesQuery({ apiPath, filter: 'all' }, { skip: !apiPath });
+  const { data: expData, isFetching: loading } = useGetGroupedExpensesQuery(
+    { apiPath, filter: 'all' },
+    { skip: !apiPath, refetchOnFocus: true, refetchOnReconnect: true, refetchOnMountOrArgChange: true }
+  );
   const grouped: Record<string, Expense[]> = useMemo(() => (expData?.grouped || {}), [expData]);
   const flat = useMemo(() => Object.values(grouped).flat() as Expense[], [grouped]);
   const totalExpense = useMemo(() => parseFloat((flat.reduce((acc, e) => acc + (e.type === 'Withdrawal' ? Number(e.amount) : 0), 0)).toFixed(2)), [flat]);

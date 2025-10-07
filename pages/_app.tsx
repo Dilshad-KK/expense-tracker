@@ -10,8 +10,9 @@ import { Provider } from 'react-redux';
 import { store } from '@/lib/store';
 import { fetchUnreadCount, fetchNotifications } from '@/store/notificationsSlice';
 import { applyTheme } from '@/utils/theme';
-import { getAuth, onAuthStateChanged, signOut, User } from 'firebase/auth';
-import { setUser } from '@/store/userSlice';
+// Auth temporarily disabled
+// import { getAuth, onAuthStateChanged, signOut, User } from 'firebase/auth';
+// import { setUser } from '@/store/userSlice';
 
 export default function App({ Component, pageProps }: AppProps) {
   const [toast, setToast] = useState<null | { title?: string; body?: string }>(null);
@@ -21,22 +22,8 @@ export default function App({ Component, pageProps }: AppProps) {
   // Using store.dispatch directly (this component defines Provider below)
 
   useEffect(() => {
-    // Auth state listener and allowlist enforcement (default includes +919645096941)
+    // Auth temporarily disabled: skip Firebase auth state handling
     try { initFirebaseApp(); } catch {}
-    const auth = getAuth();
-    const unsubAuth = onAuthStateChanged(auth, async (u: User | null) => {
-      const allowEnv = process.env.NEXT_PUBLIC_ALLOWED_PHONES || process.env.ALLOWED_PHONES || '+919645096941';
-      const allowed = allowEnv.split(',').map((s) => s.trim());
-      if (u && u.phoneNumber && allowed.includes(u.phoneNumber)) {
-        store.dispatch(setUser({ uid: u.uid, phoneNumber: u.phoneNumber, displayName: u.displayName }));
-      } else if (u) {
-        try { await signOut(auth); } catch {}
-        store.dispatch(setUser(null));
-      } else {
-        store.dispatch(setUser(null));
-      }
-    });
-
     // Initial unread fetch on app load
     try { store.dispatch(fetchUnreadCount()); } catch {}
     try { store.dispatch(fetchNotifications('unread' as any)); } catch {}
@@ -71,10 +58,7 @@ export default function App({ Component, pageProps }: AppProps) {
         } catch {}
       });
     })();
-    return () => {
-      try { unsubAuth(); } catch {}
-      if (typeof unsub === 'function') unsub();
-    };
+    return () => { if (typeof unsub === 'function') unsub(); };
   }, []);
 
   // Apply theme from Redux store and subscribe to changes
