@@ -74,6 +74,14 @@ const Chat = () => {
         if (msg?.message_id) seenIdsRef.current.add(msg.message_id);
         setMessages((prev) => mergeUnique([...prev, msg]));
       })
+      .on('broadcast', { event: 'message:delete' as ChatEvent }, ({ payload }: any) => {
+        const p = payload || {};
+        // If this delete relates to our conversation, clear
+        if (!p || p.conversationId === conversationId || p.all) {
+          setMessages([]);
+          try { seenIdsRef.current.clear(); seenSigRef.current.clear(); } catch {}
+        }
+      })
       .subscribe((status) => setChatReady(status === 'SUBSCRIBED'));
     chatChannelRef.current = ch;
 
@@ -92,7 +100,8 @@ const Chat = () => {
 
   // Reflect connection state from channels
   useEffect(() => {
-    setConnected(chatReady && rtcReady);
+    // Consider online if at least chat channel is ready
+    setConnected(!!(chatReady || rtcReady));
   }, [chatReady, rtcReady]);
 
   // Load history once per conversation
@@ -248,6 +257,9 @@ const Chat = () => {
       localStreamRef.current = stream;
       stream.getTracks().forEach((t) => pc.addTrack(t, stream));
       if (localVideoRef.current) localVideoRef.current.srcObject = stream;
+      // Ensure RTC channel is ready (small wait loop)
+      let tries = 0;
+      while (!rtcReady && tries < 10) { await new Promise(r => setTimeout(r, 100)); tries++; }
       const offer = await pc.createOffer();
       await pc.setLocalDescription(offer);
       try { rtcChannelRef.current?.send({ type: 'broadcast', event: 'offer', payload: { from: self, to: peer, offer } }); } catch {}
@@ -306,22 +318,24 @@ const Chat = () => {
                 className="btn btn-ghost btn-circle btn-sm text-base-content/60 hover:text-error hover:bg-error/10 transition-all"
                 title="Clear chat"
                 disabled={!ready || clearing}
-                onClick={async () => {
-                  try {
-                    if (!confirm('Clear all messages in this chat?')) return;
-                    setClearing(true);
-                    await fetch('/api/chat/clear', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ between: `${self},${peer}` }),
-                    });
-                    setMessages([]);
-                    try { seenIdsRef.current.clear(); seenSigRef.current.clear(); } catch {}
-                  } finally {
-                    setClearing(false);
-                  }
-                }}
-              >
+              onClick={async () => {
+                try {
+                  if (!confirm('Clear all messages in this chat?')) return;
+                  setClearing(true);
+                  await fetch('/api/chat/clear', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ between: `${self},${peer}` }),
+                  });
+                  setMessages([]);
+                  try { seenIdsRef.current.clear(); seenSigRef.current.clear(); } catch {}
+                  // Broadcast deletion to peer in realtime
+                  try { chatChannelRef.current?.send({ type: 'broadcast', event: 'message:delete', payload: { conversationId } }); } catch {}
+                } finally {
+                  setClearing(false);
+                }
+              }}
+            >
                 <HiOutlineTrash className="w-4 h-4" />
               </button>
               {!inCall && (
