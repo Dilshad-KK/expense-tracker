@@ -4,44 +4,10 @@ import dynamic from 'next/dynamic';
 import { HiPhone, HiVideoCamera, HiXMark, HiOutlineTrash, HiPaperAirplane, HiArrowLeft } from 'react-icons/hi2';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/router';
+import { getChannel } from '@/src/utils/realtime';
+import type { ChatEvent, RTCEvent } from '@/src/types/realtime';
 
-// Lazy import socket.io-client to avoid SSR issues
-const useSocket = () => {
-  const [ioClient, setIoClient] = useState<any>(null);
-  useEffect(() => {
-    let mounted = true;
-    let socket: any;
-    let fallbackTried = false;
-    (async () => {
-      const mod = await import('socket.io-client');
-      if (!mounted) return;
-      const create = (path: string, transports: any[]) => mod.io(undefined, {
-        path,
-        transports,
-        forceNew: true,
-        withCredentials: false,
-        reconnection: true,
-        reconnectionAttempts: Infinity,
-        reconnectionDelay: 1000,
-        reconnectionDelayMax: 5000,
-        timeout: 20000,
-      });
-      socket = create('/api/socketio', ['websocket', 'polling']);
-      // Fallback on connect_error: try trailing slash + polling only
-      const onError = () => {
-        if (fallbackTried) return;
-        fallbackTried = true;
-        try { socket.close(); } catch {}
-        socket = create('/api/socketio/', ['polling']);
-        setIoClient(socket);
-      };
-      socket.on('connect_error', onError);
-      setIoClient(socket);
-    })();
-    return () => { mounted = false; try { socket?.off('connect_error'); socket?.close(); } catch {} };
-  }, []);
-  return ioClient;
-};
+// Supabase Realtime migration: no Socket.IO client
 
 type Message = { id?: string; text: string; from: string; to: string; message_id?: string; created_at?: string };
 
@@ -63,12 +29,15 @@ function resolveIdentity(): { self: string; peer: string } {
 }
 
 const Chat = () => {
-  const socket = useSocket();
   const router = useRouter();
   const [{ self, peer }, setIdent] = useState<{ self: string; peer: string }>(() => resolveIdentity());
   const [messages, setMessages] = useState<Message[]>([]);
   const [text, setText] = useState('');
   const [connected, setConnected] = useState(false);
+  const [chatReady, setChatReady] = useState(false);
+  const [rtcReady, setRtcReady] = useState(false);
+  const chatChannelRef = useRef<ReturnType<typeof getChannel> | null>(null);
+  const rtcChannelRef = useRef<ReturnType<typeof getChannel> | null>(null);
   const seenIdsRef = useRef<Set<string>>(new Set());
   const seenSigRef = useRef<Set<string>>(new Set());
   const realtimeActiveRef = useRef<boolean>(false);
@@ -86,107 +55,49 @@ const Chat = () => {
   const [isAudioOnly, setIsAudioOnly] = useState(false);
 
   const ready = useMemo(() => !!self && !!peer, [self, peer]);
+  const conversationId = useMemo(() => [self, peer].sort().join('__'), [self, peer]);
+  const roomId = conversationId;
 
-  // Boot Socket.IO server once
+  // Initialize Supabase Realtime channels for chat + rtc
   useEffect(() => {
-    fetch('/api/socketio?init=1', { cache: 'no-store', keepalive: true } as any).catch(() => {});
-  }, []);
+    if (!ready) return;
+    // Cleanup any existing channels
+    try { chatChannelRef.current?.unsubscribe(); } catch {}
+    try { rtcChannelRef.current?.unsubscribe(); } catch {}
+    setChatReady(false); setRtcReady(false);
 
+    const ch = getChannel('chat', conversationId)
+      .on('broadcast', { event: 'message:new' as ChatEvent }, ({ payload }: any) => {
+        const msg = payload as Message;
+        if (msg?.to && msg.to !== self) return;
+        if (msg?.message_id && seenIdsRef.current.has(msg.message_id)) return;
+        if (msg?.message_id) seenIdsRef.current.add(msg.message_id);
+        setMessages((prev) => mergeUnique([...prev, msg]));
+      })
+      .subscribe((status) => setChatReady(status === 'SUBSCRIBED'));
+    chatChannelRef.current = ch;
+
+    const rtc = getChannel('rtc', roomId)
+      .on('broadcast', { event: 'offer' as RTCEvent }, async ({ payload }: any) => { await onOffer(payload); })
+      .on('broadcast', { event: 'answer' as RTCEvent }, async ({ payload }: any) => { await onAnswer(payload); })
+      .on('broadcast', { event: 'candidate' as RTCEvent }, async ({ payload }: any) => { await onCandidate(payload); })
+      .on('broadcast', { event: 'end' as RTCEvent }, () => { endCall(); })
+      .subscribe((status) => setRtcReady(status === 'SUBSCRIBED'));
+    rtcChannelRef.current = rtc;
+
+    const cleanup = () => { try { ch.unsubscribe(); rtc.unsubscribe(); } catch {} };
+    window.addEventListener('beforeunload', cleanup);
+    return () => { window.removeEventListener('beforeunload', cleanup); cleanup(); };
+  }, [ready, conversationId, roomId, self]);
+
+  // Reflect connection state from channels
   useEffect(() => {
-    if (!socket || !ready) return;
-    try {
-      socket.off('connect');
-      socket.off('disconnect');
-      socket.off('connect_error');
-      socket.off('chat:message');
-      socket.off('webrtc:offer');
-      socket.off('webrtc:answer');
-      socket.off('webrtc:candidate');
-      socket.off('webrtc:end');
-    } catch {}
-    const onConnect = () => setConnected(true);
-    const onDisconnect = () => setConnected(false);
-    const onConnectError = () => setConnected(false);
-    socket.on('connect', onConnect);
-    socket.on('disconnect', onDisconnect);
-    socket.on('connect_error', onConnectError);
-    socket.emit('presence:join', { userId: self });
-    
-    const onMsg = (msg: Message) => {
-      if (msg.to && msg.to !== self) return;
-      if (!connected) return;
-      if (msg.message_id) {
-        if (seenIdsRef.current.has(msg.message_id)) return;
-        seenIdsRef.current.add(msg.message_id);
-      } else {
-        const sig = signature(msg);
-        if (sig && seenSigRef.current.has(sig)) return;
-        if (sig) seenSigRef.current.add(sig);
-      }
-      setMessages((prev) => mergeUnique([...prev, { ...msg, created_at: msg.created_at || new Date().toISOString() }]));
-    };
-    socket.on('chat:message', onMsg);
+    setConnected(chatReady && rtcReady);
+  }, [chatReady, rtcReady]);
 
-    // Signaling handlers
-    const onOffer = async (data: any) => {
-      if (data.to && data.to !== self) return;
-      const wantVideo = !!(data?.offer?.sdp && String(data.offer.sdp).includes('m=video'));
-      await ensurePeerConnection();
-      try {
-        // If callee has no local stream yet, acquire mic/camera to send back media
-        if (!localStreamRef.current) {
-          const stream = await navigator.mediaDevices.getUserMedia({ video: wantVideo, audio: true });
-          localStreamRef.current = stream;
-          stream.getTracks().forEach((t) => pcRef.current!.addTrack(t, stream));
-          if (localVideoRef.current) localVideoRef.current.srcObject = stream;
-          setIsAudioOnly(!wantVideo);
-        }
-        setInCall(true);
-      } catch (err) {
-        // If user denies permissions, still proceed to set remote so at least one-way works
-        // eslint-disable-next-line no-console
-        console.warn('getUserMedia (callee) failed:', err);
-      }
-      await pcRef.current!.setRemoteDescription(new RTCSessionDescription(data.offer));
-      const answer = await pcRef.current!.createAnswer();
-      await pcRef.current!.setLocalDescription(answer);
-      socket.emit('webrtc:answer', { from: self, to: peer, answer });
-    };
-    const onAnswer = async (data: any) => {
-      if (data.to && data.to !== self) return;
-      await pcRef.current?.setRemoteDescription(new RTCSessionDescription(data.answer));
-    };
-    const onCandidate = async (data: any) => {
-      if (data.to && data.to !== self) return;
-      try {
-        await pcRef.current?.addIceCandidate(new RTCIceCandidate(data.candidate));
-      } catch {}
-    };
-    const onEnd = () => endCall();
-    socket.on('webrtc:offer', onOffer);
-    socket.on('webrtc:answer', onAnswer);
-    socket.on('webrtc:candidate', onCandidate);
-    socket.on('webrtc:end', onEnd);
-
-    return () => {
-      socket.off('connect', onConnect);
-      socket.off('disconnect', onDisconnect);
-      socket.off('chat:message', onMsg);
-      socket.off('webrtc:offer', onOffer);
-      socket.off('webrtc:answer', onAnswer);
-      socket.off('webrtc:candidate', onCandidate);
-      socket.off('webrtc:end', onEnd);
-      socket.off('connect_error', onConnectError);
-    };
-  }, [socket, ready, self, peer]);
-
-  const supaChannelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
-
+  // Load history once per conversation
   useEffect(() => {
-    if (!ready || connected) return;
-    if (supaChannelRef.current) return;
-    let channel: ReturnType<typeof supabase.channel> | null = null;
-    let realtimeActive = false;
+    if (!ready) return;
     (async () => {
       try {
         const res = await fetch(`/api/chat/messages?between=${encodeURIComponent(self)},${encodeURIComponent(peer)}`);
@@ -195,36 +106,8 @@ const Chat = () => {
           setMessages(mergeUnique(data || []));
         }
       } catch {}
-      try {
-        channel = supabase
-          .channel(`chat_${self}_${peer}`)
-          .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_messages', filter: `from=eq.${peer},to=eq.${self}` }, (payload: any) => {
-            const r = payload?.new || {};
-            if (r.message_id) {
-              if (seenIdsRef.current.has(r.message_id)) return;
-              seenIdsRef.current.add(r.message_id);
-            } else {
-              const sig = signature(r);
-              if (sig && seenSigRef.current.has(sig)) return;
-              if (sig) seenSigRef.current.add(sig);
-            }
-            setMessages((prev) => mergeUnique([...prev, r]));
-          });
-        channel.subscribe((status: any) => {
-          if (status === 'SUBSCRIBED') { realtimeActive = true; realtimeActiveRef.current = true; }
-        });
-        supaChannelRef.current = channel;
-      } catch {}
     })();
-    return () => {
-      try {
-        const ch = supaChannelRef.current || channel;
-        if (ch) supabase.removeChannel(ch);
-      } catch {}
-      supaChannelRef.current = null;
-      realtimeActiveRef.current = false;
-    };
-  }, [ready, self, peer, connected]);
+  }, [ready, self, peer]);
 
   useEffect(() => {
     if (!ready) return;
@@ -260,18 +143,9 @@ const Chat = () => {
     setMessages((prev) => mergeUnique([...prev, msg]));
     setText('');
     try {
-      let acked = false;
-      await new Promise<void>((resolve) => {
-        try {
-          socket?.timeout(2000).emit('chat:message', msg, (err: any, res: any) => {
-            if (!err && res && res.ok) { acked = true; }
-            resolve();
-          });
-        } catch { resolve(); }
-      });
-      if (!acked) {
-        try { await fetch('/api/chat/messages', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(msg) }); } catch {}
-      }
+      // Broadcast via Realtime then persist
+      try { chatChannelRef.current?.send({ type: 'broadcast', event: 'message:new', payload: msg }); } catch {}
+      try { await fetch('/api/chat/messages', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(msg) }); } catch {}
     } catch {}
   }
 
@@ -323,7 +197,7 @@ const Chat = () => {
     if (pcRef.current) return pcRef.current;
     const pc = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] });
     pc.onicecandidate = (e) => {
-      if (e.candidate) socket?.emit('webrtc:candidate', { from: self, to: peer, candidate: e.candidate });
+      if (e.candidate) try { rtcChannelRef.current?.send({ type: 'broadcast', event: 'candidate', payload: { from: self, to: peer, candidate: e.candidate } }); } catch {}
     };
     pc.ontrack = (e) => {
       const [stream] = e.streams;
@@ -331,6 +205,39 @@ const Chat = () => {
     };
     pcRef.current = pc;
     return pc;
+  }
+
+  // Realtime RTC handlers
+  async function onOffer(data: any) {
+    if (data?.to && data.to !== self) return;
+    const wantVideo = !!(data?.offer?.sdp && String(data.offer.sdp).includes('m=video'));
+    await ensurePeerConnection();
+    try {
+      if (!localStreamRef.current) {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: wantVideo, audio: true });
+        localStreamRef.current = stream;
+        stream.getTracks().forEach((t) => pcRef.current!.addTrack(t, stream));
+        if (localVideoRef.current) localVideoRef.current.srcObject = stream;
+        setIsAudioOnly(!wantVideo);
+      }
+      setInCall(true);
+    } catch (err) {
+      console.warn('getUserMedia (callee) failed:', err);
+    }
+    await pcRef.current!.setRemoteDescription(new RTCSessionDescription(data.offer));
+    const answer = await pcRef.current!.createAnswer();
+    await pcRef.current!.setLocalDescription(answer);
+    try { rtcChannelRef.current?.send({ type: 'broadcast', event: 'answer', payload: { from: self, to: peer, answer } }); } catch {}
+  }
+
+  async function onAnswer(data: any) {
+    if (data?.to && data.to !== self) return;
+    await pcRef.current?.setRemoteDescription(new RTCSessionDescription(data.answer));
+  }
+
+  async function onCandidate(data: any) {
+    if (data?.to && data.to !== self) return;
+    try { await pcRef.current?.addIceCandidate(new RTCIceCandidate(data.candidate)); } catch {}
   }
 
   async function startCall(audioOnly = false) {
@@ -343,7 +250,7 @@ const Chat = () => {
       if (localVideoRef.current) localVideoRef.current.srcObject = stream;
       const offer = await pc.createOffer();
       await pc.setLocalDescription(offer);
-      socket?.emit('webrtc:offer', { from: self, to: peer, offer });
+      try { rtcChannelRef.current?.send({ type: 'broadcast', event: 'offer', payload: { from: self, to: peer, offer } }); } catch {}
       setInCall(true);
     } catch (err) {
       console.error('getUserMedia error', err);
@@ -351,7 +258,7 @@ const Chat = () => {
   }
 
   function endCall() {
-    try { socket?.emit('webrtc:end', { from: self, to: peer }); } catch {}
+    try { rtcChannelRef.current?.send({ type: 'broadcast', event: 'end', payload: { from: self, to: peer } }); } catch {}
     try { pcRef.current?.getSenders().forEach((s) => { try { s.track?.stop(); } catch {} }); } catch {}
     try { localStreamRef.current?.getTracks().forEach((t) => t.stop()); } catch {}
     if (localVideoRef.current) localVideoRef.current.srcObject = null;
