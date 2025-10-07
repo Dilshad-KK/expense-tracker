@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import CommonHeader from "@/components/commonHeader";
 import { getAllCategories, getSuggestedCategory, trainCategoryForToken } from '@/utils/categoryMapper';
 
@@ -11,6 +11,7 @@ const NewExpense = () => {
     const [type, setType] = useState("Withdrawal");
     const [showSuccessMessage, setShowSuccessMessage] = useState("");
     const [chosenCategory, setChosenCategory] = useState<string | null>(null);
+    const [suggestions, setSuggestions] = useState<{ amount: string; note: string; type: 'Withdrawal'|'Deposit'; count: number }[]>([]);
     const suggestion = useMemo(() => getSuggestedCategory(note), [note]);
     const categories = useMemo(() => getAllCategories(), []);
 
@@ -58,12 +59,78 @@ const NewExpense = () => {
         setLoading(false);
     }
 
+    // Quick add a frequent expense without editing fields
+    async function addQuick(a: string, n: string, t: 'Withdrawal'|'Deposit') {
+        try {
+            setLoading(true);
+            const balance = '0';
+            const response = await fetch('/api/expenses', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ amount: a, note: n, type: t, balance })
+            });
+            const data = await response.json();
+            if (response.ok) {
+                setShowSuccessMessage('Expense Added Successfully...!');
+                setAmount(''); setNote(''); setType('Withdrawal');
+                setTimeout(() => setShowSuccessMessage(''), 2000);
+            } else {
+                alert(`Error: ${data.error}`);
+            }
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    // Load frequent suggestions (last 3 months)
+    useEffect(() => {
+        (async () => {
+            try {
+                const res = await fetch('/api/expenses?filter=last3Months');
+                const json = await res.json();
+                const grouped = json?.grouped || {};
+                const flat = Object.values(grouped).flat() as any[];
+                const freq = new Map<string, { amount: string; note: string; type:'Withdrawal'|'Deposit'; count: number }>();
+                for (const e of flat) {
+                    const noteKey = String(e.note || '').trim().toLowerCase();
+                    const amtKey = String(e.amount || '').trim();
+                    const typeKey = (e.type === 'Deposit' ? 'Deposit' : 'Withdrawal') as 'Withdrawal' | 'Deposit';
+                    const key = `${noteKey}|${amtKey}|${typeKey}`;
+                    const cur = freq.get(key) || { amount: amtKey, note: String(e.note || ''), type: typeKey, count: 0 };
+                    cur.count += 1;
+                    freq.set(key, cur);
+                }
+                const list = Array.from(freq.values())
+                  .filter(x => x.count >= 2 && x.note && x.amount)
+                  .sort((a,b) => b.count - a.count)
+                  .slice(0, 5);
+                setSuggestions(list);
+            } catch {}
+        })();
+    }, []);
+
+    // Voice input removed (no API key). Use iOS keyboard dictation instead.
+
 
     return (
         <div className="bg-base-100 min-h-screen relative">
             <CommonHeader title='Add New Expense' />
             <div className='px-4 pb-[150px]'>
                 <div className="flex items-center justify-center flex-col">
+                    {suggestions.length > 0 && (
+                      <div className='w-full mb-3'>
+                        <div className='text-xs text-base-content/60 mb-2'>Quick Add (frequent)</div>
+                        <div className='flex flex-wrap gap-2'>
+                          {suggestions.map((s, idx) => (
+                            <button key={idx} className='px-3 py-2 rounded-lg border border-base-300 dark:border-base-600 bg-base-100 dark:bg-base-300 text-xs hover:border-primary/50'
+                              onClick={() => addQuick(String(s.amount), s.note, s.type)}
+                              disabled={loading}
+                            >
+                              {s.note} • {s.amount} • {s.type === 'Withdrawal' ? 'Pay' : 'Receive'}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                     <input
                         type="number"
                         placeholder="Amount"
@@ -78,6 +145,7 @@ const NewExpense = () => {
                         value={note}
                         onChange={(e) => setNote(e.target.value)}
                     />
+                    {/* Tip: On iPhone, tap the keyboard mic to dictate into this field. */}
                     {note && (
                       <div className="w-full mb-2 flex items-center justify-between bg-base-100 dark:bg-base-200 border border-base-300 dark:border-base-400 rounded-lg p-2">
                         <div className="flex items-center gap-2">
