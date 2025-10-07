@@ -83,10 +83,10 @@ const NewExpense = () => {
         }
     }
 
-    // Load frequent suggestions (last 3 months)
+    // Load frequent suggestions (full history)
     async function loadSuggestions() {
         try {
-            const res = await fetch('/api/expenses?filter=last3Months');
+            const res = await fetch('/api/expenses');
             const json = await res.json();
             const grouped = json?.grouped || {};
             const flat = Object.values(grouped).flat() as any[];
@@ -101,7 +101,7 @@ const NewExpense = () => {
                 freq.set(key, cur);
             }
             const list = Array.from(freq.values())
-              .filter(x => x.count >= 2 && x.note && x.amount)
+              .filter(x => x.count >= 1 && x.note && x.amount)
               .sort((a,b) => b.count - a.count)
               .slice(0, 5);
             setSuggestions(list);

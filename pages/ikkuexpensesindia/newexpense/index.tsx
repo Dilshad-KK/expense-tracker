@@ -81,7 +81,7 @@ const NewExpense = () => {
 
     async function loadSuggestions() {
         try {
-            const res = await fetch('/api/ikkuexpensesindia?filter=last3Months');
+            const res = await fetch('/api/ikkuexpensesindia');
             const json = await res.json();
             const grouped = json?.grouped || {};
             const flat = Object.values(grouped).flat() as any[];
@@ -94,7 +94,7 @@ const NewExpense = () => {
                 const cur = freq.get(key) || { amount: amtKey, note: String(e.note || ''), type: typeKey, count: 0 };
                 cur.count += 1; freq.set(key, cur);
             }
-            const list = Array.from(freq.values()).filter(x => x.count >= 2).sort((a,b)=>b.count-a.count).slice(0,5);
+            const list = Array.from(freq.values()).filter(x => x.count >= 1).sort((a,b)=>b.count-a.count).slice(0,5);
             setSuggestions(list);
         } catch {}
     }
@@ -126,7 +126,7 @@ const NewExpense = () => {
                     <input
                         type="number"
                         placeholder="Amount"
-                        className="input text-black/60 mb-2 border-[1px] border-solid border-[#d3d3fe] w-full p-4 rounded-[8px] bg-[#f3f3fd] placeholder:text-[12px]"
+                        className="input input-bordered mb-2 w-full p-4 rounded-[8px] bg-base-100 dark:bg-base-200 border-base-300 dark:border-base-400 text-base-content placeholder:text-[12px] placeholder:text-base-content/60"
                         value={amount}
                         onChange={(e) => setAmount(e.target.value)}
                     />

@@ -81,7 +81,7 @@ const NewExpense = () => {
 
     async function loadSuggestions() {
         try {
-            const res = await fetch('/api/ikkuexpensesuae?filter=last3Months');
+            const res = await fetch('/api/ikkuexpensesuae');
             const json = await res.json();
             const grouped = json?.grouped || {};
             const flat = Object.values(grouped).flat() as any[];
@@ -94,7 +94,7 @@ const NewExpense = () => {
                 const cur = freq.get(key) || { amount: amtKey, note: String(e.note || ''), type: typeKey, count: 0 };
                 cur.count += 1; freq.set(key, cur);
             }
-            const list = Array.from(freq.values()).filter(x => x.count >= 2).sort((a,b)=>b.count-a.count).slice(0,5);
+            const list = Array.from(freq.values()).filter(x => x.count >= 1).sort((a,b)=>b.count-a.count).slice(0,5);
             setSuggestions(list);
         } catch {}
     }
