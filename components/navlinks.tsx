@@ -81,6 +81,9 @@ const NavLinks = () => {
     }
   ]
 
+  // Hide tabs entirely on chat screen
+  if (currentPath === '/chat') return null;
+
   return (
     <div className='fixed bottom-0 w-full h-[88px] bg-white dark:bg-base-200 
                     shadow-[0_-8px_30px_rgba(0,0,0,0.1)] dark:shadow-[0_-8px_30px_rgba(0,0,0,0.4)]

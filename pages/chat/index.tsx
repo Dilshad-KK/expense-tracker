@@ -1,8 +1,9 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Head from 'next/head';
 import dynamic from 'next/dynamic';
-import { HiPhone, HiVideoCamera, HiXMark, HiOutlineTrash, HiPaperAirplane } from 'react-icons/hi2';
+import { HiPhone, HiVideoCamera, HiXMark, HiOutlineTrash, HiPaperAirplane, HiArrowLeft } from 'react-icons/hi2';
 import { supabase } from '@/lib/supabase';
+import { useRouter } from 'next/router';
 
 // Lazy import socket.io-client to avoid SSR issues
 const useSocket = () => {
@@ -52,6 +53,7 @@ function resolveIdentity(): { self: string; peer: string } {
 
 const Chat = () => {
   const socket = useSocket();
+  const router = useRouter();
   const [{ self, peer }, setIdent] = useState<{ self: string; peer: string }>(() => resolveIdentity());
   const [messages, setMessages] = useState<Message[]>([]);
   const [text, setText] = useState('');
@@ -334,14 +336,21 @@ const Chat = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-base-100 to-base-200 text-base-content pb-24 flex flex-col">
+    <div className="min-h-[100dvh] bg-gradient-to-br from-base-100 to-base-200 text-base-content pb-0 flex flex-col">
       <Head>
         <title>Chat with {peer}</title>
       </Head>
-      <div className="max-w-2xl w-full mx-auto flex-1 flex flex-col h-screen">
+      <div className="max-w-2xl w-full mx-auto flex-1 flex flex-col min-h-[100dvh]">
         {/* Enhanced Header */}
         <div className="px-6 py-4 border-b border-base-300/60 bg-base-100/80 backdrop-blur-lg sticky top-0 z-20 shadow-sm">
           <div className="flex items-center gap-4">
+            <button
+              className="btn btn-ghost btn-circle btn-sm text-base-content/70 hover:text-base-content"
+              onClick={() => { if (window.history.length > 1) router.back(); else router.push('/'); }}
+              aria-label="Back"
+            >
+              <HiArrowLeft className="w-5 h-5" />
+            </button>
             <div className={`h-12 w-12 ${peer === 'Dilshad' ? 'bg-gradient-to-br from-info to-info/80' : 'bg-gradient-to-br from-secondary to-secondary/80'} rounded-full flex items-center justify-center shadow-md`}>
               <span className="text-white text-lg font-semibold font-poppinsMed">
                 {peer?.startsWith('D') ? 'D' : 'S'}
@@ -486,7 +495,7 @@ const Chat = () => {
         </div>
 
         {/* Enhanced Input Area */}
-        <div className="border-t border-base-300/60 bg-base-100/80 backdrop-blur-lg sticky bottom-0 z-10 p-4">
+        <div className="border-t border-base-300/60 bg-base-100/80 backdrop-blur-lg sticky bottom-0 z-10 p-4" style={{ paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 8px)' }}>
           <div className="flex gap-3 items-end">
             <div className="flex-1 bg-base-200 rounded-2xl border border-base-300/50 focus-within:border-primary/30 focus-within:ring-2 focus-within:ring-primary/20 transition-all">
               <textarea
