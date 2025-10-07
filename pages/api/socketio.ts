@@ -20,7 +20,11 @@ export default async function handler(_req: NextApiRequest, res: NextApiResponse
   if (!res.socket.server.io) {
     const io = new IOServer(res.socket.server as any, {
       path: '/api/socketio',
-      addTrailingSlash: false,
+      addTrailingSlash: true,
+      serveClient: false,
+      transports: ['polling', 'websocket'],
+      allowEIO3: true,
+      cors: { origin: true, methods: ['GET', 'POST'], credentials: true },
     });
     res.socket.server.io = io;
 

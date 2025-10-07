@@ -10,12 +10,14 @@ const useSocket = () => {
   const [ioClient, setIoClient] = useState<any>(null);
   useEffect(() => {
     let mounted = true;
+    let socket: any;
+    let fallbackTried = false;
     (async () => {
       const mod = await import('socket.io-client');
       if (!mounted) return;
-      const socket = mod.io(undefined, {
-        path: '/api/socketio',
-        transports: ['websocket', 'polling'],
+      const create = (path: string, transports: any[]) => mod.io(undefined, {
+        path,
+        transports,
         forceNew: true,
         withCredentials: false,
         reconnection: true,
@@ -24,10 +26,19 @@ const useSocket = () => {
         reconnectionDelayMax: 5000,
         timeout: 20000,
       });
+      socket = create('/api/socketio', ['websocket', 'polling']);
+      // Fallback on connect_error: try trailing slash + polling only
+      const onError = () => {
+        if (fallbackTried) return;
+        fallbackTried = true;
+        try { socket.close(); } catch {}
+        socket = create('/api/socketio/', ['polling']);
+        setIoClient(socket);
+      };
+      socket.on('connect_error', onError);
       setIoClient(socket);
-      return () => { try { socket.close(); } catch {} };
     })();
-    return () => { mounted = false; };
+    return () => { mounted = false; try { socket?.off('connect_error'); socket?.close(); } catch {} };
   }, []);
   return ioClient;
 };
