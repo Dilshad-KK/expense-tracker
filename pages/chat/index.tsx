@@ -45,6 +45,21 @@ const Chat = () => {
   const listRef = useRef<HTMLDivElement | null>(null);
   const initialScrollDoneRef = useRef(false);
   const [clearing, setClearing] = useState(false);
+  // Local cache helpers
+  const CACHE_LIMIT = 200;
+  const cacheKeyFor = (id: string) => `chat_cache_v1:${id}`;
+  const saveCache = (id: string, items: Message[]) => {
+    try { localStorage.setItem(cacheKeyFor(id), JSON.stringify(items.slice(-CACHE_LIMIT))); } catch {}
+  };
+  const loadCache = (id: string): Message[] => {
+    try {
+      const raw = localStorage.getItem(cacheKeyFor(id));
+      if (!raw) return [];
+      const arr = JSON.parse(raw);
+      return Array.isArray(arr) ? arr : [];
+    } catch { return []; }
+  };
+  const clearCache = (id: string) => { try { localStorage.removeItem(cacheKeyFor(id)); } catch {} };
 
   // WebRTC state
   const pcRef = useRef<RTCPeerConnection | null>(null);
@@ -104,19 +119,31 @@ const Chat = () => {
     setConnected(!!(chatReady || rtcReady));
   }, [chatReady, rtcReady]);
 
-  // Load history once per conversation
+  // Load history once per conversation, seed from localStorage first
   useEffect(() => {
     if (!ready) return;
+    // 1) seed from cache for instant UI
+    try {
+      const cached = loadCache(conversationId);
+      if (cached && cached.length) setMessages(mergeUnique(cached));
+    } catch {}
+    // 2) fetch from server and merge
     (async () => {
       try {
         const res = await fetch(`/api/chat/messages?between=${encodeURIComponent(self)},${encodeURIComponent(peer)}`);
         if (res.ok) {
           const data: Message[] = await res.json();
-          setMessages(mergeUnique(data || []));
+          setMessages((prev) => mergeUnique([...(prev || []), ...(data || [])]));
         }
       } catch {}
     })();
-  }, [ready, self, peer]);
+  }, [ready, self, peer, conversationId]);
+
+  // Persist to cache on change
+  useEffect(() => {
+    if (!ready) return;
+    try { saveCache(conversationId, messages); } catch {}
+  }, [messages, ready, conversationId]);
 
   useEffect(() => {
     if (!ready) return;
@@ -331,6 +358,7 @@ const Chat = () => {
                   try { seenIdsRef.current.clear(); seenSigRef.current.clear(); } catch {}
                   // Broadcast deletion to peer in realtime
                   try { chatChannelRef.current?.send({ type: 'broadcast', event: 'message:delete', payload: { conversationId } }); } catch {}
+                  clearCache(conversationId);
                 } finally {
                   setClearing(false);
                 }
