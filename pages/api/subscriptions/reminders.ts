@@ -97,22 +97,30 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       let broadcastOk = false;
       try {
         const proto = (req.headers["x-forwarded-proto"] as string) || "https";
-        const host = req.headers.host;
-        const base = process.env.NEXT_PUBLIC_BASE_URL || (host ? `${proto}://${host}` : "");
-        if (base) {
-          const resp = await fetch(`${base}/api/broadcastAll`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ title, body, icon, click_action: link }),
-          });
-          broadcastOk = resp.ok;
+        const hostHeader = req.headers.host;
+        const inferredHost = hostHeader || "";
+        const fallbackBase = process.env.NEXT_PUBLIC_BASE_URL || "";
+        const base =
+          fallbackBase ||
+          (inferredHost ? `${proto}://${inferredHost}` : "");
+        if (!base) {
+          skipped.push({ id: sub.id, reason: "no_base_url" });
+          continue;
+        }
+        const resp = await fetch(`${base}/api/broadcastAll`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ title, body, icon, click_action: link }),
+        });
+        broadcastOk = resp.ok;
+        if (!resp.ok) {
+          skipped.push({ id: sub.id, reason: `broadcast_http_${resp.status}` });
         }
       } catch {
         // Ignore push errors
       }
-      if (!broadcastOk) {
-        await supabaseServer.from("notifications").insert([{ title, body, icon, link, read: false }]);
-      }
+      // Always store the notification so UI stays in sync, even if push fails
+      await supabaseServer.from("notifications").insert([{ title, body, icon, link, read: false }]);
 
       created.push({ id: sub.id, title, broadcast: broadcastOk });
     }
