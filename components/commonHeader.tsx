@@ -9,20 +9,18 @@ type Props = {
 
 const CommonHeader = ({ title, right, showBack = true }: Props) => {
   return (
-    <div className='bg-gradient-to-br from-primary to-primary/90 px-4 py-6 flex justify-center items-center rounded-b-3xl h-[100px] relative shadow-lg overflow-hidden mb-8'>
-      {showBack && (
-        <div className='absolute left-5 z-[1003]'>
-          <GoBack />
-        </div>
-      )}
-      <span className='text-primary-content z-[2000] font-poppinsBold text-[18px] drop-shadow-sm'>
-        {title}
-      </span>
-      {right && (
-        <div className='absolute right-5 z-[1003]'>
+    <div className='bg-gradient-to-br from-primary to-primary/90 px-4 py-6 flex items-center justify-between rounded-b-3xl h-[100px] shadow-lg overflow-hidden mb-8'>
+      <div className='flex items-center gap-3 z-[2000]'>
+        {showBack && <GoBack />}
+        <span className='text-primary-content font-poppinsBold text-[18px] drop-shadow-sm'>
+          {title}
+        </span>
+      </div>
+      {right ? (
+        <div className='z-[2000] flex items-center gap-2'>
           {right}
         </div>
-      )}
+      ) : <div className='w-6' />}
     </div>
   )
 }
