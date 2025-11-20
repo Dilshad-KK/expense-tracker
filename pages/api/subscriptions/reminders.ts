@@ -54,7 +54,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (!subs || subs.length === 0) return res.status(200).json({ ok: true, reason: "no subscriptions" });
 
     const today = new Date();
-    const created: Array<{ id: number; title: string }> = [];
+    const created: Array<{ id: number; title: string; broadcast?: boolean }> = [];
     const skipped: Array<{ id: number; reason: string }> = [];
 
     for (const sub of subs as SubscriptionRow[]) {
@@ -93,31 +93,28 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const icon = "/assets/icon-192x192.png";
       const link = "/subscriptions";
 
-      const { error: nerr } = await supabaseServer
-        .from("notifications")
-        .insert([{ title, body, icon, link, read: false }]);
-      if (nerr) {
-        skipped.push({ id: sub.id, reason: nerr.message });
-        continue;
-      }
-
-      created.push({ id: sub.id, title });
-
-      // Best-effort webpush broadcast
+      // Persist + broadcast (FCM + Web Push) via unified endpoint
+      let broadcastOk = false;
       try {
         const proto = (req.headers["x-forwarded-proto"] as string) || "https";
         const host = req.headers.host;
         const base = process.env.NEXT_PUBLIC_BASE_URL || (host ? `${proto}://${host}` : "");
         if (base) {
-          await fetch(`${base}/api/webpush/broadcast`, {
+          const resp = await fetch(`${base}/api/broadcastAll`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ title, body, icon, click_action: link }),
           });
+          broadcastOk = resp.ok;
         }
       } catch {
         // Ignore push errors
       }
+      if (!broadcastOk) {
+        await supabaseServer.from("notifications").insert([{ title, body, icon, link, read: false }]);
+      }
+
+      created.push({ id: sub.id, title, broadcast: broadcastOk });
     }
 
     return res.status(200).json({ ok: true, created, skipped });
