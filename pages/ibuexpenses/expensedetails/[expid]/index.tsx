@@ -73,7 +73,7 @@ const ExpenseDetails = () => {
             <Link
               href={`/expenses`}
               aria-label='Edit'
-              className='btn btn-circle btn-ghost hover:bg-base-200 text-base-content'
+              className='h-9 w-9 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white flex items-center justify-center shadow-sm hover:bg-white/20 active:scale-95 transition-all'
               title='Edit'
             >
               <HiPencilSquare className='w-5 h-5' />
@@ -82,9 +82,14 @@ const ExpenseDetails = () => {
               onClick={() => deleteExpense()}
               aria-label='Delete'
               title='Delete'
-              className='btn btn-circle btn-ghost hover:bg-error/10 text-error'
+              className='h-9 w-9 rounded-full bg-red-500/15 backdrop-blur-md border border-red-500/20 text-red-100 flex items-center justify-center shadow-sm hover:bg-red-500/25 active:scale-95 transition-all disabled:opacity-50'
+              disabled={loading}
             >
-              <HiTrash className='w-5 h-5' />
+              {loading ? (
+                <span className='loading loading-spinner loading-sm text-red-200' />
+              ) : (
+                <HiTrash className='w-5 h-5' />
+              )}
             </button>
           </div>
         )}

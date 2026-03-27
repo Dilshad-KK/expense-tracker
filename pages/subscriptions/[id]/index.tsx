@@ -84,18 +84,18 @@ const SubscriptionDetails = () => {
               <Link
                 href={`/subscriptions/${subscription.id}/edit`}
                 aria-label="Edit subscription"
-                className="h-9 w-9 rounded-full bg-white/10 border border-white/30 text-primary-content/90 flex items-center justify-center shadow-sm hover:bg-white/20 transition-all"
+                className="h-9 w-9 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white flex items-center justify-center shadow-sm hover:bg-white/20 active:scale-95 transition-all"
               >
                 <HiPencilSquare className="text-[16px]" />
               </Link>
               <button
                 onClick={deleteSubscription}
                 aria-label="Delete subscription"
-                className="h-9 w-9 rounded-full bg-error/15 border border-error/30 text-error flex items-center justify-center shadow-sm hover:bg-error/25 transition-all"
+                className="h-9 w-9 rounded-full bg-red-500/15 backdrop-blur-md border border-red-500/20 text-red-100 flex items-center justify-center shadow-sm hover:bg-red-500/25 active:scale-95 transition-all disabled:opacity-50"
                 disabled={deleting}
               >
                 {deleting ? (
-                  <span className="loading loading-spinner loading-xs text-error" />
+                  <span className="loading loading-spinner loading-sm text-red-200" />
                 ) : (
                   <HiTrash className="text-[16px]" />
                 )}
