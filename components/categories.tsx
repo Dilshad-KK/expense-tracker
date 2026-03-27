@@ -2,9 +2,8 @@ import React from 'react';
 import Link from 'next/link'
 import { CiReceipt } from "react-icons/ci";
 import { PiBankLight, PiListPlusLight } from "react-icons/pi";
-import { HiOutlineChatBubbleBottomCenter, HiOutlineCreditCard } from "react-icons/hi2";
+import { HiOutlineEnvelope, HiOutlineChatBubbleBottomCenter, HiOutlineCreditCard } from "react-icons/hi2";
 import { IoIosFemale } from "react-icons/io";
-import { TbChartPie } from "react-icons/tb";
 
 const Categories = () => {
     const menuItems = [
@@ -38,16 +37,16 @@ const Categories = () => {
             href: "/periods",
             icon: <IoIosFemale className='text-[26px] text-error' />
         },
-        {
+        /* {
             label: "CHECKLISTS",
             href: "/checklist",
             icon: <PiListPlusLight className='text-[26px] text-info' />
+        }, */
+        {
+            label: "HR MAILER",
+            href: "/hrmailer",
+            icon: <HiOutlineEnvelope className='text-[26px] text-primary' />
         },
-        // {
-        //     label: "DUBAI PLAN",
-        //     href: "/dubai-plan",
-        //     icon: <TbChartPie className='text-[26px] text-primary' />
-        // },
         {
             label: "SUBSCRIPTIONS",
             href: "/subscriptions",

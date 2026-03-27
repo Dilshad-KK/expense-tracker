@@ -10,9 +10,6 @@ import { Provider } from 'react-redux';
 import { store } from '@/lib/store';
 import { fetchUnreadCount, fetchNotifications } from '@/store/notificationsSlice';
 import { applyTheme } from '@/utils/theme';
-// Auth temporarily disabled
-// import { getAuth, onAuthStateChanged, signOut, User } from 'firebase/auth';
-// import { setUser } from '@/store/userSlice';
 
 export default function App({ Component, pageProps }: AppProps) {
   const [toast, setToast] = useState<null | { title?: string; body?: string }>(null);

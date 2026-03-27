@@ -1,18 +1,12 @@
 import React from 'react'
 import Link from 'next/link';
 import { useRouter } from 'next/router'
-import { HiHome, HiChatBubbleLeftRight, HiUser } from 'react-icons/hi2'
 import { IoHomeOutline, IoHome } from 'react-icons/io5'
-import { TbMessage, TbMessage2, TbChartPie } from 'react-icons/tb'
 import { CgProfile, CgUser } from 'react-icons/cg'
-import { useSelector } from 'react-redux';
-import type { RootState } from '@/lib/store';
 
 const NavLinks = () => {
   const router = useRouter()
   const currentPath = router.pathname
-  // Keep bottom tab fixed to screen bottom; no dynamic keyboard offset
-  const unread = useSelector((s: RootState) => s.notifications.unreadCount);
 
   const isActive = (path: string) => currentPath === path
 
@@ -26,14 +20,6 @@ const NavLinks = () => {
       }
     },
     {
-      path: "/chat",
-      label: "Chat",
-      icon: {
-        active: <TbMessage className="text-primary text-lg" />,
-        inactive: <TbMessage2 className="text-[#A19F9F] dark:text-base-content/60 text-lg" />
-      }
-    },
-    {
       path: "/profile",
       label: "Profile",
       icon: {
@@ -42,9 +28,6 @@ const NavLinks = () => {
       }
     }
   ]
-
-  // Hide tabs on chat and Dubai Plan screens
-  if (currentPath === '/chat' || currentPath === '/dubai-plan') return null;
 
   return (
     <div className='fixed bottom-0 w-full h-[88px] bg-white dark:bg-base-200 
@@ -78,11 +61,6 @@ const NavLinks = () => {
             `}>
               <div className="relative">
                 {isActive(item.path) ? item.icon.active : item.icon.inactive}
-                {item.path === '/chat' && unread > 0 && (
-                  <span className="absolute -top-2 -right-2 min-w-[18px] h-[18px] px-1 rounded-full bg-error text-error-content text-[10px] flex items-center justify-center shadow">
-                    {unread > 99 ? '99+' : unread}
-                  </span>
-                )}
               </div>
             </div>
             

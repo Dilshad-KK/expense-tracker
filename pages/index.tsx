@@ -11,14 +11,12 @@ import Loans from '@/components/loans';
 import Discussions from '@/components/discussions';
 import Categories from '@/components/categories';
 import Periods from '@/components/periods';
-import Jan8CounterCard from '@/components/jan8Counter';
 
 const Home = () => {
 
   const [user, setUser] = useState("");
   const dispatch = useAppDispatch();
   const unread = useSelector((s: RootState) => s.notifications.unreadCount);
-  const showJan8 = useSelector((s: RootState) => s.ui.showJan8Counter);
 
   useEffect(() => {
     const cachedUser = localStorage.getItem("userIdentity");
@@ -94,7 +92,6 @@ const Home = () => {
       </div>
       <div className='min-h-screen px-4 py-8 dark:bg-base-400'>
         <Categories />
-        {showJan8 && <Jan8CounterCard />}
         <div className="h-px bg-base-content/20 dark:bg-base-content/5 w-full my-4" />
         <Loans />
         <Discussions />

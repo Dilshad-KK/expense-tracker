@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import CommonHeader from "@/components/commonHeader";
 import moment from 'moment';
 import { HiPencil } from "react-icons/hi";
+import { HiTrash } from "react-icons/hi2";
 import Link from 'next/link';
 
 type Loan = {
@@ -33,8 +34,9 @@ const LoanDetails = () => {
   const [loan, setLoan] = useState<Loan[]>();
   const [loanDetails, setLoanDetails] = useState<ILoanDetails[]>([]);
   const [loading, setLoading] = useState(true);
-  const [totalPaid, setTotalPaid] = useState(0);
+  const [deleting, setDeleting] = useState(false);
   const [showSuccessMessage, setShowSuccessMessage] = useState("");
+  const [error, setError] = useState("");
 
 
   useEffect(() => {
@@ -49,12 +51,17 @@ const LoanDetails = () => {
   const fetchLoan = async () => {
     try {
       setLoading(true);
+      setError("");
       const res = await fetch(`/api/loans?loanId=${loanId}`);
       const data: Loan[] = await res.json();
+      if (!res.ok) {
+        throw new Error((data as any)?.error ?? "Failed to fetch loan");
+      }
       setLoan(data);
       setLoading(false);
     } catch (error) {
       console.error("Error fetching loan:", error);
+      setError("Unable to load this loan.");
     } finally {
       setLoading(false);
     }
@@ -63,56 +70,72 @@ const LoanDetails = () => {
   const fetchLoanDetails = async () => {
     try {
       setLoading(true);
+      setError("");
       const res = await fetch(`/api/loanitems?loanId=${loanId}`);
       const data: ILoanDetails[] = await res.json();
+      if (!res.ok) {
+        throw new Error((data as any)?.error ?? "Failed to fetch loan details");
+      }
       setLoanDetails(data);
-      getTotalPaid(data);
       setLoading(false);
     } catch (error) {
       console.error("Error fetching loan:", error);
+      setError("Unable to load this loan.");
     } finally {
       setLoading(false);
     }
   };
 
   async function deleteLoan(loanIdToDelete: string) {
-    setLoading(true);
-    const response = await fetch(`/api/loans?id=${loanIdToDelete}`, {
-      method: "DELETE",
-    });
+    const confirmed = window.confirm("Delete this loan and all its installments?");
+    if (!confirmed) return;
 
-    const data = await response.json();
-    console.log(data);
+    try {
+      setDeleting(true);
+      setError("");
+      const response = await fetch(`/api/loans?id=${loanIdToDelete}`, {
+        method: "DELETE",
+      });
+      const data = await response.json();
 
-    if (response.ok) {
-      setShowSuccessMessage("Loan Deleted Successfully...!");
-      setLoading(false);
-      setTimeout(() => {
-        router.push("/allloans");
-      }, 2000);
-    } else {
-      alert(`Error: ${data.error}`);
-      setLoading(false);
+      if (response.ok) {
+        setShowSuccessMessage("Loan Deleted Successfully...!");
+        setTimeout(() => {
+          router.push("/allloans");
+        }, 800);
+      } else {
+        throw new Error(data?.error ?? "Failed to delete loan");
+      }
+    } catch (err: any) {
+      console.error("Error deleting loan:", err);
+      setError("Failed to delete loan. Please try again.");
+    } finally {
+      setDeleting(false);
     }
   }
 
-  const getTotalPaid = (loanItems: ILoanDetails[]) => {
-    let paidAmount = 0;
-
-    loanItems?.forEach((item) => {
-      if (item?.status === 'paid') {
-        paidAmount += Number(item?.amount);
-      }
-    });
-
-    setTotalPaid(paidAmount);
-  }
-
-
-
   return (
     <div className='bg-base-100 min-h-screen'>
-      <CommonHeader title='Loan Details' />
+      <CommonHeader
+        title='Loan Details'
+        right={
+          loan?.[0] ? (
+            <button
+              onClick={() => deleteLoan(String(loan[0].id))}
+              aria-label='Delete'
+              title='Delete'
+              className='btn btn-circle btn-ghost hover:bg-error/10 text-error'
+              disabled={deleting}
+            >
+              {deleting ? (
+                <span className='loading loading-spinner loading-sm' />
+              ) : (
+                <HiTrash className='w-5 h-5' />
+              )}
+            </button>
+          ) : null
+        }
+      />
 
       {loading ?
         <div className='p-4'>
@@ -126,12 +149,18 @@ const LoanDetails = () => {
             </div>
           ))}
         </div>
-        : loan?.length ?
+        : error ? (
+          <div className='px-4'>
+            <div className='alert alert-error alert-soft mb-4'>
+              <span className='text-white text-[12px]'>{error}</span>
+            </div>
+          </div>
+        ) : loan?.length ?
           <div className='px-4 pt-4 pb-[150px]'>
             {loanDetails?.length && loan?.length ?
               loanDetails?.map((item, key) => {
                 return (
-                  <div className='bg-white dark:bg-base-200 border-2 border-base-300 dark:border-base-400 px-4 py-4 my-3 rounded-[12px] flex justify-between items-center'>
+                  <div key={item.id} className='bg-white dark:bg-base-200 border-2 border-base-300 dark:border-base-400 px-4 py-4 my-3 rounded-[12px] flex justify-between items-center'>
                     <div className='flex'>
                       <div className='bg-[#a5a5fe2d] dark:bg-primary/20 rounded-[12px] h-[60px] w-[60px] flex items-center justify-center flex-col mr-8 border-2 border-primary/30 dark:border-primary/40'>
                         <span className='text-base-content/80 text-[12px] font-poppinsMed'>{moment(item?.due_date).format("DD")}</span>

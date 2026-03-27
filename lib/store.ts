@@ -3,13 +3,11 @@ import { useDispatch } from 'react-redux';
 import notificationsReducer from '@/store/notificationsSlice';
 import { api } from '@/store/api';
 import uiReducer from '@/store/uiSlice';
-import userReducer from '@/store/userSlice';
 
 export const store = configureStore({
   reducer: {
     notifications: notificationsReducer,
     ui: uiReducer,
-    user: userReducer,
     [api.reducerPath]: api.reducer,
   },
   middleware: (getDefault) => getDefault({ serializableCheck: false }).concat(api.middleware),
