@@ -19,6 +19,12 @@ interface Template {
   body: string;
 }
 
+const parseEmailInput = (value: string) =>
+  value
+    .split(/[,\n;]+/)
+    .map(email => email.trim())
+    .filter(email => email !== '');
+
 export default function HRMailer() {
   const [emailsRaw, setEmailsRaw] = useState('');
   const [subject, setSubject] = useState('');
@@ -179,10 +185,7 @@ export default function HRMailer() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const emailsList = emailsRaw
-      .split(',')
-      .map(email => email.trim())
-      .filter(email => email !== '');
+    const emailsList = parseEmailInput(emailsRaw);
 
     if (emailsList.length === 0) {
       displayStatus('Please provide at least one valid email address.', 'error');
@@ -260,11 +263,11 @@ export default function HRMailer() {
             <div className="form-control">
               <label className="label">
                 <span className="label-text font-poppinsMed text-[12px] uppercase tracking-wider opacity-60">HR Email Addresses</span>
-                <span className="label-text-alt opacity-50 font-mono text-[11px]">Comma-separated</span>
+                <span className="label-text-alt opacity-50 font-mono text-[11px]">Comma, semicolon, or new line</span>
               </label>
               <textarea 
                 className="textarea w-full h-24 md:h-28 rounded-2xl bg-base-200/50 focus:bg-base-100 focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-300 resize-none" 
-                placeholder="hr1@company.com, hr2@company.com"
+                placeholder={"hr1@company.com, hr2@company.com;\nhr3@company.com"}
                 value={emailsRaw}
                 onChange={(e) => setEmailsRaw(e.target.value)}
               />

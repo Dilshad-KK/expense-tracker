@@ -1,6 +1,24 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import nodemailer from 'nodemailer';
 
+const normalizeEmails = (value: unknown): string[] => {
+  if (typeof value === 'string') {
+    return value
+      .split(/[,\n;]+/)
+      .map(email => email.trim())
+      .filter(email => email !== '');
+  }
+
+  if (Array.isArray(value)) {
+    return value
+      .flatMap(entry => (typeof entry === 'string' ? entry.split(/[,\n;]+/) : []))
+      .map(email => email.trim())
+      .filter(email => email !== '');
+  }
+
+  return [];
+};
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
@@ -10,9 +28,10 @@ export default async function handler(
   }
 
   const { subject, htmlBody, emails, resumeUrl, resumeFileName, senderName } = req.body;
+  const normalizedEmails = normalizeEmails(emails);
 
-  if (!emails || !Array.isArray(emails) || emails.length === 0) {
-    return res.status(400).json({ message: 'Emails array is required' });
+  if (normalizedEmails.length === 0) {
+    return res.status(400).json({ message: 'At least one email address is required' });
   }
 
   if (!subject || !htmlBody) {
@@ -61,7 +80,7 @@ export default async function handler(
 
     const fromAddress = senderName ? `"${senderName}" <${process.env.GMAIL_USER}>` : process.env.GMAIL_USER;
 
-    for (const email of emails) {
+    for (const email of normalizedEmails) {
       if (!email.trim()) continue;
       
       try {
