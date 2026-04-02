@@ -1,6 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import nodemailer from 'nodemailer';
 
+const RESUME_BUCKET = 'resumes';
+
 const normalizeEmails = (value: unknown): string[] => {
   if (typeof value === 'string') {
     return value
@@ -19,6 +21,107 @@ const normalizeEmails = (value: unknown): string[] => {
   return [];
 };
 
+const normalizeString = (value: unknown): string =>
+  typeof value === 'string' ? value.trim() : '';
+
+const normalizeStoragePath = (value: unknown): string =>
+  normalizeString(value).replace(/^\/+|\/+$/g, '');
+
+const normalizeAttachmentFileName = (value: unknown): string => {
+  const fallbackName = 'Resume.pdf';
+  const normalized = normalizeString(value)
+    .replace(/[\r\n]+/g, ' ')
+    .replace(/[\\/]+/g, '-');
+
+  return normalized || fallbackName;
+};
+
+const stripTimestampPrefix = (value: string): string =>
+  value.split('/').pop()?.replace(/^\d+_/, '') || 'Resume.pdf';
+
+const encodeStorageObjectPath = (bucket: string, objectPath: string): string =>
+  [bucket, ...objectPath.split('/').filter(Boolean)]
+    .map(segment => encodeURIComponent(segment))
+    .join('/');
+
+const buildPublicResumeUrl = (objectPath: string): string => {
+  const supabaseBaseUrl = normalizeString(process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL).replace(/\/$/, '');
+
+  if (!supabaseBaseUrl) {
+    throw new Error('Supabase URL missing. Please configure NEXT_PUBLIC_SUPABASE_URL or SUPABASE_URL.');
+  }
+
+  return `${supabaseBaseUrl}/storage/v1/object/public/${encodeStorageObjectPath(RESUME_BUCKET, objectPath)}`;
+};
+
+const normalizeHttpUrl = (value: unknown): string => {
+  const raw = normalizeString(value);
+
+  if (!raw) {
+    return '';
+  }
+
+  const parsed = new URL(raw);
+  if (!['http:', 'https:'].includes(parsed.protocol)) {
+    throw new Error('Resume URL must use http or https.');
+  }
+
+  return parsed.toString();
+};
+
+const cleanErrorText = (value: string): string =>
+  value
+    .replace(/\s+/g, ' ')
+    .replace(/\s*[\r\n]+\s*/g, ' ')
+    .trim();
+
+const getReadableMailerError = (error: unknown): string => {
+  const err = error as {
+    message?: string;
+    code?: string;
+    responseCode?: number;
+    response?: string;
+  };
+
+  const rawMessage = cleanErrorText(err?.message || 'Unknown error');
+  const rawResponse = cleanErrorText(err?.response || '');
+
+  switch (err?.code) {
+    case 'EAUTH':
+      return 'Gmail authentication failed. Check GMAIL_USER and GMAIL_APP_PASSWORD.';
+    case 'EENVELOPE':
+      return 'The recipient address was rejected by the mail server.';
+    case 'ECONNECTION':
+      return 'Could not connect to Gmail SMTP.';
+    case 'ETIMEDOUT':
+      return 'The mail server timed out while sending.';
+    default:
+      break;
+  }
+
+  if (rawMessage.includes('Failed to fetch resume from')) {
+    return 'The selected resume attachment could not be loaded.';
+  }
+
+  if (rawMessage.includes('Resume URL must use http or https')) {
+    return 'The resume attachment URL is invalid.';
+  }
+
+  if (rawMessage.includes('the string did not match the expected pattern')) {
+    return 'A mail field contains an invalid format.';
+  }
+
+  const parts = [rawMessage];
+  if (typeof err?.responseCode === 'number') {
+    parts.push(`SMTP ${err.responseCode}`);
+  }
+  if (rawResponse && rawResponse !== rawMessage) {
+    parts.push(rawResponse);
+  }
+
+  return parts.join('. ');
+};
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
@@ -27,8 +130,14 @@ export default async function handler(
     return res.status(405).json({ message: 'Method Not Allowed' });
   }
 
-  const { subject, htmlBody, emails, resumeUrl, resumeFileName, senderName } = req.body;
+  const { subject, htmlBody, emails, resumePath, resumeUrl, resumeFileName, senderName } = req.body;
   const normalizedEmails = normalizeEmails(emails);
+  const normalizedResumePath =
+    normalizeStoragePath(resumePath) ||
+    (normalizeString(resumeUrl) ? normalizeStoragePath(resumeFileName) : '');
+  const attachmentFileName = normalizedResumePath
+    ? normalizeAttachmentFileName(resumeFileName || stripTimestampPrefix(normalizedResumePath))
+    : normalizeAttachmentFileName(resumeFileName);
 
   if (normalizedEmails.length === 0) {
     return res.status(400).json({ message: 'At least one email address is required' });
@@ -56,17 +165,21 @@ export default async function handler(
     });
 
     // 2. Fetch the resume if a URL is provided
-    let attachments = [];
-    if (resumeUrl) {
-      const response = await fetch(resumeUrl);
+    const attachments: { filename: string; content: Buffer }[] = [];
+    const resolvedResumeUrl = normalizedResumePath
+      ? buildPublicResumeUrl(normalizedResumePath)
+      : normalizeHttpUrl(resumeUrl);
+
+    if (resolvedResumeUrl) {
+      const response = await fetch(resolvedResumeUrl);
       if (!response.ok) {
-        throw new Error(`Failed to fetch resume from ${resumeUrl}`);
+        throw new Error(`Failed to fetch resume from ${resolvedResumeUrl}`);
       }
       const arrayBuffer = await response.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
       
       attachments.push({
-        filename: resumeFileName || 'Resume.pdf',
+        filename: attachmentFileName,
         content: buffer,
       });
     }
@@ -78,7 +191,8 @@ export default async function handler(
       errors: [] as string[],
     };
 
-    const fromAddress = senderName ? `"${senderName}" <${process.env.GMAIL_USER}>` : process.env.GMAIL_USER;
+    const safeSenderName = normalizeString(senderName).replace(/["<>]/g, '');
+    const fromAddress = safeSenderName ? `"${safeSenderName}" <${process.env.GMAIL_USER}>` : process.env.GMAIL_USER;
 
     for (const email of normalizedEmails) {
       if (!email.trim()) continue;
@@ -95,7 +209,7 @@ export default async function handler(
       } catch (err: any) {
         console.error(`Failed to send to ${email}:`, err);
         results.failed++;
-        results.errors.push(`Failed for ${email}: ${err.message}`);
+        results.errors.push(`${email.trim()}: ${getReadableMailerError(err)}`);
       }
     }
 
@@ -106,6 +220,6 @@ export default async function handler(
 
   } catch (error: any) {
     console.error('Email sending error:', error);
-    return res.status(500).json({ message: 'Error processing request', error: error.message });
+    return res.status(500).json({ message: getReadableMailerError(error) });
   }
 }

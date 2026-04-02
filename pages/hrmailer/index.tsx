@@ -19,18 +19,79 @@ interface Template {
   body: string;
 }
 
+interface SendMailApiResponse {
+  message?: string;
+  error?: string;
+  results?: {
+    success: number;
+    failed: number;
+    errors: string[];
+  };
+}
+
 const parseEmailInput = (value: string) =>
   value
     .split(/[,\n;]+/)
     .map(email => email.trim())
     .filter(email => email !== '');
 
+const sanitizeStorageFileName = (fileName: string) => {
+  const trimmed = fileName.trim();
+  const extensionMatch = trimmed.match(/(\.[^.]+)$/);
+  const extension = extensionMatch
+    ? extensionMatch[1].replace(/[^A-Za-z0-9.]/g, '').toLowerCase()
+    : '';
+
+  const baseName = (extensionMatch ? trimmed.slice(0, -extension.length) : trimmed)
+    .normalize('NFKD')
+    .replace(/[^\x00-\x7F]/g, '')
+    .replace(/[^A-Za-z0-9._-]+/g, '-')
+    .replace(/-{2,}/g, '-')
+    .replace(/^[-.]+|[-.]+$/g, '');
+
+  return `${baseName || 'resume'}${extension}`;
+};
+
+const buildStoredResumeName = (fileName: string) =>
+  `${Date.now()}_${sanitizeStorageFileName(fileName)}`;
+
+const getAttachmentFileName = (storedName: string) =>
+  storedName.split('/').pop()?.replace(/^\d+_/, '') || 'Resume.pdf';
+
+const parseApiResponse = async (response: Response): Promise<SendMailApiResponse | null> => {
+  const raw = await response.text();
+
+  if (!raw) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(raw) as SendMailApiResponse;
+  } catch {
+    return {
+      message: response.ok
+        ? 'The request completed, but the server returned an unreadable response.'
+        : `Request failed with status ${response.status}.`,
+    };
+  }
+};
+
+const buildSendStatusMessage = (results: NonNullable<SendMailApiResponse['results']>) => {
+  const summary = `Sent successfully: ${results.success}. Failed: ${results.failed}.`;
+  const errorPreview = results.errors.slice(0, 2);
+
+  if (errorPreview.length === 0) {
+    return summary;
+  }
+
+  return `${summary} ${errorPreview.join(' | ')}`;
+};
+
 export default function HRMailer() {
   const [emailsRaw, setEmailsRaw] = useState('');
   const [subject, setSubject] = useState('');
   const [htmlBody, setHtmlBody] = useState('');
   const [resumes, setResumes] = useState<SupabaseFile[]>([]);
-  const [selectedResumeUrl, setSelectedResumeUrl] = useState('');
   const [selectedResumeName, setSelectedResumeName] = useState('');
   
   // Database templates state
@@ -145,7 +206,7 @@ export default function HRMailer() {
     setUploading(true);
     displayStatus(`Uploading ${file.name}...`, 'info', 0); // No auto-timeout for upload start
     try {
-      const fileName = `${Date.now()}_${file.name}`;
+      const fileName = buildStoredResumeName(file.name);
       const { data, error } = await supabase.storage
         .from(bucketName)
         .upload(fileName, file);
@@ -158,8 +219,6 @@ export default function HRMailer() {
       } else {
         displayStatus('Upload successful!', 'success');
         await fetchResumes(); 
-        const { data: publicUrlData } = supabase.storage.from(bucketName).getPublicUrl(fileName);
-        setSelectedResumeUrl(publicUrlData.publicUrl);
         setSelectedResumeName(fileName);
       }
     } catch (err: any) {
@@ -172,13 +231,10 @@ export default function HRMailer() {
   const handleSelectResume = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedName = e.target.value;
     if (!selectedName) {
-      setSelectedResumeUrl('');
       setSelectedResumeName('');
       return;
     }
-    
-    const { data } = supabase.storage.from(bucketName).getPublicUrl(selectedName);
-    setSelectedResumeUrl(data.publicUrl);
+
     setSelectedResumeName(selectedName);
   };
 
@@ -210,17 +266,27 @@ export default function HRMailer() {
           emails: emailsList,
           subject,
           htmlBody,
-          resumeUrl: selectedResumeUrl,
-          resumeFileName: selectedResumeName
+          resumePath: selectedResumeName || undefined,
+          resumeFileName: selectedResumeName ? getAttachmentFileName(selectedResumeName) : undefined
         })
       });
 
-      const result = await response.json();
+      const result = await parseApiResponse(response);
       
-      if (response.ok) {
-        displayStatus(`Sent successfully: ${result.results.success}. Failed: ${result.results.failed}.`, result.results.failed === 0 ? 'success' : 'info', 10000);
+      if (response.ok && result?.results) {
+        displayStatus(
+          buildSendStatusMessage(result.results),
+          result.results.failed === 0 ? 'success' : 'error',
+          10000
+        );
+      } else if (response.ok) {
+        displayStatus(result?.message || 'Emails sent successfully.', 'success');
       } else {
-        displayStatus(`Error: ${result.message}`, 'error');
+        const errorMessage = [result?.message, result?.error].filter(Boolean).join(': ');
+        displayStatus(
+          `Error: ${errorMessage || `Request failed with status ${response.status}.`}`,
+          'error'
+        );
       }
 
     } catch (err: any) {
