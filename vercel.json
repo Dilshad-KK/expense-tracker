@@ -1,4 +1,9 @@
 {
+  "functions": {
+    "pages/api/hrmailer/send.ts": {
+      "maxDuration": 60
+    }
+  },
   "crons": [
     {
       "path": "/api/subscriptions/reminders",

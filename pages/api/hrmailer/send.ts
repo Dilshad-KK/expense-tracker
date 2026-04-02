@@ -1,7 +1,16 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import nodemailer from 'nodemailer';
 
+export const config = {
+  maxDuration: 60,
+};
+
 const RESUME_BUCKET = 'resumes';
+const SEND_CONCURRENCY = 3;
+const RESUME_FETCH_TIMEOUT_MS = 15_000;
+const SMTP_CONNECTION_TIMEOUT_MS = 15_000;
+const SMTP_GREETING_TIMEOUT_MS = 15_000;
+const SMTP_SOCKET_TIMEOUT_MS = 30_000;
 
 const normalizeEmails = (value: unknown): string[] => {
   if (typeof value === 'string') {
@@ -122,6 +131,35 @@ const getReadableMailerError = (error: unknown): string => {
   return parts.join('. ');
 };
 
+const sendWithConcurrency = async ({
+  concurrency,
+  emails,
+  send,
+}: {
+  concurrency: number;
+  emails: string[];
+  send: (email: string) => Promise<void>;
+}) => {
+  let nextIndex = 0;
+  const workerCount = Math.max(1, Math.min(concurrency, emails.length));
+
+  await Promise.all(
+    Array.from({ length: workerCount }, async () => {
+      while (true) {
+        const currentIndex = nextIndex;
+        nextIndex += 1;
+
+        const email = emails[currentIndex];
+        if (!email) {
+          return;
+        }
+
+        await send(email);
+      }
+    })
+  );
+};
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
@@ -131,7 +169,9 @@ export default async function handler(
   }
 
   const { subject, htmlBody, emails, resumePath, resumeUrl, resumeFileName, senderName } = req.body;
-  const normalizedEmails = normalizeEmails(emails);
+  const normalizedEmails = normalizeEmails(emails)
+    .map(email => email.trim())
+    .filter(Boolean);
   const normalizedResumePath =
     normalizeStoragePath(resumePath) ||
     (normalizeString(resumeUrl) ? normalizeStoragePath(resumeFileName) : '');
@@ -158,6 +198,12 @@ export default async function handler(
     // 1. Initialize Nodemailer transporter with Gmail
     const transporter = nodemailer.createTransport({
       service: 'gmail',
+      pool: true,
+      maxConnections: SEND_CONCURRENCY,
+      maxMessages: Infinity,
+      connectionTimeout: SMTP_CONNECTION_TIMEOUT_MS,
+      greetingTimeout: SMTP_GREETING_TIMEOUT_MS,
+      socketTimeout: SMTP_SOCKET_TIMEOUT_MS,
       auth: {
         user: process.env.GMAIL_USER,
         pass: process.env.GMAIL_APP_PASSWORD,
@@ -171,7 +217,9 @@ export default async function handler(
       : normalizeHttpUrl(resumeUrl);
 
     if (resolvedResumeUrl) {
-      const response = await fetch(resolvedResumeUrl);
+      const response = await fetch(resolvedResumeUrl, {
+        signal: AbortSignal.timeout(RESUME_FETCH_TIMEOUT_MS),
+      });
       if (!response.ok) {
         throw new Error(`Failed to fetch resume from ${resolvedResumeUrl}`);
       }
@@ -193,25 +241,32 @@ export default async function handler(
 
     const safeSenderName = normalizeString(senderName).replace(/["<>]/g, '');
     const fromAddress = safeSenderName ? `"${safeSenderName}" <${process.env.GMAIL_USER}>` : process.env.GMAIL_USER;
+    const baseMailOptions = {
+      from: fromAddress,
+      subject,
+      html: htmlBody,
+      attachments,
+    };
 
-    for (const email of normalizedEmails) {
-      if (!email.trim()) continue;
-      
-      try {
-        await transporter.sendMail({
-          from: fromAddress,
-          to: email.trim(),
-          subject: subject,
-          html: htmlBody,
-          attachments: attachments,
-        });
-        results.success++;
-      } catch (err: any) {
-        console.error(`Failed to send to ${email}:`, err);
-        results.failed++;
-        results.errors.push(`${email.trim()}: ${getReadableMailerError(err)}`);
-      }
-    }
+    await sendWithConcurrency({
+      concurrency: SEND_CONCURRENCY,
+      emails: normalizedEmails,
+      send: async (email) => {
+        try {
+          await transporter.sendMail({
+            ...baseMailOptions,
+            to: email,
+          });
+          results.success++;
+        } catch (err: any) {
+          console.error(`Failed to send to ${email}:`, err);
+          results.failed++;
+          results.errors.push(`${email}: ${getReadableMailerError(err)}`);
+        }
+      },
+    });
+
+    transporter.close();
 
     return res.status(200).json({ 
       message: 'Emails processed', 

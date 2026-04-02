@@ -29,6 +29,8 @@ interface SendMailApiResponse {
   };
 }
 
+type SendSummary = NonNullable<SendMailApiResponse['results']>;
+
 const parseEmailInput = (value: string) =>
   value
     .split(/[,\n;]+/)
@@ -87,6 +89,24 @@ const buildSendStatusMessage = (results: NonNullable<SendMailApiResponse['result
   return `${summary} ${errorPreview.join(' | ')}`;
 };
 
+const createEmptySendSummary = (): SendSummary => ({
+  success: 0,
+  failed: 0,
+  errors: [],
+});
+
+const getRequestErrorMessage = (
+  response: Response,
+  result: SendMailApiResponse | null
+) => {
+  if (response.status === 504) {
+    return 'Sending timed out on the server. Try fewer emails in one attempt.';
+  }
+
+  return [result?.message, result?.error].filter(Boolean).join(': ')
+    || `Request failed with status ${response.status}.`;
+};
+
 export default function HRMailer() {
   const [emailsRaw, setEmailsRaw] = useState('');
   const [subject, setSubject] = useState('');
@@ -110,6 +130,7 @@ export default function HRMailer() {
   const [statusType, setStatusType] = useState<'info'|'success'|'error'>('info');
 
   const bucketName = 'resumes';
+  const isMailerBusy = sending || uploading;
 
   useEffect(() => {
     fetchResumes();
@@ -241,7 +262,7 @@ export default function HRMailer() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const emailsList = parseEmailInput(emailsRaw);
+    const emailsList = Array.from(new Set(parseEmailInput(emailsRaw)));
 
     if (emailsList.length === 0) {
       displayStatus('Please provide at least one valid email address.', 'error');
@@ -257,37 +278,48 @@ export default function HRMailer() {
     displayStatus('Sending emails... (this might take a few moments)', 'info', 0);
 
     try {
-      const response = await fetch('/api/hrmailer/send', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          emails: emailsList,
-          subject,
-          htmlBody,
-          resumePath: selectedResumeName || undefined,
-          resumeFileName: selectedResumeName ? getAttachmentFileName(selectedResumeName) : undefined
-        })
-      });
+      const summary = createEmptySendSummary();
 
-      const result = await parseApiResponse(response);
-      
-      if (response.ok && result?.results) {
-        displayStatus(
-          buildSendStatusMessage(result.results),
-          result.results.failed === 0 ? 'success' : 'error',
-          10000
-        );
-      } else if (response.ok) {
-        displayStatus(result?.message || 'Emails sent successfully.', 'success');
-      } else {
-        const errorMessage = [result?.message, result?.error].filter(Boolean).join(': ');
-        displayStatus(
-          `Error: ${errorMessage || `Request failed with status ${response.status}.`}`,
-          'error'
-        );
+      for (const [index, email] of emailsList.entries()) {
+        displayStatus(`Sending ${index + 1} of ${emailsList.length}: ${email}`, 'info', 0);
+
+        const response = await fetch('/api/hrmailer/send', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            emails: [email],
+            subject,
+            htmlBody,
+            resumePath: selectedResumeName || undefined,
+            resumeFileName: selectedResumeName ? getAttachmentFileName(selectedResumeName) : undefined
+          })
+        });
+
+        const result = await parseApiResponse(response);
+
+        if (response.ok && result?.results) {
+          summary.success += result.results.success;
+          summary.failed += result.results.failed;
+          summary.errors.push(...result.results.errors);
+          continue;
+        }
+
+        if (response.ok) {
+          summary.success += 1;
+          continue;
+        }
+
+        summary.failed += 1;
+        summary.errors.push(`${email}: ${getRequestErrorMessage(response, result)}`);
       }
+
+      displayStatus(
+        buildSendStatusMessage(summary),
+        summary.failed === 0 ? 'success' : 'error',
+        10000
+      );
 
     } catch (err: any) {
       displayStatus(`Sending failed: ${err.message}`, 'error');
@@ -336,6 +368,7 @@ export default function HRMailer() {
                 placeholder={"hr1@company.com, hr2@company.com;\nhr3@company.com"}
                 value={emailsRaw}
                 onChange={(e) => setEmailsRaw(e.target.value)}
+                disabled={isMailerBusy}
               />
             </div>
 
@@ -347,6 +380,7 @@ export default function HRMailer() {
                     type="button" 
                     className="btn btn-xs rounded-lg btn-outline btn-primary normal-case hover:scale-105 active:scale-95 transition-transform"
                     onClick={() => setShowModal(true)}
+                    disabled={isMailerBusy}
                   >
                     + Create New
                   </button>
@@ -356,6 +390,7 @@ export default function HRMailer() {
                 className="select w-full rounded-2xl bg-base-200/50 focus:bg-base-100 focus:ring-2 focus:ring-primary/30 outline-none border-base-content/10 transition-all font-poppins text-sm" 
                 onChange={handleSelectTemplate} 
                 defaultValue=""
+                disabled={isMailerBusy}
               >
                 <option value="" disabled>-- Load Template --</option>
                 {dbTemplates.map((tpl) => (
@@ -377,6 +412,7 @@ export default function HRMailer() {
                 placeholder="e.g. Frontend Developer Application"
                 value={subject}
                 onChange={(e) => setSubject(e.target.value)}
+                disabled={isMailerBusy}
               />
             </div>
 
@@ -389,6 +425,7 @@ export default function HRMailer() {
                 placeholder="<p>Dear Hiring Manager,</p>&#10;&#10;<p>I am writing to express my interest...</p>"
                 value={htmlBody}
                 onChange={(e) => setHtmlBody(e.target.value)}
+                disabled={isMailerBusy}
               />
             </div>
           </div>
@@ -410,6 +447,7 @@ export default function HRMailer() {
                   className="select w-full rounded-2xl bg-base-100 border-base-content/10 hover:border-primary/40 focus:ring-2 focus:ring-primary/30 transition-all font-poppins text-sm"
                   value={selectedResumeName}
                   onChange={handleSelectResume}
+                  disabled={isMailerBusy}
                 >
                   <option value="">-- No Resume --</option>
                   {resumes.map((res) => (
@@ -431,7 +469,7 @@ export default function HRMailer() {
                   type="file" 
                   className="file-input file-input-bordered w-full rounded-2xl bg-base-100 file:bg-base-200 file:border-none file:font-poppinsMed file:text-base-content file:px-4 cursor-pointer hover:border-primary/40 transition-all text-xs" 
                   onChange={handleFileUpload}
-                  disabled={uploading}
+                  disabled={isMailerBusy}
                   accept=".pdf,.doc,.docx"
                 />
               </div>
@@ -442,7 +480,7 @@ export default function HRMailer() {
                 type="button" 
                 onClick={handleSubmit}
                 className="btn btn-primary h-14 w-full shadow-lg shadow-primary/25 rounded-[20px] font-poppinsMed normal-case text-base hover:-translate-y-0.5 active:scale-95 transition-all duration-200 border-none"
-                disabled={sending || uploading}
+                disabled={isMailerBusy}
               >
                 {sending ? (
                   <>
