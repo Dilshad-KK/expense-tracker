@@ -3,6 +3,7 @@ import CommonHeader from "@/components/commonHeader";
 import moment from 'moment';
 import Link from 'next/link';
 import { FaPlus } from "react-icons/fa6";
+import { HiOutlineSparkles } from "react-icons/hi2";
 
 type Loan = {
     id: number;
@@ -29,6 +30,12 @@ const AllLoans = () => {
 
     const [loans, setLoans] = useState<Loan[]>([]);
     const [loading, setLoading] = useState(false);
+    const [analyzing, setAnalyzing] = useState(false);
+    const [analysisOpen, setAnalysisOpen] = useState(false);
+    const [analysisOverview, setAnalysisOverview] = useState<string>('');
+    const [analysisAi, setAnalysisAi] = useState<any>(null);
+    const [analysisLoans, setAnalysisLoans] = useState<any[]>([]);
+    const [analysisError, setAnalysisError] = useState<string>('');
 
     useEffect(() => {
         fetchLoans();
@@ -79,9 +86,48 @@ const AllLoans = () => {
         }
     };
 
+    const handleAnalyzeLoans = async () => {
+        setAnalyzing(true);
+        setAnalysisError('');
+        setAnalysisOverview('');
+        setAnalysisAi(null);
+        setAnalysisLoans([]);
+        setAnalysisOpen(true);
+
+        try {
+            const res = await fetch('/api/ai/analyze-loans');
+            const raw = await res.text();
+            const parsed = raw ? JSON.parse(raw) : null;
+            if (!res.ok || parsed?.success === false) {
+                setAnalysisError(parsed?.message || `AI request failed (HTTP ${res.status}).`);
+                return;
+            }
+            setAnalysisOverview(parsed?.overview || '');
+            setAnalysisAi(parsed?.ai ?? null);
+            setAnalysisLoans(Array.isArray(parsed?.loans) ? parsed.loans : []);
+        } catch (err: any) {
+            setAnalysisError(err?.message || 'AI request failed.');
+        } finally {
+            setAnalyzing(false);
+        }
+    };
+
     return (
         <div className="bg-base-100 min-h-screen relative">
-            <CommonHeader title='Loans' />
+            <CommonHeader
+                title='Loans'
+                right={
+                    <button
+                        className="btn btn-sm btn-ghost"
+                        onClick={handleAnalyzeLoans}
+                        disabled={loading || analyzing}
+                        title="Analyze loans with AI"
+                    >
+                        {analyzing ? <span className="loading loading-spinner loading-sm" /> : <HiOutlineSparkles className="text-[18px]" />}
+                        <span className="hidden sm:inline ml-1">Analyze</span>
+                    </button>
+                }
+            />
             <div className='px-4 pt-4 pb-[150px]'>
                 {loading ?
                     <div>
@@ -136,6 +182,131 @@ const AllLoans = () => {
             <Link href={"/allloans/newloan"} className='fixed z-[2000] right-8 bottom-28 bg-[#514cff] dark:bg-primary hover:bg-[#413cff] dark:hover:bg-primary-focus h-[50px] w-[50px] rounded-full flex items-center justify-center cursor-pointer transition-all hover:scale-105 shadow-lg border-2 border-white/20'>
                 <FaPlus className='text-white text-base' />
             </Link>
+
+            {analysisOpen && (
+                <div className="fixed inset-0 z-[3000] flex md:items-center md:justify-center bg-black/60 backdrop-blur-sm md:p-6 transition-opacity animate-in fade-in duration-200">
+                    <div className="bg-base-100 md:rounded-[28px] shadow-2xl w-full h-full md:h-auto max-w-2xl flex flex-col md:max-h-[85vh] overflow-hidden border border-white/10">
+                        <div className="p-5 md:p-6 border-b border-base-content/5 flex justify-between items-center bg-base-100/80 backdrop-blur-md z-10 shrink-0">
+                            <div className="flex flex-col">
+                                <h3 className="text-lg font-poppinsMed">Loan Analysis</h3>
+                                <span className="text-[11px] text-base-content/50 font-poppinsMed">Powered by your AI server</span>
+                            </div>
+                            <button className="btn btn-sm btn-circle btn-ghost bg-base-200 hover:bg-error hover:text-white" onClick={() => setAnalysisOpen(false)}>✕</button>
+                        </div>
+
+                        <div className="p-5 md:p-6 overflow-y-auto flex-1 custom-scrollbar">
+                            {analyzing ? (
+                                <div className="flex items-center gap-3 text-base-content/70 font-poppinsMed">
+                                    <span className="loading loading-spinner" />
+                                    Analyzing your loans…
+                                </div>
+                            ) : analysisError ? (
+                                <div className="alert alert-error">
+                                    <span className="font-poppinsMed">{analysisError}</span>
+                                </div>
+                            ) : (
+                                <div className="space-y-4">
+                                    <div className="bg-base-200/50 border border-base-content/10 rounded-2xl p-4">
+                                        <div className="text-[12px] text-base-content/60 font-poppinsMed mb-2 uppercase tracking-wider">Overview</div>
+                                        <div className="whitespace-pre-wrap text-[14px] leading-relaxed font-poppinsMed text-base-content/80">
+                                            {analysisOverview || 'No overview returned.'}
+                                        </div>
+                                    </div>
+
+                                    {analysisAi && (
+                                        <div className="bg-base-200/50 border border-base-content/10 rounded-2xl p-4">
+                                            <div className="text-[12px] text-base-content/60 font-poppinsMed mb-3 uppercase tracking-wider">Suggestions</div>
+                                            {Array.isArray(analysisAi?.actions) && analysisAi.actions.length > 0 ? (
+                                                <ul className="list-disc pl-5 space-y-1 text-[13px] text-base-content/80 font-poppinsMed">
+                                                    {analysisAi.actions.slice(0, 8).map((a: string, idx: number) => (
+                                                        <li key={idx}>{a}</li>
+                                                    ))}
+                                                </ul>
+                                            ) : (
+                                                <div className="text-[13px] text-base-content/60 font-poppinsMed">No suggestions returned.</div>
+                                            )}
+                                        </div>
+                                    )}
+
+                                    {analysisLoans.length > 0 && (
+                                        <div className="bg-base-200/50 border border-base-content/10 rounded-2xl p-4">
+                                            <div className="text-[12px] text-base-content/60 font-poppinsMed mb-3 uppercase tracking-wider">Per Loan</div>
+                                            <div className="space-y-3">
+                                                {analysisLoans.slice(0, 50).map((loan: any) => {
+                                                    const note =
+                                                        Array.isArray(analysisAi?.perLoanNotes)
+                                                            ? analysisAi.perLoanNotes.find((n: any) => n?.id === loan?.id)?.note
+                                                            : null;
+
+                                                    const outstanding =
+                                                        typeof loan?.outstanding === 'number'
+                                                            ? `${loan?.currency ?? ''} ${Number(loan.outstanding).toLocaleString()}`
+                                                            : null;
+                                                    const nextDue = loan?.nextDue ? moment(loan.nextDue).format('YYYY-MM-DD') : null;
+                                                    const nextAmount =
+                                                        typeof loan?.nextAmount === 'number'
+                                                            ? `${loan?.currency ?? ''} ${Number(loan.nextAmount).toLocaleString()}`
+                                                            : null;
+
+                                                    return (
+                                                        <div key={loan.id} className="bg-base-100/70 border border-base-content/10 rounded-2xl p-4">
+                                                            <div className="flex items-start justify-between gap-3">
+                                                                <div className="flex flex-col">
+                                                                    <div className="text-[14px] font-poppinsMed text-base-content/90">
+                                                                        {loan?.title || `Loan #${loan?.id}`}
+                                                                    </div>
+                                                                    <div className="text-[12px] text-base-content/60 font-poppinsMed mt-1">
+                                                                        {loan?.paidInsts ?? 0}/{loan?.totalInsts ?? 0} paid · {loan?.remainingInsts ?? 0} remaining
+                                                                    </div>
+                                                                </div>
+                                                                <div className="shrink-0">
+                                                                    {(loan?.status || '').toLowerCase() === 'paid' || (loan?.remainingInsts ?? 0) === 0 ? (
+                                                                        <div className="badge badge-success badge-outline uppercase text-[10px] py-2 px-3">paid</div>
+                                                                    ) : (
+                                                                        <div className="badge badge-warning badge-outline uppercase text-[10px] py-2 px-3">pending</div>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+
+                                                            <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2 text-[12px] font-poppinsMed text-base-content/70">
+                                                                <div className="rounded-xl bg-base-200/60 border border-base-content/10 px-3 py-2">
+                                                                    <div className="opacity-60 text-[10px] uppercase tracking-wider">Outstanding (approx)</div>
+                                                                    <div className="mt-0.5 text-[12px] text-base-content/80">
+                                                                        {outstanding || '—'}
+                                                                    </div>
+                                                                </div>
+                                                                <div className="rounded-xl bg-base-200/60 border border-base-content/10 px-3 py-2">
+                                                                    <div className="opacity-60 text-[10px] uppercase tracking-wider">Next due</div>
+                                                                    <div className="mt-0.5 text-[12px] text-base-content/80">
+                                                                        {nextDue ? `${nextDue}${nextAmount ? ` · ${nextAmount}` : ''}` : '—'}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                            {note ? (
+                                                                <div className="mt-3 text-[12px] font-poppinsMed text-base-content/70">
+                                                                    <span className="opacity-60">AI note:</span> {note}
+                                                                </div>
+                                                            ) : null}
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="p-5 md:p-6 border-t border-base-content/5 bg-base-200/30 flex justify-end gap-3 shrink-0">
+                            <button className="btn btn-ghost rounded-xl font-poppinsMed" onClick={() => setAnalysisOpen(false)}>Close</button>
+                            <button className="btn btn-primary rounded-xl px-8 shadow-lg shadow-primary/20 hover:-translate-y-0.5 active:scale-95 transition-all" onClick={handleAnalyzeLoans} disabled={analyzing || loading}>
+                                {analyzing ? <span className="loading loading-spinner text-white w-4" /> : <span className="text-white font-poppinsMed">Re-run</span>}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     )
 }
