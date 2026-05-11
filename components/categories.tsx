@@ -2,7 +2,7 @@ import React from 'react';
 import Link from 'next/link'
 import { CiReceipt } from "react-icons/ci";
 import { PiBankLight, PiListPlusLight } from "react-icons/pi";
-import { HiOutlineEnvelope, HiOutlineChatBubbleBottomCenter, HiOutlineCreditCard } from "react-icons/hi2";
+import { HiOutlineEnvelope, HiOutlineChatBubbleBottomCenter, HiOutlineCreditCard, HiOutlineSparkles } from "react-icons/hi2";
 import { IoIosFemale } from "react-icons/io";
 
 const Categories = () => {
@@ -46,6 +46,11 @@ const Categories = () => {
             label: "HR MAILER",
             href: "/hrmailer",
             icon: <HiOutlineEnvelope className='text-[26px] text-primary' />
+        },
+        {
+            label: "AI CHAT",
+            href: "/ai",
+            icon: <HiOutlineSparkles className='text-[26px] text-secondary' />
         },
         {
             label: "SUBSCRIPTIONS",
