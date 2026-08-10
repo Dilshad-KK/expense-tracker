@@ -32,6 +32,7 @@ export function useWebRTC({ currentUser, otherUser, video = false }: UseWebRTCPr
   const [isVideoCall, setIsVideoCall] = useState(video); // Tracks if current call is video
 
   const pcRef = useRef<RTCPeerConnection | null>(null);
+  const localStreamRef = useRef<MediaStream | null>(null);
   const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -122,6 +123,11 @@ export function useWebRTC({ currentUser, otherUser, video = false }: UseWebRTCPr
         audio: true, 
         video: withVideo ? { facingMode: 'user' } : false 
       });
+      // If there's already a stream in the ref (e.g. from strict mode double-call), stop it first
+      if (localStreamRef.current) {
+        localStreamRef.current.getTracks().forEach(t => t.stop());
+      }
+      localStreamRef.current = stream;
       setLocalStream(stream);
       stream.getTracks().forEach((track) => {
         pc.addTrack(track, stream);
@@ -220,13 +226,22 @@ export function useWebRTC({ currentUser, otherUser, video = false }: UseWebRTCPr
   const cleanupCall = useCallback(() => {
     clearCallTimeout();
     if (pcRef.current) {
+      // Also stop from RTCPeerConnection just to be safe
+      pcRef.current.getSenders().forEach(sender => {
+        if (sender.track) sender.track.stop();
+      });
       pcRef.current.close();
       pcRef.current = null;
     }
+    if (localStreamRef.current) {
+      localStreamRef.current.getTracks().forEach(track => track.stop());
+      localStreamRef.current = null;
+    }
+    // Fallback for React state
     if (localStream) {
       localStream.getTracks().forEach(track => track.stop());
-      setLocalStream(null);
     }
+    setLocalStream(null);
     setRemoteStream(null);
     setCallStatus('idle');
     setIsMuted(false);
