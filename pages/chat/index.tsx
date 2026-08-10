@@ -236,9 +236,10 @@ export default function ChatPage() {
 
   // ─── Render ───────────────────────────────────────────────────────────────
   return (
-    // FIX 1: height driven by visualViewport so iOS keyboard shrinks the container
+    // FIX 1: fixed top-0 prevents the entire body from being scrolled upward by iOS
+    // when the keyboard opens. The height is driven by visualViewport so it shrinks exactly.
     <div
-      className="flex flex-col bg-base-100 overflow-hidden"
+      className="fixed top-0 left-0 w-full flex flex-col bg-base-100 overflow-hidden z-[9999]"
       style={{ height: viewportHeight }}
     >
       {/* ── Header ─────────────────────────────────────────────────────────── */}
@@ -403,7 +404,10 @@ export default function ChatPage() {
       </div>
 
       {/* ── Input bar ──────────────────────────────────────────────────────── */}
-      <div className="flex-shrink-0 bg-base-100 border-t border-base-content/10 px-3 py-2 flex items-center gap-2">
+      <div 
+        className="flex-shrink-0 bg-base-100 border-t border-base-content/10 px-3 pt-2 flex items-center gap-2"
+        style={{ paddingBottom: 'calc(8px + env(safe-area-inset-bottom, 0px))' }}
+      >
         {/*
           FIX 5: Remove focus:ring-* (which conflicts with DaisyUI CSS vars).
           Use box-shadow via the `chat-input` CSS class defined in globals.css.

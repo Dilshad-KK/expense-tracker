@@ -15,9 +15,11 @@ export default function Document() {
           Default = ikbu primary (#514cff).
         */}
         <meta name="theme-color" content="#514cff" />
-        {/* iOS: allow content to extend behind the status bar (needed for notch colour) */}
+        {/* iOS: keep content below the status bar — 'default' avoids black-translucent
+            layout issues where content bleeds behind the notch.
+            The notch/overscroll colour is handled via html { background: primary } in CSS. */}
         <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <link rel="apple-touch-icon" href="/assets/favicon.png" />
       </Head>
       <body className="antialiased">
