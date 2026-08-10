@@ -54,15 +54,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       .single();
     if (error) return res.status(500).json({ error: error.message });
 
-    // Broadcast push notification to all registered FCM tokens
+    // Push notification → only to the RECIPIENT's devices (not the sender's own devices).
+    // fcm_tokens.user is set at registration time (see lib/firebaseClient.ts).
     try {
       const { data: tokenRows } = await supabaseServer
         .from("fcm_tokens")
-        .select("token");
+        .select("token")
+        .neq("user", sender); // ← exclude sender's own tokens
+
       const tokens = (tokenRows ?? []).map((r: any) => r.token).filter(Boolean);
       if (tokens.length) {
         const preview = String(body).slice(0, 100);
-        await admin.messaging().sendEachForMulticast({
+        const response = await admin.messaging().sendEachForMulticast({
           tokens,
           data: {
             title: sender,
@@ -80,10 +83,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             },
           },
         });
+
+        // Clean up any stale tokens that FCM reported as invalid
+        const invalidTokens = response.responses
+          .map((r, i) => (!r.success ? tokens[i] : null))
+          .filter(Boolean) as string[];
+        if (invalidTokens.length) {
+          await supabaseServer.from("fcm_tokens").delete().in("token", invalidTokens);
+        }
       }
     } catch {
-      // Non-fatal: message was saved; push notification failure is acceptable
+      // Non-fatal — message was saved; push failure is acceptable
     }
+
 
     return res.status(201).json(data);
   }

@@ -3,9 +3,24 @@
 @tailwind utilities;
 
 /* ── Viewport: use dvh so iOS Safari's collapsible chrome is excluded ──────── */
-html, body {
+/*
+  html background = primary colour:
+    - Fills the notch / status-bar area on iOS (viewport-fit=cover)
+    - Fills the overscroll "bounce" zone at the top when the user pulls down
+  body background = base-100 (the actual app canvas) — sits below the content.
+  Because DaisyUI sets --p on [data-theme] (which is on <html>), this works
+  dynamically for every theme without any JS.
+*/
+html {
   height: 100%;
+  background-color: oklch(var(--p));
 }
+
+body {
+  height: 100%;
+  background-color: oklch(var(--b1));
+}
+
 
 /* Prevent iOS Safari from auto-zooming on focus */
 html { -webkit-text-size-adjust: 100%; }
@@ -39,6 +54,14 @@ body{
   padding-bottom: env(safe-area-inset-bottom, 0px);
   height: calc(88px + env(safe-area-inset-bottom, 0px));
 }
+
+/* ── Chat input: reliable focus ring that works across all DaisyUI themes ───── */
+/* Using box-shadow instead of Tailwind ring-* because ring-primary can fail to
+   resolve the CSS variable color in some DaisyUI/Tailwind v3 combinations.    */
+.chat-input:focus {
+  box-shadow: 0 0 0 2.5px oklch(var(--p) / 0.35);
+}
+
 
 .skeleton {
   will-change: background-position;

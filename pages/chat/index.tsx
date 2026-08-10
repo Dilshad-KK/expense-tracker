@@ -36,6 +36,9 @@ const OTHER_USER: Record<string, string> = {
   "Shifa Dilshad": "Dilshad",
 };
 
+// Temporary IDs for optimistic messages (negative so they never clash with DB ids)
+let tempIdSeed = -1;
+
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function groupByDate(messages: Message[]): GroupedMessages[] {
@@ -66,17 +69,54 @@ export default function ChatPage() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
+  // FIX 1: Track real visual viewport height so iOS keyboard shrinks container correctly
+  const [viewportHeight, setViewportHeight] = useState<string>("100dvh");
+
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
+  const messagesBoxRef = useRef<HTMLDivElement>(null);
 
-  // ── Resolve current user from localStorage ────────────────────────────────
+  // ── Resolve user ──────────────────────────────────────────────────────────
   useEffect(() => {
     const user = localStorage.getItem("userIdentity") || "";
     setCurrentUser(user);
   }, []);
 
-  // ── Fetch initial messages ────────────────────────────────────────────────
+  // ── FIX 1: visualViewport API — iOS keyboard awareness ───────────────────
+  // When the virtual keyboard appears/disappears, `window.visualViewport.height`
+  // reflects the *actual* visible area. We bind the container to this value so
+  // the flex layout doesn't overflow below the keyboard.
+  useEffect(() => {
+    const vv = window.visualViewport;
+    if (!vv) return;
+
+    const update = () => {
+      setViewportHeight(`${vv.height}px`);
+      // After the container shrinks, re-pin scroll to the bottom
+      requestAnimationFrame(() => {
+        bottomRef.current?.scrollIntoView({ behavior: "instant" });
+      });
+    };
+
+    vv.addEventListener("resize", update);
+    vv.addEventListener("scroll", update);
+    // Set immediately so the first render is correct
+    setViewportHeight(`${vv.height}px`);
+
+    return () => {
+      vv.removeEventListener("resize", update);
+      vv.removeEventListener("scroll", update);
+    };
+  }, []);
+
+  // ── Scroll to bottom helper ───────────────────────────────────────────────
+  const scrollToBottom = useCallback((instant = false) => {
+    bottomRef.current?.scrollIntoView({
+      behavior: instant ? "instant" : "smooth",
+    });
+  }, []);
+
+  // ── Fetch messages ────────────────────────────────────────────────────────
   const fetchMessages = useCallback(async () => {
     try {
       const res = await fetch("/api/chat");
@@ -90,21 +130,18 @@ export default function ChatPage() {
   }, []);
 
   // ── Mark messages as read ─────────────────────────────────────────────────
-  const markRead = useCallback(
-    async (user: string) => {
-      if (!user) return;
-      try {
-        await fetch("/api/chat", {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ user }),
-        });
-      } catch {}
-    },
-    []
-  );
+  const markRead = useCallback(async (user: string) => {
+    if (!user) return;
+    try {
+      await fetch("/api/chat", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user }),
+      });
+    } catch {}
+  }, []);
 
-  // ── Supabase Realtime subscription ────────────────────────────────────────
+  // ── Realtime subscription ─────────────────────────────────────────────────
   useEffect(() => {
     if (!currentUser) return;
 
@@ -112,21 +149,21 @@ export default function ChatPage() {
     markRead(currentUser);
 
     const channel = supabase
-      .channel("chat_realtime")
+      .channel("chat_realtime_v2")
       .on(
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "messages" },
         (payload) => {
           const newMsg = payload.new as Message;
           setMessages((prev) => {
-            // Deduplicate
-            if (prev.some((m) => m.id === newMsg.id)) return prev;
-            return [...prev, newMsg];
+            // FIX 3 (optimistic): replace matching temp message with real one
+            const withoutOptimistic = prev.filter(
+              (m) => !(m.id < 0 && m.sender === newMsg.sender && m.body === newMsg.body)
+            );
+            if (withoutOptimistic.some((m) => m.id === newMsg.id)) return withoutOptimistic;
+            return [...withoutOptimistic, newMsg];
           });
-          // If the message is from the other person, mark as read
-          if (newMsg.sender !== currentUser) {
-            markRead(currentUser);
-          }
+          if (newMsg.sender !== currentUser) markRead(currentUser);
         }
       )
       .on(
@@ -134,30 +171,38 @@ export default function ChatPage() {
         { event: "UPDATE", schema: "public", table: "messages" },
         (payload) => {
           const updated = payload.new as Message;
-          setMessages((prev) =>
-            prev.map((m) => (m.id === updated.id ? updated : m))
-          );
+          setMessages((prev) => prev.map((m) => (m.id === updated.id ? updated : m)));
         }
       )
       .subscribe();
 
-    channelRef.current = channel;
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    return () => { supabase.removeChannel(channel); };
   }, [currentUser, fetchMessages, markRead]);
 
-  // ── Auto-scroll on new messages ───────────────────────────────────────────
+  // ── Scroll to bottom when messages change ─────────────────────────────────
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+    if (messages.length === 0) return;
+    scrollToBottom(loading);
+  }, [messages, loading, scrollToBottom]);
 
-  // ── Send message ──────────────────────────────────────────────────────────
+  // ── FIX 3: Optimistic send ────────────────────────────────────────────────
   const sendMessage = async () => {
     const body = input.trim();
     if (!body || !currentUser || sending) return;
+
     setSending(true);
     setInput("");
+
+    // Immediately add a temporary message so the UI feels instant
+    const tempMsg: Message = {
+      id: tempIdSeed--,
+      sender: currentUser,
+      body,
+      created_at: new Date().toISOString(),
+      read_by: [],
+    };
+    setMessages((prev) => [...prev, tempMsg]);
+
     try {
       await fetch("/api/chat", {
         method: "POST",
@@ -165,6 +210,8 @@ export default function ChatPage() {
         body: JSON.stringify({ sender: currentUser, body }),
       });
     } catch {
+      // Roll back the optimistic message on network error
+      setMessages((prev) => prev.filter((m) => m.id !== tempMsg.id));
     } finally {
       setSending(false);
       inputRef.current?.focus();
@@ -183,26 +230,29 @@ export default function ChatPage() {
   const grouped = groupByDate(messages);
 
   const isReadByOther = (msg: Message) =>
-    msg.sender === currentUser &&
-    (msg.read_by ?? []).includes(otherUser);
+    msg.sender === currentUser && (msg.read_by ?? []).includes(otherUser);
+
+  const isOptimistic = (msg: Message) => msg.id < 0;
 
   // ─── Render ───────────────────────────────────────────────────────────────
   return (
-    <div className="flex flex-col h-[100dvh] bg-base-100 overflow-hidden">
-
+    // FIX 1: height driven by visualViewport so iOS keyboard shrinks the container
+    <div
+      className="flex flex-col bg-base-100 overflow-hidden"
+      style={{ height: viewportHeight }}
+    >
       {/* ── Header ─────────────────────────────────────────────────────────── */}
-      <header className="flex-shrink-0 bg-primary px-3 py-2 flex items-center gap-3 shadow-md z-50">
+      <header className="flex-shrink-0 bg-primary px-3 py-2 flex items-center gap-3 shadow-md">
         <button
           onClick={() => router.back()}
-          className="text-white/80 hover:text-white transition-colors p-1 rounded-full hover:bg-white/10 active:scale-95"
+          className="text-white/80 hover:text-white transition-colors p-1.5 rounded-full hover:bg-white/10 active:scale-95"
           aria-label="Go back"
         >
           <IoArrowBack className="text-[22px]" />
         </button>
 
-        {/* Avatar */}
         <div
-          className={`h-[40px] w-[40px] rounded-full flex-shrink-0 flex items-center justify-center shadow-sm ${
+          className={`h-[40px] w-[40px] rounded-full flex-shrink-0 flex items-center justify-center ${
             AVATAR_BG[otherUser] ?? "bg-secondary"
           }`}
         >
@@ -211,73 +261,70 @@ export default function ChatPage() {
           </span>
         </div>
 
-        {/* Name & status */}
-        <div className="flex flex-col min-w-0">
+        {/* FIX 6: "online" indicator instead of placeholder text */}
+        <div className="flex flex-col min-w-0 flex-1">
           <span className="text-white font-poppinsMed text-[15px] leading-snug truncate">
             {otherUser || "Chat"}
           </span>
-          <span className="text-white/65 text-[11px]">tap here for info</span>
+          <div className="flex items-center gap-1 mt-[1px]">
+            <span className="inline-block w-[6px] h-[6px] rounded-full bg-success" />
+            <span className="text-white/70 text-[11px]">online</span>
+          </div>
         </div>
       </header>
 
-      {/* ── Chat wallpaper + messages ───────────────────────────────────────── */}
+      {/* ── Messages area ───────────────────────────────────────────────────── */}
+      {/*
+        FIX 2: `min-h-0` is critical on iOS.
+        flex-1 by default has min-height: auto, which can cause the container to
+        grow beyond the available space. min-h-0 constrains it so the overflow-y-auto
+        scrollbar works correctly and the input doesn't get pushed off screen.
+      */}
       <div
-        className="flex-1 overflow-y-auto px-2 py-3"
-        style={{
-          backgroundImage:
-            "radial-gradient(circle at 20% 30%, rgba(var(--color-primary) / 0.04) 0%, transparent 60%), " +
-            "radial-gradient(circle at 80% 80%, rgba(var(--color-secondary) / 0.04) 0%, transparent 60%)",
-        }}
+        ref={messagesBoxRef}
+        className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden px-2 py-3"
       >
-        {/* ── Loading skeleton ─────────────────────────────────────────── */}
+        {/* Loading skeleton */}
         {loading && (
           <div className="flex flex-col gap-3 px-1 pt-2">
             {[70, 55, 80, 45, 65].map((w, i) => (
-              <div
-                key={i}
-                className={`flex ${i % 2 === 0 ? "justify-end" : "justify-start"}`}
-              >
-                <div
-                  className="skeleton h-10 rounded-2xl bg-base-200"
-                  style={{ width: `${w}%` }}
-                />
+              <div key={i} className={`flex ${i % 2 === 0 ? "justify-end" : "justify-start"}`}>
+                <div className="skeleton h-10 rounded-2xl bg-base-200" style={{ width: `${w}%` }} />
               </div>
             ))}
           </div>
         )}
 
-        {/* ── Empty state ──────────────────────────────────────────────── */}
+        {/* Empty state */}
         {!loading && messages.length === 0 && (
-          <div className="flex flex-col items-center justify-center h-full gap-3 py-20">
+          <div className="flex flex-col items-center justify-center h-full gap-3">
             <div className="h-[70px] w-[70px] rounded-full bg-primary/10 flex items-center justify-center">
               <span className="text-[32px]">💬</span>
             </div>
             <p className="text-base-content/50 text-[13px] font-poppinsMed text-center px-8">
-              No messages yet.{"\n"}Send a message to start the conversation!
+              No messages yet. Say hi! 👋
             </p>
           </div>
         )}
 
-        {/* ── Messages ─────────────────────────────────────────────────── */}
+        {/* Messages */}
         {!loading &&
           grouped.map((group) => (
             <div key={group.label}>
               {/* Date divider */}
               <div className="flex items-center justify-center my-3">
-                <div className="bg-base-200/80 backdrop-blur-sm text-base-content/50 text-[11px] font-poppinsMed px-3 py-[3px] rounded-full shadow-sm border border-base-content/10">
+                <div className="bg-base-200/80 backdrop-blur-sm text-base-content/50 text-[11px] font-poppinsMed px-3 py-[3px] rounded-full border border-base-content/10">
                   {group.label}
                 </div>
               </div>
 
-              {/* Bubbles */}
               {group.messages.map((msg, idx) => {
                 const isMine = msg.sender === currentUser;
-                const prevSameSender =
-                  idx > 0 &&
-                  group.messages[idx - 1].sender === msg.sender;
+                const prevSameSender = idx > 0 && group.messages[idx - 1].sender === msg.sender;
                 const nextSameSender =
                   idx < group.messages.length - 1 &&
                   group.messages[idx + 1].sender === msg.sender;
+                const temp = isOptimistic(msg);
 
                 return (
                   <div
@@ -286,7 +333,7 @@ export default function ChatPage() {
                       prevSameSender ? "mt-[2px]" : "mt-3"
                     }`}
                   >
-                    {/* Avatar (only for first message in a sequence from other) */}
+                    {/* Avatar for received messages */}
                     {!isMine && (
                       <div className="w-[30px] flex-shrink-0 flex items-end mr-1">
                         {!nextSameSender && (
@@ -301,15 +348,25 @@ export default function ChatPage() {
                       </div>
                     )}
 
-                    <div className={`flex flex-col ${isMine ? "items-end" : "items-start"} max-w-[78vw]`}>
-                      {/* Bubble */}
+                    <div
+                      className={`flex flex-col max-w-[78vw] ${
+                        isMine ? "items-end" : "items-start"
+                      }`}
+                    >
+                      {/*
+                        FIX 4: `w-fit` prevents the bubble from stretching to max-w.
+                        Without it, a single emoji becomes a wide solid rectangle.
+                        `max-w-full` still caps it at the parent's max-w-[78vw].
+                      */}
                       <div
-                        className={`px-3 py-[7px] text-[14px] font-poppins leading-relaxed break-words shadow-sm ${
+                        className={`w-fit max-w-full px-3 py-[7px] text-[14px] font-poppins leading-relaxed break-words shadow-sm transition-opacity duration-150 ${
+                          temp ? "opacity-55" : "opacity-100"
+                        } ${
                           isMine
-                            ? "bg-primary text-white rounded-t-2xl rounded-bl-2xl rounded-br-md"
-                            : "bg-base-200 text-base-content rounded-t-2xl rounded-br-2xl rounded-bl-md"
-                        } ${prevSameSender && isMine ? "rounded-tr-md" : ""} ${
-                          prevSameSender && !isMine ? "rounded-tl-md" : ""
+                            ? "bg-primary text-white rounded-t-2xl rounded-bl-2xl rounded-br-[4px]"
+                            : "bg-base-200 text-base-content rounded-t-2xl rounded-br-2xl rounded-bl-[4px]"
+                        } ${prevSameSender && isMine ? "rounded-tr-[4px]" : ""} ${
+                          prevSameSender && !isMine ? "rounded-tl-[4px]" : ""
                         }`}
                       >
                         {msg.body}
@@ -323,16 +380,14 @@ export default function ChatPage() {
                         {isMine && (
                           <span
                             className={`text-[13px] transition-colors ${
-                              isReadByOther(msg)
+                              temp
+                                ? "text-base-content/20"
+                                : isReadByOther(msg)
                                 ? "text-info"
                                 : "text-base-content/30"
                             }`}
                           >
-                            {isReadByOther(msg) ? (
-                              <IoCheckmarkDone />
-                            ) : (
-                              <IoCheckmark />
-                            )}
+                            {isReadByOther(msg) ? <IoCheckmarkDone /> : <IoCheckmark />}
                           </span>
                         )}
                       </div>
@@ -344,11 +399,15 @@ export default function ChatPage() {
           ))}
 
         {/* Scroll anchor */}
-        <div ref={bottomRef} className="h-1" />
+        <div ref={bottomRef} className="h-2" />
       </div>
 
       {/* ── Input bar ──────────────────────────────────────────────────────── */}
       <div className="flex-shrink-0 bg-base-100 border-t border-base-content/10 px-3 py-2 flex items-center gap-2">
+        {/*
+          FIX 5: Remove focus:ring-* (which conflicts with DaisyUI CSS vars).
+          Use box-shadow via the `chat-input` CSS class defined in globals.css.
+        */}
         <input
           ref={inputRef}
           id="chat-message-input"
@@ -358,7 +417,9 @@ export default function ChatPage() {
           onKeyDown={handleKeyDown}
           placeholder="Type a message…"
           autoComplete="off"
-          className="flex-1 bg-base-200 rounded-full px-4 py-[11px] text-[14px] text-base-content placeholder:text-base-content/40 outline-none focus:ring-2 focus:ring-primary/25 transition-all"
+          autoCorrect="off"
+          autoCapitalize="sentences"
+          className="chat-input flex-1 bg-base-200 rounded-full px-4 py-[11px] text-[14px] text-base-content placeholder:text-base-content/40 outline-none transition-all border-none"
         />
         <button
           id="chat-send-btn"

@@ -67,6 +67,37 @@ export default function App({ Component, pageProps }: AppProps) {
     return () => { try { unsubscribe(); } catch {} };
   }, []);
 
+  // ── Sync <meta name="theme-color"> with the active DaisyUI primary colour ──
+  // Runs after every theme change so the Android status bar / browser chrome
+  // always matches the app's primary colour.
+  useEffect(() => {
+    const updateThemeColor = () => {
+      try {
+        const themeName: string = (store.getState() as any).ui.theme ?? 'ikbu';
+        // Fast-path: known custom themes
+        const knownColors: Record<string, string> = {
+          ikbu: '#514cff',
+          'ikbu-dark': '#7c83ff',
+        };
+        if (knownColors[themeName]) {
+          document.querySelector('meta[name="theme-color"]')?.setAttribute('content', knownColors[themeName]);
+          return;
+        }
+        // For any other DaisyUI theme, read the CSS variable from the document root.
+        // DaisyUI exposes --p as an oklch channel string, e.g. "62.8% 0.258 29.2"
+        const raw = getComputedStyle(document.documentElement).getPropertyValue('--p').trim();
+        if (raw) {
+          document.querySelector('meta[name="theme-color"]')?.setAttribute('content', `oklch(${raw})`);
+        }
+      } catch {}
+    };
+
+    updateThemeColor();
+    const unsub = store.subscribe(updateThemeColor);
+    return () => { try { unsub(); } catch {} };
+  }, []);
+
+
   // Show iOS PWA notification enable banner on first load (installed PWA only)
   useEffect(() => {
     if (typeof window === 'undefined') return;

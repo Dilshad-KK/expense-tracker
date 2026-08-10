@@ -9,7 +9,15 @@ export default function Document() {
           content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover"
         />
         <link rel="manifest" href="/manifest.json" />
-        <meta name="theme-color" content="#000000" />
+        {/*
+          theme-color: sets browser chrome / Android status bar colour.
+          It is also updated dynamically in _app.tsx whenever the user changes theme.
+          Default = ikbu primary (#514cff).
+        */}
+        <meta name="theme-color" content="#514cff" />
+        {/* iOS: allow content to extend behind the status bar (needed for notch colour) */}
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <link rel="apple-touch-icon" href="/assets/favicon.png" />
       </Head>
       <body className="antialiased">
