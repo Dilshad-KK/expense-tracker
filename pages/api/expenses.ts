@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { supabase } from "../../lib/supabase";
 import moment from "moment";
 import { getCategoryIcon, getCategoryHeroImage } from "@/utils/categoryMapper";
+import { suggestExpenseWithAi } from "@/lib/aiExpenseSuggest";
 
 type ExpenseEntry = {
   id: number;
@@ -66,22 +67,25 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (!amount || !note || !type)
       return res.status(400).json({ error: "Amount, note, and type are required" });
 
+    const ai = await suggestExpenseWithAi({ note, amount, type });
+    const finalNote = ai?.normalizedNote || note;
+
     const { data, error } = await supabase
       .from("ibuexpenses")
-      .insert([{ amount, note, type, balance }])
+      .insert([{ amount, note: finalNote, type, balance }])
       .select();
 
     if (error) return res.status(500).json({ error: error.message });
     try {
       const origin = `${(req.headers['x-forwarded-proto'] || 'https')}://${req.headers.host}`;
-      const iconUrl = getCategoryIcon(note || '');
-      const heroUrl = getCategoryHeroImage(note || '');
+      const iconUrl = getCategoryIcon(finalNote || '');
+      const heroUrl = getCategoryHeroImage(finalNote || '');
       await fetch(`${origin}/api/broadcastAll`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           title: 'Expense Added',
-          body: `SHIFA: ${note} - ${amount}`,
+          body: `SHIFA: ${finalNote} - ${amount}`,
           click_action: '/ibuexpenses',
           icon: iconUrl,
           image: heroUrl,

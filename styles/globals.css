@@ -1,7 +1,6 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-@plugin "daisyui";
 
 /* Prevent iOS Safari from auto-zooming on focus */
 html { -webkit-text-size-adjust: 100%; }
@@ -26,18 +25,18 @@ body{
 @font-face {
   font-family: 'Poppins';
   src: url('/assets/fonts/Poppins/Poppins-Regular.ttf') format('truetype');
-  font-weight: 900;
+  font-weight: 400;
   font-style: normal;
 }
 @font-face {
   font-family: 'PoppinsMedium';
   src: url('/assets/fonts/Poppins/Poppins-Medium.ttf') format('truetype');
-  font-weight: 900;
+  font-weight: 500;
   font-style: normal;
 }
 @font-face {
   font-family: 'PoppinsBold';
   src: url('/assets/fonts/Poppins/Poppins-Bold.ttf') format('truetype');
-  font-weight: 900;
+  font-weight: 700;
   font-style: normal;
 }

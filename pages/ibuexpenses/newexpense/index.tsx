@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import CommonHeader from "@/components/commonHeader";
-import { getAllCategories, getSuggestedCategory, trainCategoryForToken } from '@/utils/categoryMapper';
+import { categoryIcons, getAllCategories, getSuggestedCategory, trainCategoryForToken } from '@/utils/categoryMapper';
 
 
 const NewExpense = () => {
@@ -14,6 +14,8 @@ const NewExpense = () => {
     const [suggestions, setSuggestions] = useState<{ amount: string; note: string; type: 'Withdrawal'|'Deposit'; count: number }[]>([]);
     const suggestion = useMemo(() => getSuggestedCategory(note), [note]);
     const categories = useMemo(() => getAllCategories(), []);
+    const [aiSuggestion, setAiSuggestion] = useState<{ normalizedNote: string; categoryKey: string; confidence: number } | null>(null);
+    const [aiBusy, setAiBusy] = useState(false);
 
 
 
@@ -41,13 +43,14 @@ const NewExpense = () => {
             // Train local categorizer with selected category for future suggestions
             try {
               const token = (note || '').toLowerCase().split(/[^a-z0-9]+/g).filter(Boolean)[0] || note;
-              if (token) trainCategoryForToken(token, (chosenCategory || suggestion.key));
+              if (token) trainCategoryForToken(token, (chosenCategory || aiSuggestion?.categoryKey || suggestion.key));
             } catch {}
             setShowSuccessMessage("Expense Added Successfully...!");
             // sendNotification(`Expense Added For ${formTitle}`);
             setAmount("");
             setNote("");
             setType("Withdrawal");
+            setAiSuggestion(null);
             loadSuggestions();
             setLoading(false);
             setTimeout(() => {
@@ -109,6 +112,44 @@ const NewExpense = () => {
     }
     useEffect(() => { loadSuggestions(); }, []);
 
+    // AI suggestion (optional). If AI server is down, local suggestion remains.
+    useEffect(() => {
+      const trimmed = (note || '').trim();
+      if (!trimmed) {
+        setAiSuggestion(null);
+        return;
+      }
+
+      const controller = new AbortController();
+      const t = setTimeout(async () => {
+        try {
+          setAiBusy(true);
+          const res = await fetch('/api/ai/expense/suggest', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ note: trimmed, amount, type }),
+            signal: controller.signal,
+          });
+          const json = await res.json().catch(() => null);
+          if (res.ok && json?.success && json?.suggestion) {
+            setAiSuggestion(json.suggestion);
+          } else {
+            setAiSuggestion(null);
+          }
+        } catch {
+          setAiSuggestion(null);
+        } finally {
+          setAiBusy(false);
+        }
+      }, 600);
+
+      return () => {
+        controller.abort();
+        clearTimeout(t);
+      };
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [note]);
+
     // Voice input removed (no API key). Use iOS keyboard dictation instead.
 
 
@@ -155,11 +196,36 @@ const NewExpense = () => {
                         </div>
                         <select
                           className="select select-xs select-bordered bg-base-100 dark:bg-base-200 border-base-300 dark:border-base-400"
-                          value={chosenCategory || suggestion.key}
+                          value={chosenCategory || aiSuggestion?.categoryKey || suggestion.key}
                           onChange={(e) => setChosenCategory(e.target.value)}
                         >
                           {categories.map(c => <option key={c.key} value={c.key}>{c.label}</option>)}
                         </select>
+                      </div>
+                    )}
+                    {note && aiSuggestion?.normalizedNote && (
+                      <div className="w-full mb-2 flex items-center justify-between bg-base-100 dark:bg-base-200 border border-base-300 dark:border-base-400 rounded-lg p-2">
+                        <div className="flex items-center gap-2">
+                          <img
+                            src={(categoryIcons[aiSuggestion.categoryKey]?.icon) || "/assets/icons/other.png"}
+                            className="h-4 w-4 dark:invert"
+                          />
+                          <span className="text-xs text-base-content/70">
+                            AI: <span className="font-poppinsMed text-base-content">{aiSuggestion.normalizedNote}</span>
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {aiBusy ? <span className="loading loading-spinner loading-xs" /> : null}
+                          <button
+                            type="button"
+                            className="btn btn-xs btn-ghost"
+                            onClick={() => setNote(aiSuggestion.normalizedNote)}
+                            disabled={loading}
+                            title="Replace note with AI-normalized text"
+                          >
+                            Use
+                          </button>
+                        </div>
                       </div>
                     )}
                     <select className="select select-bordered w-full bg-base-100 dark:bg-base-200 border-base-300 dark:border-base-400 text-[12px] text-base-content placeholder:text-[12px] placeholder:text-base-content/60"

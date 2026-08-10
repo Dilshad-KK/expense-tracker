@@ -4,6 +4,11 @@ export const categoryIcons: Record<string, { keywords: string[]; icon: string; l
         icon: "/assets/icons/beverage.png",
         label: 'Beverage',
     },
+    fruit: {
+        keywords: ["fruit", "fruits", "apple", "banana", "orange", "grapes", "mango", "pineapple", "watermelon"],
+        icon: "/assets/icons/grocery.png",
+        label: 'Fruit',
+    },
     grocery: {
         keywords: ["rice", "oil", "flour", "salt", "sugar", "wheat", "home","egg"],
         icon: "/assets/icons/grocery.png",
