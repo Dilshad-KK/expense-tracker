@@ -2,7 +2,9 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import moment from "moment";
 import { supabase } from "@/lib/supabase";
-import { IoArrowBack, IoSend, IoCheckmarkDone, IoCheckmark } from "react-icons/io5";
+import { IoArrowBack, IoSend, IoCheckmarkDone, IoCheckmark, IoCall } from "react-icons/io5";
+import { useWebRTC } from "@/hooks/useWebRTC";
+import CallScreen from "@/components/CallScreen";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -75,6 +77,24 @@ export default function ChatPage() {
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const messagesBoxRef = useRef<HTMLDivElement>(null);
+
+  // ── WebRTC VoIP Hook ──────────────────────────────────────────────────────
+  const otherUser = OTHER_USER[currentUser] ?? "Other";
+  
+  const {
+    callStatus,
+    localStream,
+    remoteStream,
+    isMuted,
+    initiateCall,
+    acceptCall,
+    rejectCall,
+    endCall,
+    toggleMute
+  } = useWebRTC({
+    currentUser,
+    otherUser
+  });
 
   // ── Resolve user ──────────────────────────────────────────────────────────
   useEffect(() => {
@@ -226,7 +246,6 @@ export default function ChatPage() {
   };
 
   // ─── Derived values ───────────────────────────────────────────────────────
-  const otherUser = OTHER_USER[currentUser] ?? "Other";
   const grouped = groupByDate(messages);
 
   const isReadByOther = (msg: Message) =>
@@ -272,6 +291,16 @@ export default function ChatPage() {
             <span className="text-white/70 text-[11px]">online</span>
           </div>
         </div>
+
+        {/* VoIP Call Button */}
+        <button
+          onClick={initiateCall}
+          disabled={callStatus !== 'idle'}
+          className="text-white/80 hover:text-white transition-colors p-2 rounded-full hover:bg-white/10 active:scale-95 disabled:opacity-50"
+          aria-label="Start Voice Call"
+        >
+          <IoCall className="text-[20px]" />
+        </button>
       </header>
 
       {/* ── Messages area ───────────────────────────────────────────────────── */}
@@ -435,6 +464,18 @@ export default function ChatPage() {
           <IoSend className="text-white text-[18px] translate-x-[1px]" />
         </button>
       </div>
+
+      {/* ── VoIP Call Screen ─────────────────────────────────────────────────── */}
+      <CallScreen
+        status={callStatus}
+        remoteStream={remoteStream}
+        isMuted={isMuted}
+        onAccept={acceptCall}
+        onReject={rejectCall}
+        onEndCall={endCall}
+        onToggleMute={toggleMute}
+        otherUser={otherUser}
+      />
     </div>
   );
 }
