@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import moment from "moment";
 import { supabase } from "@/lib/supabase";
-import { IoArrowBack, IoSend, IoCheckmarkDone, IoCheckmark, IoCall } from "react-icons/io5";
+import { IoArrowBack, IoSend, IoCheckmarkDone, IoCheckmark, IoCallOutline, IoVideocamOutline } from "react-icons/io5";
 import { useWebRTC } from "@/hooks/useWebRTC";
 import CallScreen from "@/components/CallScreen";
 
@@ -86,11 +86,14 @@ export default function ChatPage() {
     localStream,
     remoteStream,
     isMuted,
+    isVideoOff,
+    isVideoCall,
     initiateCall,
     acceptCall,
     rejectCall,
     endCall,
-    toggleMute
+    toggleMute,
+    toggleVideo
   } = useWebRTC({
     currentUser,
     otherUser
@@ -292,15 +295,25 @@ export default function ChatPage() {
           </div>
         </div>
 
-        {/* VoIP Call Button */}
-        <button
-          onClick={initiateCall}
-          disabled={callStatus !== 'idle'}
-          className="text-white/80 hover:text-white transition-colors p-2 rounded-full hover:bg-white/10 active:scale-95 disabled:opacity-50"
-          aria-label="Start Voice Call"
-        >
-          <IoCall className="text-[20px]" />
-        </button>
+        {/* VoIP Call Buttons */}
+        <div className="flex items-center gap-2 pr-1">
+          <button
+            onClick={() => initiateCall(true)}
+            disabled={callStatus !== 'idle'}
+            className="text-white hover:text-white/80 transition-colors p-2 active:scale-95 disabled:opacity-50"
+            aria-label="Start Video Call"
+          >
+            <IoVideocamOutline className="text-[26px]" />
+          </button>
+          <button
+            onClick={() => initiateCall(false)}
+            disabled={callStatus !== 'idle'}
+            className="text-white hover:text-white/80 transition-colors p-2 active:scale-95 disabled:opacity-50"
+            aria-label="Start Voice Call"
+          >
+            <IoCallOutline className="text-[24px]" />
+          </button>
+        </div>
       </header>
 
       {/* ── Messages area ───────────────────────────────────────────────────── */}
@@ -469,11 +482,15 @@ export default function ChatPage() {
       <CallScreen
         status={callStatus}
         remoteStream={remoteStream}
+        localStream={localStream}
         isMuted={isMuted}
+        isVideoOff={isVideoOff}
+        isVideoCall={isVideoCall}
         onAccept={acceptCall}
         onReject={rejectCall}
         onEndCall={endCall}
         onToggleMute={toggleMute}
+        onToggleVideo={toggleVideo}
         otherUser={otherUser}
       />
     </div>
