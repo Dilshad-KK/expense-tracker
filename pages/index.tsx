@@ -11,10 +11,13 @@ import Loans from '@/components/loans';
 import Discussions from '@/components/discussions';
 import Categories from '@/components/categories';
 import Periods from '@/components/periods';
+import { IoSettingsSharp } from 'react-icons/io5';
+import SettingsModal from '@/components/SettingsModal';
 
 const Home = () => {
 
   const [user, setUser] = useState("");
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const dispatch = useAppDispatch();
   const unread = useSelector((s: RootState) => s.notifications.unreadCount);
 
@@ -83,12 +86,18 @@ const Home = () => {
           <span className='text-white dark:text-white/90 z-[2000] font-poppinsMed mb-2'>Welcome Back {user}</span>
           <span className='text-white/90 dark:text-white/70 z-[2000] font-poppinsMed text-[12px]'>Have a nice day...!</span>
         </div>
-        <Link href="/notifications" className='h-[50px] w-[50px] bg-white dark:bg-white/80 rounded-full flex items-center justify-center mb-3 z-[2000] relative'>
-          <IoMdNotifications className='text-[24px]' />
-          {unread > 0 && (
-            <span className='absolute -top-1 -right-1 bg-error text-white text-[10px] rounded-full px-[6px] py-[2px] font-poppinsMed'>{unread}</span>
-          )}
-        </Link>
+        <div className="flex gap-2 relative z-[2000]">
+          <button onClick={() => setIsSettingsOpen(true)} className='h-[42px] w-[42px] bg-white/20 dark:bg-white/10 hover:bg-white/30 backdrop-blur-sm rounded-full flex items-center justify-center transition-colors active:scale-95'>
+            <IoSettingsSharp className='text-[20px] text-white' />
+          </button>
+          
+          <Link href="/notifications" className='h-[42px] w-[42px] bg-white dark:bg-white/80 rounded-full flex items-center justify-center relative shadow-sm'>
+            <IoMdNotifications className='text-[22px] text-primary' />
+            {unread > 0 && (
+              <span className='absolute -top-1 -right-1 bg-error text-white text-[10px] rounded-full px-[6px] py-[2px] font-poppinsMed shadow-sm'>{unread}</span>
+            )}
+          </Link>
+        </div>
       </div>
       <div className='min-h-dvh px-4 py-8 dark:bg-base-400 page-body'>
         <Categories />
@@ -97,6 +106,12 @@ const Home = () => {
         <Discussions />
         <Periods /> 
       </div>
+
+      <SettingsModal 
+        isOpen={isSettingsOpen} 
+        onClose={() => setIsSettingsOpen(false)} 
+        currentUser={user} 
+      />
     </div>
 
   )

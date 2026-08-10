@@ -10,15 +10,32 @@ import { Provider } from 'react-redux';
 import { store } from '@/lib/store';
 import { fetchUnreadCount, fetchNotifications } from '@/store/notificationsSlice';
 import { applyTheme } from '@/utils/theme';
+import LockScreen from '@/components/LockScreen';
+import { isBiometricRegistered } from '@/lib/webauthn';
 
 export default function App({ Component, pageProps }: AppProps) {
   const [toast, setToast] = useState<null | { title?: string; body?: string }>(null);
   const [iosPromptVisible, setIosPromptVisible] = useState(false);
   const [envChecked, setEnvChecked] = useState(false);
   const [channelInfo, setChannelInfo] = useState<string>('');
+  
+  // App Lock State
+  const [isLocked, setIsLocked] = useState(false);
+  const [lockUser, setLockUser] = useState("");
+  const [isAuthResolved, setIsAuthResolved] = useState(false);
   // Using store.dispatch directly (this component defines Provider below)
 
   useEffect(() => {
+    // Resolve App Lock
+    const user = localStorage.getItem("userIdentity");
+    if (user && isBiometricRegistered(user)) {
+      if (sessionStorage.getItem('isUnlocked') !== '1') {
+        setLockUser(user);
+        setIsLocked(true);
+      }
+    }
+    setIsAuthResolved(true);
+
     // Auth temporarily disabled: skip Firebase auth state handling
     try { initFirebaseApp(); } catch {}
     // Initial unread fetch on app load
@@ -182,8 +199,25 @@ export default function App({ Component, pageProps }: AppProps) {
           </div>
         </div>
       )}
-      <Component {...pageProps} />
-      <NavLinks />
+      
+      {/* Biometric Lock Screen Overlay */}
+      {isLocked && lockUser && (
+        <LockScreen 
+          currentUser={lockUser} 
+          onUnlock={() => {
+            setIsLocked(false);
+            sessionStorage.setItem('isUnlocked', '1');
+          }} 
+        />
+      )}
+
+      {/* Render app only after auth state is resolved to prevent flashing */}
+      {isAuthResolved && (
+        <>
+          <Component {...pageProps} />
+          <NavLinks />
+        </>
+      )}
     </Provider>
   )
 }
