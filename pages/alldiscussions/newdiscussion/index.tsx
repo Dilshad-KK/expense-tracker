@@ -61,9 +61,9 @@ const NewDiscussion = () => {
         setLoading(false);
     }
     return (
-        <div className="bg-base-100 min-h-screen relative">
+        <div className="bg-base-100 min-h-dvh relative">
             <CommonHeader title='Add New Discussion' />
-            <div className='px-4 pb-[150px]'>
+            <div className='px-4 page-body'>
                 <div className="flex items-center justify-center flex-col">
                     <textarea
                         rows={4}

@@ -81,9 +81,9 @@ const NewItem = () => {
     }
 
     return (
-        <div className="bg-base-100 min-h-screen relative">
+        <div className="bg-base-100 min-h-dvh relative">
             <CommonHeader title='Add New Item' />
-            <div className='px-4 pb-[150px] mt-8'>
+            <div className='px-4 page-body mt-8'>
                 <div className="flex items-center justify-center flex-col">
                     <input
                         type="text"

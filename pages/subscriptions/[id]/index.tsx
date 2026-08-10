@@ -75,7 +75,7 @@ const SubscriptionDetails = () => {
   };
 
   return (
-    <div className="bg-base-100 min-h-screen">
+    <div className="bg-base-100 min-h-dvh">
       <CommonHeader
         title="Subscription Details"
         right={
@@ -105,7 +105,7 @@ const SubscriptionDetails = () => {
         }
       />
 
-      <div className="px-4 pt-2 pb-[150px]">
+      <div className="px-4 pt-2 page-body">
         {loading ? (
           <div>
             {[1, 2]?.map((key) => (

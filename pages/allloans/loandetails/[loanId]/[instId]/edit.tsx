@@ -116,7 +116,7 @@ export default function Edit() {
   };
 
   return (
-    <div className="bg-base-100 min-h-screen flex flex-col">
+    <div className="bg-base-100 min-h-dvh flex flex-col">
       <CommonHeader title='Edit Installment' />
       {
         !loading && loan?.length && loanDetails?.length ?

@@ -65,7 +65,7 @@ const DiscussionDetails = () => {
 
 
   return (
-    <div className='bg-base-100 min-h-screen'>
+    <div className='bg-base-100 min-h-dvh'>
       <CommonHeader
         title='Discussion Details'
         right={(
@@ -89,7 +89,7 @@ const DiscussionDetails = () => {
           ))}
         </div>
         : discussion?.length ?
-          <div className='px-4 pt-4 pb-[150px]'>
+          <div className='px-4 pt-4 page-body'>
 
             <div className='bg-base-100 dark:bg-base-200 border-2 border-base-300 dark:border-base-400 px-4 py-4 my-3 rounded-[12px] flex justify-between'>
               <div className='flex items-center justify-center'>

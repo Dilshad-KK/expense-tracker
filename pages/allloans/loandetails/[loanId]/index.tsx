@@ -115,7 +115,7 @@ const LoanDetails = () => {
   }
 
   return (
-    <div className='bg-base-100 min-h-screen'>
+    <div className='bg-base-100 min-h-dvh'>
       <CommonHeader
         title='Loan Details'
         right={
@@ -156,7 +156,7 @@ const LoanDetails = () => {
             </div>
           </div>
         ) : loan?.length ?
-          <div className='px-4 pt-4 pb-[150px]'>
+          <div className='px-4 pt-4 page-body'>
             {loanDetails?.length && loan?.length ?
               loanDetails?.map((item, key) => {
                 return (

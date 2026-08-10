@@ -65,7 +65,7 @@ const ExpenseDetails = () => {
 
 
   return (
-    <div className='bg-base-100 min-h-screen'>
+    <div className='bg-base-100 min-h-dvh'>
       <CommonHeader
         title='Expense Details'
         right={(
@@ -106,7 +106,7 @@ const ExpenseDetails = () => {
           </div>
         </div>
       ) : expenses?.length ? (
-        <div className='px-4 pt-6 pb-[150px]'>
+        <div className='px-4 pt-6 page-body'>
           {expenses?.map(item => (
             <div className="mb-3 flex items-center rounded-xl bg-base-100/40 p-2">
               <div className="flex flex-col items-center justify-start w-[36px] mr-3">

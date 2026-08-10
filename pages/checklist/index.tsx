@@ -186,9 +186,9 @@ const CheckList = () => {
 
 
     return (
-        <div className='bg-base-100 min-h-screen relative'>
+        <div className='bg-base-100 min-h-dvh relative'>
             <CommonHeader title="CHECKLIST" />
-            <div className='px-4 pt-4 pb-[150px]'>
+            <div className='px-4 pt-4 page-body-with-fab'>
                 {loading || options?.length === 0 ?
                     <div>
                         {[1, 2, 3, 4]?.map((key) => (

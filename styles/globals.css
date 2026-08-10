@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── Viewport: use dvh so iOS Safari's collapsible chrome is excluded ──────── */
+html, body {
+  height: 100%;
+}
+
 /* Prevent iOS Safari from auto-zooming on focus */
 html { -webkit-text-size-adjust: 100%; }
 
@@ -11,6 +16,28 @@ input, textarea, select {
 
 body{
   font-family: 'Poppins';
+}
+
+/* ── PWA safe-area + nav-clearance ─────────────────────────────────────────── */
+/*
+  The bottom nav is 88px tall.
+  On iPhones with a home indicator, safe-area-inset-bottom adds extra space.
+  .page-body = standard page content wrapper for every scrollable page.
+  Apply it to the inner scrollable div of each page (not the outer wrapper).
+*/
+.page-body {
+  padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px) + 16px);
+}
+
+/* Pages with a FAB button (+ button) need extra clearance so FAB isn't clipped */
+.page-body-with-fab {
+  padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px) + 72px);
+}
+
+/* ── Bottom nav: consume safe-area so it hugs the home indicator ───────────── */
+.nav-safe-area {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  height: calc(88px + env(safe-area-inset-bottom, 0px));
 }
 
 .skeleton {

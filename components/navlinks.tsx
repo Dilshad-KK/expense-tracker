@@ -94,11 +94,10 @@ const NavLinks = () => {
 
   return (
     <div
-      className="fixed bottom-0 w-full h-[88px] bg-white dark:bg-base-200
+      className="nav-safe-area fixed bottom-0 w-full bg-white dark:bg-base-200
                   shadow-[0_-8px_30px_rgba(0,0,0,0.1)] dark:shadow-[0_-8px_30px_rgba(0,0,0,0.4)]
                   border-t border-base-300/50 dark:border-base-400 z-[2000]
                   rounded-t-3xl backdrop-blur-sm bg-white/95 dark:bg-base-200/95"
-      style={{ bottom: 0 }}
     >
       <div className="flex justify-around items-center w-full h-full px-6">
         {navItems.map((item) => (

@@ -50,10 +50,10 @@ export default function NotificationsPage() {
   const filtered = (activeTab === 'unread' ? itemsUnread : itemsRead);
 
   return (
-    <div className='min-h-screen bg-base-100'>
+    <div className='min-h-dvh bg-base-100'>
       <CommonHeader title='Notifications' />
       
-      <div className='max-w-2xl mx-auto p-4'>
+      <div className='max-w-2xl mx-auto p-4 page-body'>
         {/* Header Actions - Mobile Responsive */}
         <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6'>
           {/* Left Side - Primary Actions */}

@@ -223,7 +223,7 @@ const Milestones = () => {
     }
 
     return (
-        <div className="bg-[#e8e8fd] min-h-screen relative">
+        <div className="bg-[#e8e8fd] min-h-dvh relative">
             <CommonHeader title='MILESTONES' />
             <div className="flex justify-center items-center w-full  my-8">
                 {options?.length ? options?.map((option: string) => (
@@ -245,7 +245,7 @@ const Milestones = () => {
                 ))}
             </div>
 
-            <div className='px-4 pt-8 pb-[200px]'>
+            <div className='px-4 pt-8 page-body-with-fab'>
                 {totalProgress >= 0 ? <div className='flex items-center justify-center mb-6'>
                     <div className="flex-1">
                         <div className="w-full h-2 bg-white rounded-full overflow-hidden">

@@ -41,7 +41,7 @@ export default function UpdatePage() {
   };
 
   return (
-    <div className="bg-base-100 min-h-screen relative">
+    <div className="bg-base-100 min-h-dvh relative">
       <CommonHeader title='Update Period Details' />
       <div className="flex items-center justify-center h-full pt-24">
         <div className="bg-base-100 rounded-2xl p-6 max-w-md w-full border border-base-300">

@@ -68,7 +68,7 @@ const Profile = () => {
   );
 
   return (
-    <div className='min-h-screen bg-base-100 dark:bg-base-200 pb-32'>
+    <div className='min-h-dvh bg-base-100 dark:bg-base-200 page-body'>
       <CommonHeader title='Profile Settings' />
       
       <div className='max-w-md mx-auto px-5 space-y-6'>

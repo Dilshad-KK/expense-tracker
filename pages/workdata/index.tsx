@@ -165,10 +165,10 @@ const WorkDataPage = () => {
   );
 
   return (
-    <div className="bg-base-100 min-h-screen relative">
+    <div className="bg-base-100 min-h-dvh relative">
       <CommonHeader title="Work Data" />
 
-      <div className="px-4 pb-[150px]">
+      <div className="px-4 page-body-with-fab">
         {error && (
           <div className="alert alert-error alert-soft mb-4">
             <span className="text-white text-[12px]">{error}</span>

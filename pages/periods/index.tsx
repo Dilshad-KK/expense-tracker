@@ -134,7 +134,7 @@ export default function HomePage() {
   const periodInfo = getPeriodInfo();
 
   return (
-    <div className="bg-base-100 min-h-screen relative">
+    <div className="bg-base-100 min-h-dvh relative">
       <CommonHeader
         title="Period Details"
         right={(
@@ -145,7 +145,7 @@ export default function HomePage() {
       />
 
       {/* Compact Main Content */}
-      <div className="w-full pb-6 px-4 -mt-4 relative z-10">
+      <div className="w-full page-body px-4 -mt-4 relative z-10">
         {loading ? (
           <div className="flex items-center justify-center min-h-[40vh]">
             <span className="loading loading-spinner loading-lg text-primary/60"></span>

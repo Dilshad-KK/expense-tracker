@@ -70,9 +70,9 @@ const Subscriptions = () => {
   };
 
   return (
-    <div className="bg-base-100 min-h-screen relative">
+    <div className="bg-base-100 min-h-dvh relative">
       <CommonHeader title="Subscriptions" />
-      <div className="px-4 pb-[150px]">
+      <div className="px-4 page-body-with-fab">
         {loading ? (
           renderSkeleton()
         ) : error ? (
