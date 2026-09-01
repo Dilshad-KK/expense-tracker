@@ -3,6 +3,9 @@ import { useRouter } from "next/router";
 import Link from "next/link";
 import moment from "moment";
 import CommonHeader from "@/components/commonHeader";
+import HeaderAction from "@/components/headerAction";
+import PageAlert from "@/components/pageAlert";
+import PageSection from "@/components/pageSection";
 import { Subscription } from "@/types/subscription";
 import { HiPencilSquare, HiTrash } from "react-icons/hi2";
 
@@ -81,53 +84,52 @@ const SubscriptionDetails = () => {
         right={
           subscription ? (
             <div className="flex items-center gap-2">
-              <Link
+              <HeaderAction
                 href={`/subscriptions/${subscription.id}/edit`}
-                aria-label="Edit subscription"
-                className="h-9 w-9 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white flex items-center justify-center shadow-sm hover:bg-white/20 active:scale-95 transition-all"
-              >
-                <HiPencilSquare className="text-[16px]" />
-              </Link>
-              <button
+                label="Update"
+                tone="success"
+                icon={<HiPencilSquare className="text-[16px]" />}
+              />
+              <HeaderAction
                 onClick={deleteSubscription}
-                aria-label="Delete subscription"
-                className="h-9 w-9 rounded-full bg-red-500/15 backdrop-blur-md border border-red-500/20 text-red-100 flex items-center justify-center shadow-sm hover:bg-red-500/25 active:scale-95 transition-all disabled:opacity-50"
+                label="Delete"
+                tone="danger"
                 disabled={deleting}
-              >
-                {deleting ? (
-                  <span className="loading loading-spinner loading-sm text-red-200" />
-                ) : (
-                  <HiTrash className="text-[16px]" />
-                )}
-              </button>
+                icon={
+                  deleting ? (
+                    <span className="loading loading-spinner loading-sm text-rose-100" />
+                  ) : (
+                    <HiTrash className="text-[16px]" />
+                  )
+                }
+              />
             </div>
           ) : null
         }
       />
 
-      <div className="px-4 pt-2 page-body">
-        {loading ? (
-          <div>
-            {[1, 2]?.map((key) => (
-              <div
-                className="h-[90px] w-full bg-base-100 dark:bg-base-200 border-2 border-base-300 dark:border-base-400 px-4 py-4 my-3 rounded-[12px] flex items-center"
-                key={key}
-              >
-                <div className="skeleton h-[50px] w-[50px] bg-base-200 dark:bg-base-300 rounded-[12px] mr-3"></div>
-                <div className="w-full">
-                  <div className="skeleton h-4 w-full bg-base-200 dark:bg-base-300 mb-2"></div>
-                  <div className="skeleton h-3 w-3/4 bg-base-200 dark:bg-base-300 mb-2"></div>
-                  <div className="skeleton h-3 w-1/2 bg-base-200 dark:bg-base-300"></div>
+      <div className="page-body px-4 pt-2">
+        <div className="page-shell">
+          {loading ? (
+            <div>
+              {[1, 2]?.map((key) => (
+                <div
+                  className="my-3 flex h-[90px] w-full items-center rounded-[12px] border-2 border-base-300 bg-base-100 px-4 py-4 dark:border-base-400 dark:bg-base-200"
+                  key={key}
+                >
+                  <div className="mr-3 h-[50px] w-[50px] rounded-[12px] bg-base-200 skeleton dark:bg-base-300"></div>
+                  <div className="w-full">
+                    <div className="mb-2 h-4 w-full bg-base-200 skeleton dark:bg-base-300"></div>
+                    <div className="mb-2 h-3 w-3/4 bg-base-200 skeleton dark:bg-base-300"></div>
+                    <div className="h-3 w-1/2 bg-base-200 skeleton dark:bg-base-300"></div>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        ) : error ? (
-          <div className="alert alert-error alert-soft mb-4">
-            <span className="text-white text-[12px]">{error}</span>
-          </div>
-        ) : subscription ? (
-          <div className="bg-base-200 border-2 border-base-300 dark:bg-base-200/70 dark:border-base-400 rounded-[16px] p-5 space-y-4 shadow-sm">
+              ))}
+            </div>
+          ) : error ? (
+            <PageAlert tone="error">{error}</PageAlert>
+          ) : subscription ? (
+            <PageSection className="!px-0 !pt-0" contentClassName="space-y-4">
             <div className="flex justify-between items-start">
               <div>
                 <h2 className="text-base-content font-poppinsMed text-[18px]">
@@ -193,14 +195,15 @@ const SubscriptionDetails = () => {
                 <p className="text-[13px] text-base-content">{subscription.notes}</p>
               </div>
             ) : null}
-          </div>
-        ) : null}
+            </PageSection>
+          ) : null}
+        </div>
       </div>
 
       {showSuccessMessage && (
-        <div className="flex items-center justify-end w-full p-4">
-          <div role="alert" className="alert alert-success alert-soft mb-4 text-center w-full">
-            <span className="text-white text-[14px]">{showSuccessMessage}</span>
+        <div className="page-body px-4 pt-0">
+          <div className="page-shell">
+            <PageAlert>{showSuccessMessage}</PageAlert>
           </div>
         </div>
       )}

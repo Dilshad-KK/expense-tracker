@@ -93,29 +93,25 @@ const NavLinks = () => {
   ]
 
   return (
-    <div
-      className="nav-safe-area fixed bottom-0 w-full bg-white dark:bg-base-200
-                  shadow-[0_-8px_30px_rgba(0,0,0,0.1)] dark:shadow-[0_-8px_30px_rgba(0,0,0,0.4)]
-                  border-t border-base-300/50 dark:border-base-400 z-[2000]
-                  rounded-t-3xl backdrop-blur-sm bg-white/95 dark:bg-base-200/95"
-    >
-      <div className="flex justify-around items-center w-full h-full px-6">
+    <div className="pointer-events-none fixed inset-x-0 bottom-0 z-[2000] md:inset-y-0 md:left-0 md:right-auto md:w-24 md:flex md:items-center md:justify-center">
+      <div className="w-full max-w-[calc(42rem+2rem)] mx-auto px-4 md:px-0 md:max-w-none md:mx-0 nav-safe-area md:!h-auto md:!pb-0 flex items-end md:items-center md:justify-center">
+        <div className="pointer-events-auto mb-3 md:mb-0 flex md:flex-col h-[74px] md:h-auto md:py-8 w-full md:w-[72px] items-center justify-around md:gap-8 rounded-[30px] md:rounded-[40px] border border-base-content/10 bg-white/95 px-3 md:px-0 shadow-[0_18px_50px_rgba(0,0,0,0.14)] backdrop-blur-xl dark:bg-base-200/95 dark:shadow-[0_18px_50px_rgba(0,0,0,0.38)]">
         {navItems.map((item) => (
           <Link
             key={item.path}
             href={item.path}
-            className={`flex flex-col items-center justify-center cursor-pointer transition-all duration-300 flex-1 max-w-[80px] group ${
-              isActive(item.path) ? 'transform -translate-y-1' : 'hover:-translate-y-0.5'
+            className={`flex flex-col items-center justify-center cursor-pointer transition-all duration-300 flex-1 md:flex-none max-w-20 w-full group ${
+              isActive(item.path) ? 'transform -translate-y-1 md:-translate-y-0 md:translate-x-1' : 'hover:-translate-y-0.5 md:hover:-translate-y-0 md:hover:translate-x-0.5'
             }`}
           >
             {/* Active indicator dot */}
             {isActive(item.path) && (
-              <div className="w-1 h-1 bg-primary rounded-full mb-2 animate-bounce" />
+              <div className="w-1 h-1 bg-primary rounded-full mb-2 md:mb-0 md:absolute md:-left-3 animate-bounce md:animate-pulse" />
             )}
 
             {/* Icon container */}
             <div
-              className={`relative rounded-2xl p-3 transition-all duration-300 mb-1 group-hover:scale-110 ${
+              className={`relative rounded-2xl p-3 transition-all duration-300 mb-1 md:mb-2 group-hover:scale-110 ${
                 isActive(item.path)
                   ? 'bg-primary/15 dark:bg-primary/25 shadow-lg scale-110'
                   : 'bg-transparent hover:bg-base-300/30 dark:hover:bg-base-300/20'
@@ -125,7 +121,7 @@ const NavLinks = () => {
 
               {/* Unread badge */}
               {item.badge > 0 && (
-                <span className="absolute -top-1 -right-1 bg-error text-white text-[9px] font-poppinsMed rounded-full min-w-[16px] h-[16px] flex items-center justify-center px-[4px] leading-none">
+                <span className="absolute -top-1 -right-1 bg-error text-white text-[10px] font-poppinsMed rounded-full min-w-4 h-4 flex items-center justify-center px-1 leading-none">
                   {item.badge > 99 ? '99+' : item.badge}
                 </span>
               )}
@@ -133,7 +129,7 @@ const NavLinks = () => {
 
             {/* Label */}
             <span
-              className={`text-[11px] transition-all duration-300 font-poppinsMed ${
+              className={`text-[10px] md:text-xs transition-all duration-300 font-poppinsMed ${
                 isActive(item.path)
                   ? 'text-primary dark:text-primary-light font-poppinsBold scale-105'
                   : 'text-[#A19F9F] dark:text-base-content/60 group-hover:text-base-content dark:group-hover:text-base-content/80'
@@ -143,6 +139,7 @@ const NavLinks = () => {
             </span>
           </Link>
         ))}
+        </div>
       </div>
     </div>
   )

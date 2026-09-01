@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
 // import { IoMdNotifications } from "react-icons/io";
 import CommonHeader from "@/components/commonHeader";
+import PageAlert from "@/components/pageAlert";
+import PageSection from "@/components/pageSection";
 // import moment from 'moment';
 // import Link from 'next/link';
 // import { FaPlus } from "react-icons/fa6";
@@ -68,33 +70,33 @@ const NewLoan = () => {
     return (
         <div className="bg-base-100 min-h-dvh relative">
             <CommonHeader title='Add New Loan' />
-            <div className='px-4 page-body'>
+            <PageSection contentClassName="space-y-4">
                 <div className="flex items-center justify-center flex-col">
                     <input
                         type="text"
                         placeholder="Title"
-                        className="input mb-2 border-[1px] border-solid border-[#d3d3fe] w-full bg-[#f3f3fd] placeholder:text-[12px]"
+                        className="input input-bordered mb-2 w-full bg-base-200 text-base-content placeholder:text-xs"
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
                     />
                     <input
                         type="number"
                         placeholder="Total Amount"
-                        className="input mb-2 border-[1px] border-solid border-[#d3d3fe] w-full bg-[#f3f3fd] placeholder:text-[12px]"
+                        className="input input-bordered mb-2 w-full bg-base-200 text-base-content placeholder:text-xs"
                         value={totalAmount}
                         onChange={(e) => setTotalAmount(e.target.value)}
                     />
                     <input
                         type="text"
                         placeholder="Currency"
-                        className="input mb-2 border-[1px] border-solid border-[#d3d3fe] w-full bg-[#f3f3fd] placeholder:text-[12px]"
+                        className="input input-bordered mb-2 w-full bg-base-200 text-base-content placeholder:text-xs"
                         value={currency}
                         onChange={(e) => setCurrency(e.target.value)}
                     />
                     <input
                         type="number"
                         placeholder="Total Insts"
-                        className="input mb-2 border-[1px] border-solid border-[#d3d3fe] w-full bg-[#f3f3fd] placeholder:text-[12px]"
+                        className="input input-bordered mb-2 w-full bg-base-200 text-base-content placeholder:text-xs"
                         value={totalInsts}
                         onChange={(e) => setTotalInsts(e.target.value)}
                     />
@@ -108,7 +110,7 @@ const NewLoan = () => {
                     <input
                         type="text"
                         placeholder="Status"
-                        className="input mb-2 border-[1px] border-solid border-[#d3d3fe] w-full bg-[#f3f3fd] placeholder:text-[12px]"
+                        className="input input-bordered mb-2 w-full bg-base-200 text-base-content placeholder:text-xs"
                         value={status}
                         onChange={(e) => setStatus(e.target.value)}
                     />
@@ -117,24 +119,20 @@ const NewLoan = () => {
                             wrapperClassName='w-full'
                             selected={dateStarted}
                             onChange={(date: Date | null) => setDateStarted(date)}
-                            className="input mb-2 border border-[#d3d3fe] w-full bg-[#f3f3fd] placeholder:text-[12px] text-[14px]"
+                            className="input input-bordered mb-2 w-full bg-base-200 text-base-content text-sm placeholder:text-xs"
                             placeholderText="Select date"
                         />
                     </div>
-                    <button className="btn bg-[#514cff] text-white border-none text-[12px] my-[16px] w-full" onClick={addLoan}>
+                    <button className="btn btn-primary text-white text-sm my-4 w-full" onClick={addLoan}>
                         Add Loan
                     </button>
 
                     {showSuccessMessage && (
-                        <div className="flex items-center justify-center w-full">
-                            <div role="alert" className="alert alert-success alert-soft mb-4 text-center w-full">
-                                <span className="text-white text-[14px]">{showSuccessMessage}</span>
-                            </div>
-                        </div>
+                        <PageAlert className="w-full">{showSuccessMessage}</PageAlert>
                     )
                     }
                 </div>
-            </div>
+            </PageSection>
         </div>
     )
 }

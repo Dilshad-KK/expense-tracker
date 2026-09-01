@@ -1,6 +1,10 @@
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import CommonHeader from "@/components/commonHeader";
+import HeaderAction from '@/components/headerAction';
+import PageAlert from '@/components/pageAlert';
+import PageEmptyState from '@/components/pageEmptyState';
+import PageSection from '@/components/pageSection';
 import moment from 'moment';
 import { HiPencil } from "react-icons/hi";
 import { HiTrash } from "react-icons/hi2";
@@ -120,79 +124,113 @@ const LoanDetails = () => {
         title='Loan Details'
         right={
           loan?.[0] ? (
-            <button
+            <HeaderAction
               onClick={() => deleteLoan(String(loan[0].id))}
-              aria-label='Delete'
-              title='Delete'
-              className='btn btn-circle btn-ghost hover:bg-error/10 text-error'
+              label="Delete"
+              tone="danger"
               disabled={deleting}
-            >
-              {deleting ? (
-                <span className='loading loading-spinner loading-sm' />
-              ) : (
-                <HiTrash className='w-5 h-5' />
-              )}
-            </button>
+              icon={
+                deleting ? (
+                  <span className='loading loading-spinner loading-sm text-rose-100' />
+                ) : (
+                  <HiTrash className='w-5 h-5' />
+                )
+              }
+            />
           ) : null
         }
       />
 
       {loading ?
-        <div className='p-4'>
-          {[1, 2, 3, 4]?.map((key) => (
-            <div className="h-[70px] w-[100%] bg-white dark:bg-base-200 border-2 border-base-300 dark:border-base-400 px-4 py-4 my-3 rounded-[12px] flex" key={key}>
-              <div className="skeleton h-full w-[10%] bg-[#d6d6fc] dark:bg-base-300 rounded-[12px] mr-3"></div>
-              <div className='w-full'>
-                <div className="skeleton h-4 w-[100%] bg-[#d6d6fc] dark:bg-base-300 mb-2"></div>
-                <div className="skeleton h-4 w-[100%] bg-[#d6d6fc] dark:bg-base-300"></div>
+        <div className='page-body px-4 pt-2'>
+          <div className='page-shell'>
+            {[1, 2, 3, 4]?.map((key) => (
+              <div className="my-3 flex h-16 w-full rounded-box border-2 border-base-300 bg-white px-4 py-4 dark:border-base-400 dark:bg-base-200" key={key}>
+                <div className="mr-3 h-full w-1/12 rounded-box bg-[#d6d6fc] skeleton dark:bg-base-300"></div>
+                <div className='w-full'>
+                  <div className="mb-2 h-4 w-full bg-[#d6d6fc] skeleton dark:bg-base-300"></div>
+                  <div className="h-4 w-full bg-[#d6d6fc] skeleton dark:bg-base-300"></div>
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
         : error ? (
-          <div className='px-4'>
-            <div className='alert alert-error alert-soft mb-4'>
-              <span className='text-white text-[12px]'>{error}</span>
+          <div className='page-body px-4 pt-2'>
+            <div className='page-shell'>
+              <PageAlert tone="error">{error}</PageAlert>
             </div>
           </div>
         ) : loan?.length ?
-          <div className='px-4 pt-4 page-body'>
-            {loanDetails?.length && loan?.length ?
-              loanDetails?.map((item, key) => {
-                return (
-                  <div key={item.id} className='bg-white dark:bg-base-200 border-2 border-base-300 dark:border-base-400 px-4 py-4 my-3 rounded-[12px] flex justify-between items-center'>
-                    <div className='flex'>
-                      <div className='bg-[#a5a5fe2d] dark:bg-primary/20 rounded-[12px] h-[60px] w-[60px] flex items-center justify-center flex-col mr-8 border-2 border-primary/30 dark:border-primary/40'>
-                        <span className='text-base-content/80 text-[12px] font-poppinsMed'>{moment(item?.due_date).format("DD")}</span>
-                        <span className='text-base-content/80 text-[10px] uppercase font-poppinsMed'>{moment(item?.due_date).format("MMM")}</span>
-                        <span className='text-base-content/80 text-[8px] uppercase font-poppinsMed'>{moment(item?.due_date).format("YYYY")}</span>
+          <div className='page-body px-4 pt-2'>
+            <div className='page-shell space-y-4'>
+              <PageSection className='!px-0 !pt-0' contentClassName='space-y-4'>
+                <div className='flex items-start justify-between gap-4'>
+                  <div>
+                    <div className='text-[11px] font-poppinsMed text-base-content/50'>Loan</div>
+                    <h2 className='mt-2 text-xl font-poppinsBold text-base-content'>{loan[0]?.title}</h2>
+                    <div className='mt-2 text-sm text-base-content/70'>{loan[0]?.currency} {loan[0]?.total_amount} total</div>
+                  </div>
+                  <div className='rounded-[22px] border border-primary/15 bg-primary/10 px-4 py-3 text-right'>
+                    <div className='text-[11px] font-poppinsMed text-primary/70'>Started</div>
+                    <div className='mt-1 text-sm font-poppinsBold text-primary'>{moment(loan[0]?.date_started).format("DD MMM YYYY")}</div>
+                  </div>
+                </div>
+                <div className='grid grid-cols-2 gap-3 sm:grid-cols-3'>
+                  <div className='rounded-[22px] border border-base-content/10 bg-base-200/60 p-3'>
+                    <div className='text-[11px] font-poppinsMed text-base-content/50'>Installments</div>
+                    <div className='mt-1 text-base font-poppinsBold text-base-content'>{loanDetails.length}</div>
+                  </div>
+                  <div className='rounded-[22px] border border-base-content/10 bg-base-200/60 p-3'>
+                    <div className='text-[11px] font-poppinsMed text-base-content/50'>Paid</div>
+                    <div className='mt-1 text-base font-poppinsBold text-base-content'>{loanDetails.filter((item) => item.status === "paid").length}</div>
+                  </div>
+                  <div className='col-span-2 rounded-[22px] border border-base-content/10 bg-base-200/60 p-3 sm:col-span-1'>
+                    <div className='text-[11px] font-poppinsMed text-base-content/50'>Status</div>
+                    <div className='mt-1 text-base font-poppinsBold capitalize text-base-content'>{loan[0]?.status || "Pending"}</div>
+                  </div>
+                </div>
+              </PageSection>
+
+              {loanDetails?.length ? (
+                <div className='space-y-3'>
+                  {loanDetails.map((item, key) => (
+                    <div key={item.id} className='flex items-center justify-between rounded-[24px] border border-base-content/10 bg-base-100/95 px-4 py-4 shadow-[0_16px_40px_rgba(15,23,42,0.08)] dark:bg-base-200/80'>
+                      <div className='flex min-w-0 items-center'>
+                        <div className='mr-5 flex h-16 w-16 shrink-0 flex-col items-center justify-center rounded-[22px] border border-primary/20 bg-primary/10'>
+                          <span className='text-xs font-poppinsMed text-base-content/80'>{moment(item?.due_date).format("DD")}</span>
+                          <span className='text-xs font-poppinsMed uppercase text-base-content/80'>{moment(item?.due_date).format("MMM")}</span>
+                          <span className='text-[0.65rem] font-poppinsMed uppercase text-base-content/70'>{moment(item?.due_date).format("YYYY")}</span>
+                        </div>
+                        <div className='min-w-0'>
+                          <span className='mb-1 block text-sm font-poppinsBold text-base-content'>{loan[0]?.currency} {item?.amount}</span>
+                          <span className='block text-xs text-base-content/65'>{`Installment ${key + 1} of ${loanDetails?.length}`}</span>
+                        </div>
                       </div>
-                      <div className='flex items-start justify-center flex-col mr-8'>
-                        <span className='text-base-content text-[14px] font-poppinsMed mb-1'>{loan[0]?.currency + " "} {item?.amount}</span>
-                        <span className='text-base-content/70 text-[12px] font-poppins'>{`Payment ${key + 1} of ${loanDetails?.length}`}</span>
-                      </div>
-                      <div className='flex items-center justify-center'>
-                        {item?.status === 'paid' ?
-                          <div className='bg-[#a7fac5] dark:bg-success/20 rounded-[12px] text-[10px] py-1 px-3 flex items-center justify-center uppercase text-[#345c42] dark:text-success border-2 border-success/40 dark:border-success/50 font-poppinsMed'>{item?.status}</div>
-                          :
-                          <div className='bg-[#fbe2de] dark:bg-error/20 rounded-[12px] text-[10px] py-1 px-3 flex items-center justify-center uppercase text-[#8f4d43] dark:text-error border-2 border-error/40 dark:border-error/50 font-poppinsMed'>{item?.status}</div>}
+                      <div className='flex items-center gap-3 pl-3'>
+                        <div className={`rounded-full px-3 py-1 text-xs font-poppinsMed uppercase ${
+                          item?.status === 'paid' ? 'border border-success/20 bg-success/10 text-success' : 'border border-warning/20 bg-warning/10 text-warning'
+                        }`}>
+                          {item?.status === 'paid' ? 'Paid' : 'Pending'}
+                        </div>
+                        <Link href={`/allloans/loandetails/${loanId}/${item?.id}/edit`} className='rounded-2xl border border-base-content/10 bg-base-200/60 p-2 text-primary transition hover:bg-primary/10'>
+                          <HiPencil className='text-lg' />
+                        </Link>
                       </div>
                     </div>
-                    <Link href={`/allloans/loandetails/${loanId}/${item?.id}/edit`}>
-                      <HiPencil className='text-primary text-[20px] cursor-pointer' />
-                    </Link>
-                  </div>
-                )
-              })
-              : null
-            }
+                  ))}
+                </div>
+              ) : (
+                <PageEmptyState title="No installments yet" description="This loan does not have any installment entries to show." />
+              )}
+            </div>
           </div>
           : null
       }
       {showSuccessMessage && (
-        <div className="flex items-center justify-end w-full p-4">
-          <div role="alert" className="alert alert-success alert-soft mb-4 text-center w-full">
-            <span className="text-white text-[14px]">{showSuccessMessage}</span>
+        <div className="page-body px-4 pt-0">
+          <div className="page-shell">
+            <PageAlert>{showSuccessMessage}</PageAlert>
           </div>
         </div>
       )

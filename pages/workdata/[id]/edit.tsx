@@ -2,6 +2,8 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/router";
 import moment from "moment";
 import CommonHeader from "@/components/commonHeader";
+import PageAlert from "@/components/pageAlert";
+import PageSection from "@/components/pageSection";
 import WorkDataForm, { WorkDataFormState } from "@/components/workdata/workDataForm";
 import { WorkData } from "@/types/workdata";
 
@@ -160,13 +162,11 @@ const EditWorkData = () => {
   return (
     <div className="bg-base-100 min-h-dvh relative">
       <CommonHeader title="Update Work Data" />
-      <div className="px-4 pt-4 page-body">
+      <PageSection className="pt-0" contentClassName="space-y-4">
         {loading ? (
           renderSkeleton()
         ) : error ? (
-          <div className="alert alert-error alert-soft mb-4">
-            <span className="text-white text-[12px]">{error}</span>
-          </div>
+          <PageAlert tone="error">{error}</PageAlert>
         ) : (
           <>
             <div className="space-y-2 mb-4">
@@ -198,16 +198,11 @@ const EditWorkData = () => {
         )}
 
         {showSuccessMessage && (
-          <div className="flex items-center justify-center w-full mt-4">
-            <div role="alert" className="alert alert-success alert-soft text-center w-full">
-              <span className="text-white text-[14px]">{showSuccessMessage}</span>
-            </div>
-          </div>
+          <PageAlert>{showSuccessMessage}</PageAlert>
         )}
-      </div>
+      </PageSection>
     </div>
   );
 };
 
 export default EditWorkData;
-

@@ -138,8 +138,8 @@ export default function HomePage() {
       <CommonHeader
         title="Period Details"
         right={(
-          <Link href="/periods/update" className='text-primary-content font-poppinsBold text-[16px] bg-primary-content/20 h-[32px] w-[32px] rounded-full flex items-center justify-center transition-all hover:bg-primary-content/30 hover:scale-105'>
-            <IoPencil className="text-primary-content text-[14px]" />
+          <Link href="/periods/update" className='text-primary-content font-poppinsBold text-base bg-primary-content/20 h-8 w-8 rounded-full flex items-center justify-center transition-all hover:bg-primary-content/30 hover:scale-105'>
+            <IoPencil className="text-primary-content text-sm" />
           </Link>
         )}
       />
@@ -155,32 +155,32 @@ export default function HomePage() {
             {/* Current Cycle Compact Card */}
             <div className="bg-base-200 rounded-xl p-4 shadow-md border border-base-300 dark:border-base-400">
               <div className="grid grid-cols-3 gap-2 mb-3">
-                <div className="bg-base-100 rounded-lg p-2 text-center border-2 border-base-300 dark:border-base-400">
-                  <div className="text-[9px] text-base-content/60 font-poppinsMed uppercase tracking-wide mb-1">Cycle</div>
-                  <div className="text-[14px] text-base-content font-poppinsBold flex items-center justify-center">
+                <div className="bg-base-100 rounded-box p-2 text-center border-2 border-base-300 dark:border-base-400">
+                  <div className="text-xs text-base-content/60 font-poppinsMed uppercase tracking-wide mb-1">Cycle</div>
+                  <div className="text-sm text-base-content font-poppinsBold flex items-center justify-center">
                     <HiClock className="mr-1 text-primary/70 text-xs" />
                     {data?.cycle_length}
                   </div>
                 </div>
                 
-                <div className="bg-base-100 rounded-lg p-2 text-center border-2 border-base-300 dark:border-base-400">
-                  <div className="text-[9px] text-base-content/60 font-poppinsMed uppercase tracking-wide mb-1">Day</div>
-                  <div className="text-[14px] text-base-content font-poppinsBold">
+                <div className="bg-base-100 rounded-box p-2 text-center border-2 border-base-300 dark:border-base-400">
+                  <div className="text-xs text-base-content/60 font-poppinsMed uppercase tracking-wide mb-1">Day</div>
+                  <div className="text-sm text-base-content font-poppinsBold">
                     {(phaseDetails?.currentDayInCycle ?? 0) + 1}
                   </div>
                 </div>
                 
-                <div className="bg-base-100 rounded-lg p-2 text-center border-2 border-base-300 dark:border-base-400">
-                  <div className="text-[9px] text-base-content/60 font-poppinsMed uppercase tracking-wide mb-1">Phase</div>
-                  <div className={`text-[12px] font-poppinsBold ${phaseDetails?.phaseColor}`}>
+                <div className="bg-base-100 rounded-box p-2 text-center border-2 border-base-300 dark:border-base-400">
+                  <div className="text-xs text-base-content/60 font-poppinsMed uppercase tracking-wide mb-1">Phase</div>
+                  <div className={`text-xs font-poppinsBold ${phaseDetails?.phaseColor}`}>
                     {phaseDetails?.phase}
                   </div>
                 </div>
               </div>
               
               {phaseDetails?.phaseDescription && (
-                <div className="text-center">
-                  <span className="text-base-content/70 text-[10px] font-poppins">
+                <div className="text-center mt-2">
+                  <span className="text-base-content/70 text-xs font-poppins">
                     {phaseDetails.phaseDescription}
                   </span>
                 </div>
@@ -189,7 +189,7 @@ export default function HomePage() {
 
             {/* Upcoming Periods - Larger and More Readable */}
             <div className="bg-base-200 rounded-xl p-4 shadow-md border border-base-300 dark:border-base-400">
-              <h2 className="text-base-content font-poppinsBold text-[14px] mb-3 flex items-center">
+              <h2 className="text-base-content font-poppinsBold text-sm mb-3 flex items-center">
                 Upcoming Periods
               </h2>
               
@@ -197,15 +197,15 @@ export default function HomePage() {
                 {periodInfo.nextThreePeriods?.map((item, index) => (
                   <div 
                     key={index}
-                    className="bg-base-100 rounded-xl p-3 text-center border-2 border-base-300 dark:border-base-400 transition-all hover:shadow-md hover:border-primary/40 hover:scale-105"
+                    className="bg-base-100 rounded-box p-3 text-center border-2 border-base-300 dark:border-base-400 transition-all hover:shadow-md hover:border-primary/40 hover:scale-105"
                   >
-                    <div className="text-base-content/90 text-[16px] font-poppinsBold mb-1">
+                    <div className="text-base-content/90 text-base font-poppinsBold mb-1">
                       {moment(item).format("DD")}
                     </div>
-                    <div className="text-base-content/70 text-[11px] uppercase font-poppinsMed tracking-wide mb-1">
+                    <div className="text-base-content/70 text-xs uppercase font-poppinsMed tracking-wide mb-1">
                       {moment(item).format("MMM")}
                     </div>
-                    <div className="text-base-content/50 text-[9px] font-poppins">
+                    <div className="text-base-content/50 text-xs font-poppins">
                       {moment(item).format("YYYY")}
                     </div>
                   </div>
@@ -215,13 +215,13 @@ export default function HomePage() {
 
             {/* Compact Single Row Notifications */}
             <div className="grid grid-cols-2 gap-2">
-              <div className={`rounded-lg border-2 py-2 px-3 text-[11px] font-poppinsMed flex items-center justify-center ${periodInfo.alertType}`}>
-                <HiSparkles className="text-xs mr-1" />
+              <div className={`rounded-box border-2 py-2 px-3 text-xs font-poppinsMed flex items-center justify-center ${periodInfo.alertType}`}>
+                <HiSparkles className="text-sm mr-1" />
                 <span>{periodInfo.text}</span>
               </div>
               
-              <div className="bg-base-200 border-2 border-base-300 dark:border-base-400 rounded-lg py-2 px-3 text-[11px] font-poppinsMed flex items-center justify-center text-base-content">
-                <HiSparkles className="text-xs mr-1" />
+              <div className="bg-base-200 border-2 border-base-300 dark:border-base-400 rounded-box py-2 px-3 text-xs font-poppinsMed flex items-center justify-center text-base-content">
+                <HiSparkles className="text-sm mr-1" />
                 <span>Last: {periodInfo.lastPeriodDate?.format("MMM Do")}</span>
               </div>
             </div>

@@ -1,4 +1,6 @@
 import CommonHeader from "@/components/commonHeader";
+import PageAlert from "@/components/pageAlert";
+import PageSection from "@/components/pageSection";
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import "react-datepicker/dist/react-datepicker.css";
@@ -32,6 +34,7 @@ export default function Edit() {
 
   const [loan, setLoan] = useState<Loan[]>();
   const [loanDetails, setLoanDetails] = useState<ILoanDetails[]>([]);
+  const [selectedInstallment, setSelectedInstallment] = useState<ILoanDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState("");
   const [title, setTitle] = useState("");
@@ -58,11 +61,12 @@ export default function Edit() {
   
       const selected = data.find(item => item.id === Number(instId));
       if (selected) {
+        setSelectedInstallment(selected);
         setStatus(selected.status?.toLowerCase().trim() || ""); // normalize status
         if (selected.due_date) {
           setDateStarted(new Date(selected.due_date));
         }
-        const index = data.findIndex(item => Number(instId));
+        const index = data.findIndex(item => item.id === Number(instId));
         setInstOrder(index);
       }
     } catch (error) {
@@ -120,11 +124,11 @@ export default function Edit() {
       <CommonHeader title='Edit Installment' />
       {
         !loading && loan?.length && loanDetails?.length ?
-          <div className='px-4 py-16 flex-1 flex items-start justify-center'>
-            <div className='rounded-[12px] w-full flex flex-col'>
+          <PageSection className="pt-0 flex-1" contentClassName="space-y-4">
+            <div className='w-full flex flex-col'>
               {status && (
                 <select
-                  className="select border-[1px] mb-2 border-solid border-[#d3d3fe] w-full bg-[#f3f3fd] text-[12px] placeholder:text-[12px]"
+                  className="select select-bordered mb-2 w-full bg-base-200 text-sm placeholder:text-xs text-base-content"
                   value={status}
                   onChange={(e) => setStatus(e.target.value)}
                 >
@@ -137,33 +141,29 @@ export default function Edit() {
                   wrapperClassName='w-full'
                   selected={dateStarted}
                   onChange={(date: Date | null) => setDateStarted(date)}
-                  className="input text-black/80 mb-2 border border-[#d3d3fe] w-full bg-[#f3f3fd] placeholder:text-[12px] text-[14px]"
+                  className="input input-bordered text-base-content mb-2 w-full bg-base-200 placeholder:text-xs text-sm"
                   placeholderText="Select date"
                 />
               </div>
               <input
                 type="text"
                 placeholder="Amount"
-                className="text-black/80 cursor-not-allowed text-base mb-2 border border-[#d3d3fe] w-full bg-[#f3f3fd] rounded px-3 py-2 placeholder:text-[12px]"
-                value={loanDetails[0]?.amount}
+                className="input input-bordered cursor-not-allowed text-base mb-2 w-full bg-base-200 text-base-content placeholder:text-xs"
+                value={selectedInstallment?.amount ?? ""}
                 disabled
               />
-              <button className="btn bg-[#514cff] text-white border-none text-[12px] my-[16px] w-full" onClick={() => {
+              <button className="btn btn-primary text-sm my-4 w-full text-white border-none" onClick={() => {
                 handleUpdateInstallment()
               }}>
                 Update
               </button>
 
               {showSuccessMessage && (
-                <div className="flex items-center justify-center w-full">
-                  <div role="alert" className="alert alert-success alert-soft mb-4 text-center w-full">
-                    <span className="text-white text-[14px]">{showSuccessMessage}</span>
-                  </div>
-                </div>
+                <PageAlert>{showSuccessMessage}</PageAlert>
               )
               }
             </div>
-          </div> : null
+          </PageSection> : null
       }
     </div>
   )

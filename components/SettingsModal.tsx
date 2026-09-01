@@ -43,7 +43,7 @@ export default function SettingsModal({ isOpen, onClose, currentUser }: Settings
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-      <div className="bg-base-200 w-full max-w-sm rounded-3xl overflow-hidden shadow-2xl transform transition-all">
+      <div className="bg-base-200 w-full max-w-sm rounded-box overflow-hidden shadow-2xl transform transition-all">
         
         {/* Header */}
         <div className="bg-primary px-5 py-4 flex items-center justify-between">
@@ -60,10 +60,10 @@ export default function SettingsModal({ isOpen, onClose, currentUser }: Settings
         <div className="p-6">
           <div className="flex flex-col gap-6">
             
-            <div className="flex items-center justify-between bg-base-100 p-4 rounded-2xl shadow-sm border border-base-content/5">
+            <div className="flex items-center justify-between bg-base-100 p-4 rounded-box shadow-sm border border-base-content/5">
               <div className="flex flex-col">
                 <span className="font-poppinsMed text-base-content">App Lock</span>
-                <span className="text-[12px] text-base-content/60 leading-tight mt-1 pr-4">
+                <span className="text-xs text-base-content/60 leading-tight mt-1 pr-4">
                   Require Face ID or Touch ID to open the app
                 </span>
               </div>

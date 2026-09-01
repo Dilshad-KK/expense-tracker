@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import CommonHeader from "@/components/commonHeader";
+import PageAlert from "@/components/pageAlert";
+import PageSection from "@/components/pageSection";
 import SubscriptionForm, {
   SubscriptionFormState,
 } from "@/components/subscriptions/subscriptionForm";
@@ -86,11 +88,9 @@ const NewSubscription = () => {
   return (
     <div className="bg-base-100 min-h-dvh relative">
       <CommonHeader title="Add Subscription" />
-      <div className="px-4 page-body">
+      <PageSection contentClassName="space-y-4">
         {error && (
-          <div className="alert alert-error alert-soft mb-4">
-            <span className="text-white text-[12px]">{error}</span>
-          </div>
+          <PageAlert tone="error">{error}</PageAlert>
         )}
 
         <SubscriptionForm
@@ -101,13 +101,9 @@ const NewSubscription = () => {
         />
 
         {showSuccessMessage && (
-          <div className="flex items-center justify-center w-full mt-4">
-            <div role="alert" className="alert alert-success alert-soft text-center w-full">
-              <span className="text-white text-[14px]">{showSuccessMessage}</span>
-            </div>
-          </div>
+          <PageAlert>{showSuccessMessage}</PageAlert>
         )}
-      </div>
+      </PageSection>
     </div>
   );
 };

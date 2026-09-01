@@ -5,6 +5,8 @@ import React, { useEffect, useState } from 'react'
 // import { FaPlus } from "react-icons/fa6";
 import "react-datepicker/dist/react-datepicker.css";
 import CommonHeader from '@/components/commonHeader';
+import PageAlert from '@/components/pageAlert';
+import PageSection from '@/components/pageSection';
 
 // type Loan = {
 //     id: number;
@@ -83,22 +85,22 @@ const NewItem = () => {
     return (
         <div className="bg-base-100 min-h-dvh relative">
             <CommonHeader title='Add New Item' />
-            <div className='px-4 page-body mt-8'>
+            <PageSection className='mt-2' contentClassName='space-y-4'>
                 <div className="flex items-center justify-center flex-col">
                     <input
                         type="text"
                         placeholder="Title"
-                        className="input input-bordered mb-2 w-full bg-base-100 dark:bg-base-200 border-base-300 dark:border-base-400 text-base-content placeholder:text-[12px] placeholder:text-base-content/60"
+                        className="input input-bordered mb-2 w-full bg-base-100 dark:bg-base-200 border-base-300 dark:border-base-400 text-base-content placeholder:text-xs placeholder:text-base-content/60"
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
                     />
-                    <select className="select select-bordered mb-2 text-base w-full bg-base-100 dark:bg-base-200 border-base-300 dark:border-base-400 text-[12px] text-base-content placeholder:text-[12px] placeholder:text-base-content/60"
+                    <select className="select select-bordered mb-2 text-base w-full bg-base-100 dark:bg-base-200 border-base-300 dark:border-base-400 text-xs text-base-content placeholder:text-xs placeholder:text-base-content/60"
                         value={priority} onChange={(e) => setPriority(e.target.value)}>
                         <option value="high">High</option>
                         <option value="medium">Medium</option>
                         <option value="low">Low</option>
                     </select>
-                    <select className="select select-bordered text-base w-full bg-base-100 dark:bg-base-200 border-base-300 dark:border-base-400 text-[12px] text-base-content placeholder:text-[12px] placeholder:text-base-content/60"
+                    <select className="select select-bordered text-base w-full bg-base-100 dark:bg-base-200 border-base-300 dark:border-base-400 text-xs text-base-content placeholder:text-xs placeholder:text-base-content/60"
                         value={user} onChange={(e) => setUser(e.target.value)}>
                         {user === "Shifa Dilshad" ? <option value="Shifa Dilshad">Shifa Dilshad</option> :
                             <option value="Dilshad">Dilshad</option>}
@@ -107,20 +109,16 @@ const NewItem = () => {
                         <option value="Vacation">Vacation</option>
                     </select>
 
-                    <button className="btn btn-primary text-white text-[12px] my-[16px] w-full" onClick={addChecklistItem}>
+                    <button className="btn btn-primary text-white text-sm my-4 w-full" onClick={addChecklistItem}>
                         Add Item
                     </button>
 
                     {showSuccessMessage && (
-                        <div className="flex items-center justify-center w-full">
-                            <div role="alert" className="alert alert-success alert-soft mb-4 text-center w-full">
-                                <span className="text-white text-[14px]">{showSuccessMessage}</span>
-                            </div>
-                        </div>
+                        <PageAlert className="w-full">{showSuccessMessage}</PageAlert>
                     )
                     }
                 </div>
-            </div>
+            </PageSection>
         </div>
     )
 }

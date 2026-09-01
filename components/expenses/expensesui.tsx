@@ -1,12 +1,13 @@
 import moment from "moment";
 import { useMemo } from "react";
 import CommonHeader from "@/components/commonHeader";
+import PageEmptyState from "@/components/pageEmptyState";
+import PageFab from "@/components/pageFab";
+import PageSection from "@/components/pageSection";
 import Link from 'next/link';
 import { FaPlus } from "react-icons/fa6";
 import { getCategoryIcon } from "@/utils/categoryMapper";
 import { useGetGroupedExpensesQuery } from "@/store/api";
-// import { messaging } from "../firebase";
-// import { requestFCMToken } from "../firebase";
 
 type Expense = {
   id: number;
@@ -22,8 +23,6 @@ interface UserType {
 }
 
 export default function ExpensesUi(props: UserType) {
-  // const [active, setActive] = useState("All");
-
   let apiPath = '';
   let formTitle = '';
   let currency = '';
@@ -52,7 +51,6 @@ export default function ExpensesUi(props: UserType) {
     detailshref = `/ibuexpenses/expensedetails/`;
   }
 
-  // Fetch grouped expenses via RTK Query using the resolved apiPath
   const { data: expData, isFetching: loading } = useGetGroupedExpensesQuery(
     { apiPath, filter: 'all' },
     { skip: !apiPath, refetchOnFocus: true, refetchOnReconnect: true, refetchOnMountOrArgChange: true }
@@ -63,95 +61,77 @@ export default function ExpensesUi(props: UserType) {
   const totalDeposit = useMemo(() => parseFloat((flat.reduce((acc, e) => acc + (e.type === 'Deposit' ? Number(e.amount) : 0), 0)).toFixed(2)), [flat]);
   const closingBalance = useMemo(() => parseFloat((totalDeposit - totalExpense).toFixed(2)), [totalDeposit, totalExpense]);
 
-  // const handleFilter = (option: string) => {
-  //   setActive(option);
-  //   let optionString = "all";
-  //   option === "Last Three Months" ? optionString = "last3Months" :
-  //     option === "This Month" ? optionString = "thisMonth" : option === "all"
-  //   fetchExpenses(optionString)
-  // }
-
-
-
   return (
-    <div className="bg-base-100">
+    <div className="bg-base-100 min-h-dvh">
       <CommonHeader title={formTitle} />
-      <div className="min-h-screen p-4 pb-[150px]">
-        {loading ?
-          [1, 2, 3, 4]?.map((key) => (
-            <div className="h-[70px] w-[100%] bg-base-100 py-4 rounded-[12px] flex" key={key}>
-              <div className="skeleton h-full w-[10%] bg-base-200 rounded-[12px] mr-3"></div>
-              <div className='w-full'>
-                <div className="skeleton h-4 w-[100%] bg-base-200 mb-2"></div>
-                <div className="skeleton h-4 w-[100%] bg-base-200"></div>
+      <div className="page-body-with-fab px-4 pt-2">
+        <div className="mx-auto max-w-2xl space-y-4">
+          {loading ? (
+            [1, 2, 3, 4]?.map((key) => (
+              <div className="h-16 w-full rounded-box bg-base-100 py-4 flex" key={key}>
+                <div className="mr-3 h-full w-[10%] rounded-box bg-base-200 skeleton"></div>
+                <div className='w-full'>
+                  <div className="mb-2 h-4 w-full bg-base-200 skeleton"></div>
+                  <div className="h-4 w-full bg-base-200 skeleton"></div>
+                </div>
               </div>
-            </div>
-          ))
-
-          :
-
-          flat?.length > 0 ?
+            ))
+          ) : flat?.length > 0 ? (
             <>
-              {/* <div className="flex justify-center items-center w-full mb-6">
-                {["All", "This Month", "Last Three Months"]?.map((option: string) => (
-                  <div className={`${option === active ? 'bg-[#514cff] text-white' : 'bg-slate-200 text-black/70'} mx-2  py-2 px-4 rounded-[12px] text-[12px] `}
-                    onClick={() => { handleFilter(option) }}>{option}</div>
-                ))}
-              </div> */}
-              <div className="mb-8 px-4 py-3 rounded-[8px] flex items-center justify-between border 
-                border-base-content/20 bg-base-100 shadow-sm">
+              <PageSection className="!px-0 !pt-0" contentClassName="flex items-center justify-between gap-4">
                 <div>
-                  <div className="text-[12px] text-base-content/70 font-poppinsMed mb-1">Total Expense</div>
-                  <div className="text-[10px] text-base-content/60">{currency}&nbsp;{totalExpense}</div>
+                  <div className="mb-1 text-xs font-poppinsMed text-base-content/70">Total Expense</div>
+                  <div className="text-xs text-base-content/60">{currency}&nbsp;{totalExpense}</div>
                 </div>
                 <div>
-                  <div className="text-[12px] text-base-content/70 font-poppinsMed mb-1">Total Deposit</div>
-                  <div className="text-[10px] text-base-content/60">{currency}&nbsp;{totalDeposit}</div>
+                  <div className="mb-1 text-xs font-poppinsMed text-base-content/70">Total Deposit</div>
+                  <div className="text-xs text-base-content/60">{currency}&nbsp;{totalDeposit}</div>
                 </div>
                 <div>
-                  <div className="text-[12px] text-base-content/70 font-poppinsMed mb-1">Closing Balance</div>
-                  <div className="text-[10px] text-base-content/60">{currency}&nbsp;{closingBalance}</div>
+                  <div className="mb-1 text-xs font-poppinsMed text-base-content/70">Closing Balance</div>
+                  <div className="text-xs text-base-content/60">{currency}&nbsp;{closingBalance}</div>
                 </div>
-              </div>
-              {Object?.keys(grouped)?.map(item => (
-                <div className="mb-6" key={item}>
-
-                  <div className="text-base-content/80 font-poppinsMed text-[14px] mb-4">
-                    {item}
+              </PageSection>
+              {Object.keys(grouped).map((groupLabel) => (
+                <div className="mb-6" key={groupLabel}>
+                  <div className="mb-4 text-sm font-poppinsBold text-base-content/80">
+                    {groupLabel}
                   </div>
 
-                  {grouped[item]?.map(item => (
-                    <Link href={`${detailshref}${item?.id}`} className="mb-3 flex items-center rounded-xl bg-base-100/40 hover:bg-base-200/50 transition-colors p-2" key={item.id}>
-                      <div className="flex flex-col items-center justify-start w-[36px] mr-3">
-                        <span className="text-[12px] text-base-content/70 leading-none">{moment(item?.created_at).format("MMM")}</span>
-                        <span className="text-[12px] text-base-content/70 leading-none">{moment(item?.created_at).format("DD")}</span>
-                      </div>
-                      <div className="bg-base-200 p-3 mr-3 flex-shrink-0 rounded-xl ring-1 ring-base-300/60 dark:ring-base-300/40">
-                        <img src={getCategoryIcon(item?.note)} alt="category" className="h-5 opacity-90 dark:invert" />
-                      </div>
-                      <div className="max-w-[200px]">
-                        <div className="text-base-content/80 text-[12px] mb-1">{item?.note}</div>
-                        <div className="text-base-content/60 text-[10px]">{item?.type}</div>
-                      </div>
-                      <div className="flex flex-1 items-end justify-center flex-col flex-shrink-0">
-                        <div className={`text-[10px] font-poppinsMed ${item?.type === 'Withdrawal' ? 'text-error' : 'text-success'}`}>{item?.type === 'Withdrawal' ? 'You Paid' : 'You Received'}</div>
-                        <div className={`text-[13px] font-poppinsBold ${item?.type === 'Withdrawal' ? 'text-error' : 'text-success'}`}>{currency}&nbsp;{item?.amount}</div>
-                      </div>
-                    </Link>
-                  ))}
+                  <div className="space-y-3">
+                    {grouped[groupLabel]?.map((item) => (
+                      <Link
+                        href={`${detailshref}${item?.id}`}
+                        className="flex items-center rounded-[24px] border border-base-content/10 bg-base-100/95 p-3 shadow-[0_16px_40px_rgba(15,23,42,0.08)] transition hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-[0_20px_48px_rgba(81,76,255,0.14)] dark:bg-base-200/80"
+                        key={item.id}
+                      >
+                        <div className="mr-3 flex w-9 flex-col items-center justify-start">
+                          <span className="text-xs leading-none text-base-content/70">{moment(item?.created_at).format("MMM")}</span>
+                          <span className="text-xs leading-none text-base-content/70">{moment(item?.created_at).format("DD")}</span>
+                        </div>
+                        <div className="mr-3 flex-shrink-0 rounded-[18px] bg-base-200 p-3 ring-1 ring-base-300/60 dark:ring-base-300/40">
+                          <img src={getCategoryIcon(item?.note)} alt="category" className="h-5 opacity-90 dark:invert" />
+                        </div>
+                        <div className="max-w-[200px]">
+                          <div className="mb-1 text-xs text-base-content/80">{item?.note}</div>
+                          <div className="text-[10px] text-base-content/60">{item?.type}</div>
+                        </div>
+                        <div className="flex flex-1 flex-col items-end justify-center flex-shrink-0">
+                          <div className={`text-xs font-poppinsMed ${item?.type === 'Withdrawal' ? 'text-error' : 'text-success'}`}>{item?.type === 'Withdrawal' ? 'You Paid' : 'You Received'}</div>
+                          <div className={`text-sm font-poppinsBold ${item?.type === 'Withdrawal' ? 'text-error' : 'text-success'}`}>{currency}&nbsp;{item?.amount}</div>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
                 </div>
               ))}
             </>
-            :
-            <div className="flex items-center justify-center mt-16 text-gray-400 flex-col">
-              <img src="/assets/empty.png" className="h-[70px] mb-4" />
-              <span className="text-center">No Expenses Found...!</span>
-            </div>
-        }
+          ) : (
+            <PageEmptyState title="No expenses found" description="Add an expense to start building category history and quick-add suggestions." icon={<FaPlus className="text-xl" />} />
+          )}
+        </div>
       </div>
-      <Link href={addhref} className='fixed z-[2000] right-8 bottom-28 bg-[#514cff] h-[50px] w-[50px] rounded-full flex items-center justify-center cursor-pointer'>
-        <FaPlus className='text-white text-base' />
-      </Link>
+      <PageFab href={addhref} ariaLabel="Add expense" />
     </div>
 
   );

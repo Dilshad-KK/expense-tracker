@@ -43,7 +43,7 @@ const Profile = () => {
 
   const RadioButton = ({ value, label, isSelected }: { value: string; label: string; isSelected: boolean }) => (
     <button
-      className={`w-full flex items-center p-4 rounded-xl border-2 transition-all duration-200 active:scale-[0.98] ${
+      className={`w-full flex items-center p-4 rounded-btn border-2 transition-all duration-200 active:scale-[0.98] ${
         isSelected
           ? 'border-primary bg-primary/10 dark:bg-primary/20 shadow-sm'
           : 'border-base-300 dark:border-base-700 bg-base-100 dark:bg-base-300 active:border-primary/50'
@@ -73,15 +73,15 @@ const Profile = () => {
       
       <div className='max-w-md mx-auto px-5 space-y-6'>
         {/* Time Zone Card */}
-        <div className='bg-base-200 dark:bg-base-300 rounded-2xl border border-base-300 dark:border-base-700 p-5 shadow-sm'>
+        <div className='bg-base-200 dark:bg-base-300 rounded-box border border-base-300 dark:border-base-700 p-5 shadow-sm'>
           <div className='flex items-start space-x-4'>
-            <div className='w-10 h-10 bg-primary/10 dark:bg-primary/20 rounded-xl flex items-center justify-center flex-shrink-0'>
+            <div className='w-10 h-10 bg-primary/10 dark:bg-primary/20 rounded-box flex items-center justify-center flex-shrink-0'>
               <HiGlobe className='w-5 h-5 text-primary' />
             </div>
             <div className='flex-1'>
               <h3 className='text-sm font-poppinsBold text-base-content dark:text-base-content/90 mb-2'>Time Zone</h3>
               <p className='text-sm text-base-content/70 dark:text-base-content/60 mb-3'>{tz}</p>
-              <div className='text-xs text-base-content/60 dark:text-base-content/50 bg-base-100 dark:bg-base-400 rounded-lg px-3 py-2 border border-base-300 dark:border-base-600'>
+              <div className='text-xs text-base-content/60 dark:text-base-content/50 bg-base-100 dark:bg-base-400 rounded-box px-3 py-2 border border-base-300 dark:border-base-600'>
                 Suggested user: <span className='font-poppinsBold text-base-content dark:text-base-content/90'>{suggestedUser}</span>
               </div>
             </div>
@@ -89,9 +89,9 @@ const Profile = () => {
         </div>
 
         {/* User Selection Card */}
-        <div className='bg-base-200 dark:bg-base-300 rounded-2xl border border-base-300 dark:border-base-700 p-5 shadow-sm'>
+        <div className='bg-base-200 dark:bg-base-300 rounded-box border border-base-300 dark:border-base-700 p-5 shadow-sm'>
           <div className='flex items-center mb-4'>
-            <div className='w-8 h-8 bg-primary/10 dark:bg-primary/20 rounded-lg flex items-center justify-center mr-3'>
+            <div className='w-8 h-8 bg-primary/10 dark:bg-primary/20 rounded-box flex items-center justify-center mr-3'>
               <HiUser className='w-4 h-4 text-primary' />
             </div>
             <h3 className='text-sm font-poppinsBold text-base-content dark:text-base-content/90'>Choose User Identity</h3>
@@ -117,9 +117,9 @@ const Profile = () => {
         </div>
 
         {/* Theme Selection Card */}
-        <div className='bg-base-200 dark:bg-base-300 rounded-2xl border border-base-300 dark:border-base-700 p-5 shadow-sm'>
+        <div className='bg-base-200 dark:bg-base-300 rounded-box border border-base-300 dark:border-base-700 p-5 shadow-sm'>
           <div className='flex items-center mb-4'>
-            <div className='w-8 h-8 bg-primary/10 dark:bg-primary/20 rounded-lg flex items-center justify-center mr-3'>
+            <div className='w-8 h-8 bg-primary/10 dark:bg-primary/20 rounded-box flex items-center justify-center mr-3'>
               <HiMoon className='w-4 h-4 text-primary' />
             </div>
             <h3 className='text-sm font-poppinsBold text-base-content dark:text-base-content/90'>Theme Selection</h3>
@@ -137,14 +137,14 @@ const Profile = () => {
         <div className='sticky bottom-6 bg-base-100 dark:bg-base-200 pt-4 pb-8 -mx-5 px-5'>
           <button
             onClick={handleSave}
-            className='w-full bg-primary text-primary-content py-4 px-4 rounded-xl font-poppinsMed text-base hover:bg-primary-focus active:bg-primary/90 transition-all duration-200 shadow-lg hover:shadow-xl active:scale-[0.98]'
+            className='w-full bg-primary text-primary-content py-4 px-4 rounded-btn font-poppinsMed text-sm hover:bg-primary-focus active:bg-primary/90 transition-all duration-200 shadow-lg hover:shadow-xl active:scale-[0.98]'
           >
             Save Changes
           </button>
 
           {/* Success Message */}
           {saved && (
-            <div className='flex items-center justify-center space-x-2 p-4 mt-4 bg-success/10 dark:bg-success/20 border border-success/20 dark:border-success/30 rounded-xl animate-fade-in'>
+            <div className='flex items-center justify-center space-x-2 p-4 mt-4 bg-success/10 dark:bg-success/20 border border-success/20 dark:border-success/30 rounded-box animate-fade-in'>
               <HiCheck className='w-5 h-5 text-success' />
               <span className='text-sm text-success font-poppinsMed'>{saved}</span>
             </div>
@@ -217,7 +217,7 @@ function ThemeGallery({ active, onSelect }: { active: string; onSelect: (t: stri
               <button
                 key={theme}
                 onClick={() => onSelect(theme)}
-                className={`text-xs px-2 py-3 rounded-lg border transition-all active:scale-95 text-center ${
+                className={`text-xs px-2 py-3 rounded-btn border transition-all active:scale-95 text-center ${
                   active === theme 
                     ? 'border-primary bg-primary/10 text-primary font-poppinsMed shadow-sm' 
                     : 'border-base-300 dark:border-base-700 bg-base-100 dark:bg-base-400 text-base-content/70 active:border-primary/50'

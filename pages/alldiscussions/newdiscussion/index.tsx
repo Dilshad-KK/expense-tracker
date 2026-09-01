@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import CommonHeader from "@/components/commonHeader";
+import PageAlert from '@/components/pageAlert';
+import PageSection from '@/components/pageSection';
 
 
 const NewDiscussion = () => {
@@ -63,35 +65,31 @@ const NewDiscussion = () => {
     return (
         <div className="bg-base-100 min-h-dvh relative">
             <CommonHeader title='Add New Discussion' />
-            <div className='px-4 page-body'>
+            <PageSection contentClassName='space-y-4'>
                 <div className="flex items-center justify-center flex-col">
                     <textarea
                         rows={4}
                         placeholder="Write here..."
-                        className="text-black/60 mb-2 border-[1px] border-solid border-[#d3d3fe] w-full p-4 rounded-[8px] bg-[#f3f3fd] placeholder:text-[12px]"
+                        className="textarea textarea-bordered text-base-content mb-2 w-full p-4 rounded-btn bg-base-200 placeholder:text-xs"
                         value={message}
                         onChange={(e) => setMessage(e.target.value)}
                     />
-                    <select className="text-black/60 text-base select border-[1px] border-solid border-[#d3d3fe] w-full bg-[#f3f3fd] text-[12px] placeholder:text-[12px]"
+                    <select className="select select-bordered w-full bg-base-200 text-xs placeholder:text-xs text-base-content"
                         value={status} onChange={(e) => setStatus(e.target.value)}>
                         <option value="pending">Pending</option>
                         <option value="discussed">Discussed</option>
                     </select>
 
-                    <button className="btn bg-[#514cff] text-white border-none text-[12px] my-[16px] w-full" onClick={addDiscussion}>
+                    <button className="btn btn-primary text-white text-sm my-4 w-full" onClick={addDiscussion}>
                         Add Discussion
                     </button>
 
                     {showSuccessMessage && (
-                        <div className="flex items-center justify-center w-full">
-                            <div role="alert" className="alert alert-success alert-soft mb-4 text-center w-full">
-                                <span className="text-white text-[14px]">{showSuccessMessage}</span>
-                            </div>
-                        </div>
+                        <PageAlert className="w-full">{showSuccessMessage}</PageAlert>
                     )
                     }
                 </div>
-            </div>
+            </PageSection>
         </div>
     )
 }

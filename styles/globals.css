@@ -19,6 +19,7 @@ html {
 body {
   height: 100%;
   background-color: oklch(var(--b1));
+  overscroll-behavior-y: none;
 }
 
 
@@ -41,12 +42,26 @@ body{
   Apply it to the inner scrollable div of each page (not the outer wrapper).
 */
 .page-body {
+  padding-top: 0.5rem;
   padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px) + 16px);
 }
 
 /* Pages with a FAB button (+ button) need extra clearance so FAB isn't clipped */
 .page-body-with-fab {
   padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px) + 72px);
+}
+
+.page-shell {
+  width: 100%;
+  max-width: 42rem;
+  margin-inline: auto;
+}
+
+.page-frame {
+  width: 100%;
+  max-width: calc(42rem + 2rem);
+  margin-inline: auto;
+  padding-inline: 1rem;
 }
 
 /* ── Bottom nav: consume safe-area so it hugs the home indicator ───────────── */
@@ -89,4 +104,41 @@ body{
   src: url('/assets/fonts/Poppins/Poppins-Bold.ttf') format('truetype');
   font-weight: 700;
   font-style: normal;
+}
+
+/* Quran Module Themes */
+:root, .theme-sepia {
+  --q-bg: #fdf6e3;
+  --q-card: #eee8d5;
+  --q-card-hover: #e0d9c4;
+  --q-text: #3c3836;
+  --q-text-muted: #504945;
+  --q-text-subtle: #7c6f64;
+  --q-accent: #b57614;
+  --q-accent-bold: #af3a03;
+  --q-border: rgba(0,0,0,0.05);
+}
+
+.theme-light {
+  --q-bg: #f8f9fa;
+  --q-card: #ffffff;
+  --q-card-hover: #f1f5f9;
+  --q-text: #0f172a;
+  --q-text-muted: #475569;
+  --q-text-subtle: #64748b;
+  --q-accent: #4f46e5;
+  --q-accent-bold: #4338ca;
+  --q-border: rgba(0,0,0,0.05);
+}
+
+.theme-midnight {
+  --q-bg: #1c234a;
+  --q-card: #2a3262;
+  --q-card-hover: #3b447a;
+  --q-text: #ffffff;
+  --q-text-muted: #cbd5e1;
+  --q-text-subtle: #94a3b8;
+  --q-accent: #a5b4fc;
+  --q-accent-bold: #6366f1;
+  --q-border: rgba(255,255,255,0.05);
 }

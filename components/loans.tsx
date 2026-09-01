@@ -93,9 +93,9 @@ const Loans = () => {
 
     return (
         <>
-            <div className='flex justify-between'>
-                <h3 className='text-left mb-4 text-base-content text-[16px] font-poppinsMed'>Loans</h3>
-                <Link href={"/allloans"} className='text-left mb-4 text-primary text-[12px] font-poppinsMed cursor-pointer'>View All</Link>
+            <div className='flex items-center justify-between mt-6 mb-6'>
+                <h3 className='text-left text-base-content text-[18px] font-poppinsSemi'>Loans</h3>
+                <Link href={"/allloans"} className='text-primary text-[13px] font-poppinsMed hover:underline transition-all'>View All</Link>
             </div>
             <div>
                 {
@@ -113,23 +113,25 @@ const Loans = () => {
                                 {
                                     loans.map((loan, key) => (
                                         <div>
-                                            <Link href={`/allloans/loandetails/${loan.id}`} key={key} className='bg-base-100 px-4 py-4 mb-6 mx-1 rounded-[12px] flex justify-between border border-base-content/20 shadow-sm'>
-                                                <div className='flex items-center'>
-                                                    <div className='bg-base-200 rounded-[12px] h-[60px] w-[60px] flex items-center justify-center flex-col mr-4'>
-                                                        <span className='text-base-content/80 text-[12px] font-poppinsMed'>{moment(loan?.date_started).format("DD")}</span>
-                                                        <span className='text-base-content/80 text-[10px] uppercase font-poppinsMed'>{moment(loan?.date_started).format("MMM")}</span>
-                                                        <span className='text-base-content/80 text-[8px] uppercase font-poppinsMed'>{moment(loan?.date_started).format("YYYY")}</span>
+                                            <Link href={`/allloans/loandetails/${loan.id}`} key={key} className='group bg-gradient-to-br from-base-100/90 to-base-200/50 backdrop-blur-sm px-5 py-5 mb-6 mx-1 rounded-[22px] flex justify-between border border-white/5 hover:border-primary/30 shadow-[0_4px_20px_rgb(0_0_0/0.03)] hover:shadow-[0_8px_30px_rgb(0_0_0/0.1)] transition-all duration-300 hover:-translate-y-1 relative overflow-hidden'>
+                                                {/* Inner light reflection */}
+                                                <div className='absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none'></div>
+                                                
+                                                <div className='flex items-center relative z-10'>
+                                                    <div className='bg-gradient-to-b from-base-200 to-base-300/80 rounded-[16px] h-[64px] w-[64px] flex items-center justify-center flex-col mr-5 shadow-inner border border-white/5'>
+                                                        <span className='text-base-content/90 text-[14px] font-poppinsSemi leading-none mb-1'>{moment(loan?.date_started).format("DD")}</span>
+                                                        <span className='text-base-content/70 text-[9px] uppercase font-poppinsSemi tracking-wider'>{moment(loan?.date_started).format("MMM YYYY")}</span>
                                                     </div>
                                                     <div className='flex items-start justify-center flex-col'>
-                                                        <span className='text-base-content/80 text-[14px] font-poppinsMed mb-1'>{loan?.title}</span>
-                                                        <span className='text-base-content/60 text-[12px] font-poppinsMed mb-1'>{loan?.currency + " "} {loan?.total_amount}</span>
-                                                        <span className='text-base-content/60 text-[10px] font-poppins'>{`${loan?.times}/${loan?.total_insts} Payment${loan?.times > 1 ? 's' : ''} done`}</span>
+                                                        <span className='text-base-content/90 text-[15px] font-poppinsSemi mb-1 tracking-tight'>{loan?.title}</span>
+                                                        <span className='text-base-content/70 text-[13px] font-poppinsMed mb-1.5'>{loan?.currency} <span className="text-base-content">{loan?.total_amount}</span></span>
+                                                        <span className='text-base-content/50 text-[10px] font-poppinsSemi tracking-wider uppercase'>{`${loan?.times}/${loan?.total_insts} Payment${loan?.times > 1 ? 's' : ''} done`}</span>
                                                     </div>
                                                 </div>
-                                                <div className='flex items-center justify-end'>
+                                                <div className='flex items-center justify-end relative z-10'>
                                                     {loan?.times === Number(loan?.total_insts)
-                                                        ? <div className='badge badge-success badge-outline uppercase text-[10px] py-2 px-3'>paid</div>
-                                                        : <div className='badge badge-warning badge-outline uppercase text-[10px] py-2 px-3'>pending</div>}
+                                                        ? <div className='badge bg-success/10 text-success border-success/20 uppercase text-[9px] font-poppinsSemi tracking-widest py-3 px-4 rounded-full'>paid</div>
+                                                        : <div className='badge bg-warning/10 text-warning border-warning/20 uppercase text-[9px] font-poppinsSemi tracking-widest py-3 px-4 rounded-full'>pending</div>}
                                                 </div>
                                             </Link>
                                         </div>
@@ -151,24 +153,26 @@ const Loans = () => {
                                 loans?.length > 0 ?
                                     loans.map((loan, key) => (
 
-                                        <Link href={`/loandetails/${loan.id}`} key={key} className='bg-base-100 px-4 py-4 mb-8 rounded-[12px] flex justify-between border border-base-content/20 shadow-sm'>
-                                            <div className='flex items-center'>
-                                                <div className='bg-base-200 rounded-[12px] h-[60px] w-[60px] flex items-center justify-center flex-col mr-4'>
-                                                    <span className='text-base-content/80 text-[12px] font-poppinsMed'>{moment(loan?.date_started).format("DD")}</span>
-                                                    <span className='text-base-content/80 text-[10px] uppercase font-poppinsMed'>{moment(loan?.date_started).format("MMM")}</span>
-                                                    <span className='text-base-content/80 text-[8px] uppercase font-poppinsMed'>{moment(loan?.date_started).format("YYYY")}</span>
+                                        <Link href={`/loandetails/${loan.id}`} key={key} className='group bg-gradient-to-br from-base-100/90 to-base-200/50 backdrop-blur-sm px-5 py-5 mb-5 rounded-[22px] flex justify-between border border-white/5 hover:border-primary/30 shadow-[0_4px_20px_rgb(0_0_0/0.03)] hover:shadow-[0_8px_30px_rgb(0_0_0/0.1)] transition-all duration-300 hover:-translate-y-1 relative overflow-hidden'>
+                                            {/* Inner light reflection */}
+                                            <div className='absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none'></div>
+                                            
+                                            <div className='flex items-center relative z-10'>
+                                                <div className='bg-gradient-to-b from-base-200 to-base-300/80 rounded-[16px] h-[64px] w-[64px] flex items-center justify-center flex-col mr-5 shadow-inner border border-white/5'>
+                                                    <span className='text-base-content/90 text-[14px] font-poppinsSemi leading-none mb-1'>{moment(loan?.date_started).format("DD")}</span>
+                                                    <span className='text-base-content/70 text-[9px] uppercase font-poppinsSemi tracking-wider'>{moment(loan?.date_started).format("MMM YYYY")}</span>
                                                 </div>
                                                 <div className='flex items-start justify-center flex-col'>
-                                                    <span className='text-base-content/80 text-[14px] font-poppinsMed mb-1'>{loan?.title}</span>
-                                                    <span className='text-base-content/60 text-[12px] font-poppinsMed mb-1'>{loan?.currency + " "} {loan?.total_amount}</span>
-                                                    <span className='text-base-content/60 text-[10px] font-poppins'>{`${loan?.times}/${loan?.total_insts} Payment${loan?.times > 1 ? 's' : ''} done`}</span>
+                                                    <span className='text-base-content/90 text-[15px] font-poppinsSemi mb-1 tracking-tight'>{loan?.title}</span>
+                                                    <span className='text-base-content/70 text-[13px] font-poppinsMed mb-1.5'>{loan?.currency} <span className="text-base-content">{loan?.total_amount}</span></span>
+                                                    <span className='text-base-content/50 text-[10px] font-poppinsSemi tracking-wider uppercase'>{`${loan?.times}/${loan?.total_insts} Payment${loan?.times > 1 ? 's' : ''} done`}</span>
                                                 </div>
                                             </div>
-                                            <div className='flex items-center justify-end'>
+                                            <div className='flex items-center justify-end relative z-10'>
                                                 {loan?.status === 'paid' ?
-                                                    <div className='badge badge-success badge-outline uppercase text-[10px] py-2 px-3'>{loan?.status}</div>
+                                                    <div className='badge bg-success/10 text-success border-success/20 uppercase text-[9px] font-poppinsSemi tracking-widest py-3 px-4 rounded-full'>{loan?.status}</div>
                                                     :
-                                                    <div className='badge badge-warning badge-outline uppercase text-[10px] py-2 px-3'>{loan?.status}</div>}
+                                                    <div className='badge bg-warning/10 text-warning border-warning/20 uppercase text-[9px] font-poppinsSemi tracking-widest py-3 px-4 rounded-full'>{loan?.status}</div>}
                                             </div>
                                         </Link>
 

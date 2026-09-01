@@ -57,11 +57,11 @@ const SubscriptionForm = ({
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-2">
-        <label className="text-[12px] text-base-content/80 font-poppinsMed">Subscription name</label>
+        <label className="text-xs text-base-content/80 font-poppinsMed">Subscription name</label>
         <input
           required
           type="text"
-          className="input input-bordered w-full text-[13px] bg-base-200 border-base-300 dark:bg-base-300 dark:border-base-400"
+          className="input input-bordered w-full text-sm bg-base-200 border-base-300 dark:bg-base-300 dark:border-base-400"
           placeholder="e.g. ChatGPT Plus"
           value={form.name}
           onChange={handleChange("name")}
@@ -70,21 +70,21 @@ const SubscriptionForm = ({
 
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-2">
-          <label className="text-[12px] text-base-content/80 font-poppinsMed">Amount</label>
+          <label className="text-xs text-base-content/80 font-poppinsMed">Amount</label>
           <input
             required
             type="number"
             step="0.01"
-            className="input input-bordered w-full text-[13px] bg-base-200 border-base-300 dark:bg-base-300 dark:border-base-400"
+            className="input input-bordered w-full text-sm bg-base-200 border-base-300 dark:bg-base-300 dark:border-base-400"
             placeholder="0.00"
             value={form.amount}
             onChange={handleChange("amount")}
           />
         </div>
         <div className="space-y-2">
-          <label className="text-[12px] text-base-content/80 font-poppinsMed">Currency</label>
+          <label className="text-xs text-base-content/80 font-poppinsMed">Currency</label>
           <select
-            className="select select-bordered w-full text-[13px] bg-base-200 border-base-300 dark:bg-base-300 dark:border-base-400"
+            className="select select-bordered w-full text-sm bg-base-200 border-base-300 dark:bg-base-300 dark:border-base-400"
             value={form.currency}
             onChange={handleChange("currency")}
           >
@@ -99,9 +99,9 @@ const SubscriptionForm = ({
 
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-2">
-          <label className="text-[12px] text-base-content/80 font-poppinsMed">Billing cycle</label>
+          <label className="text-xs text-base-content/80 font-poppinsMed">Billing cycle</label>
           <select
-            className="select select-bordered w-full text-[13px] bg-base-200 border-base-300 dark:bg-base-300 dark:border-base-400"
+            className="select select-bordered w-full text-sm bg-base-200 border-base-300 dark:bg-base-300 dark:border-base-400"
             value={form.billingCycle}
             onChange={handleChange("billingCycle")}
           >
@@ -113,10 +113,10 @@ const SubscriptionForm = ({
           </select>
         </div>
         <div className="space-y-2">
-          <label className="text-[12px] text-base-content/80 font-poppinsMed">Next renewal</label>
+          <label className="text-xs text-base-content/80 font-poppinsMed">Next renewal</label>
           <input
             type="date"
-            className="input input-bordered w-full text-[13px] bg-base-200 border-base-300 dark:bg-base-300 dark:border-base-400"
+            className="input input-bordered w-full text-sm bg-base-200 border-base-300 dark:bg-base-300 dark:border-base-400"
             value={form.renewalDate}
             onChange={handleChange("renewalDate")}
           />
@@ -124,9 +124,9 @@ const SubscriptionForm = ({
       </div>
 
       <div className="space-y-2">
-        <label className="text-[12px] text-base-content/80 font-poppinsMed">Status</label>
+        <label className="text-xs text-base-content/80 font-poppinsMed">Status</label>
         <select
-          className="select select-bordered w-full text-[13px] bg-base-200 border-base-300 dark:bg-base-300 dark:border-base-400"
+          className="select select-bordered w-full text-sm bg-base-200 border-base-300 dark:bg-base-300 dark:border-base-400"
           value={form.status}
           onChange={handleChange("status")}
         >
@@ -139,10 +139,10 @@ const SubscriptionForm = ({
       </div>
 
       <div className="space-y-2">
-        <label className="text-[12px] text-base-content/80 font-poppinsMed">Notes</label>
+        <label className="text-xs text-base-content/80 font-poppinsMed">Notes</label>
         <textarea
           rows={3}
-          className="textarea textarea-bordered w-full text-[13px] bg-base-200 border-base-300 dark:bg-base-300 dark:border-base-400"
+          className="textarea textarea-bordered w-full text-sm bg-base-200 border-base-300 dark:bg-base-300 dark:border-base-400"
           placeholder="Add renewal reminders, payment method, etc."
           value={form.notes}
           onChange={handleChange("notes")}
@@ -152,7 +152,7 @@ const SubscriptionForm = ({
       <button
         type="submit"
         disabled={loading}
-        className="btn bg-primary text-primary-content border-none w-full text-[13px] hover:bg-primary/90 disabled:opacity-70"
+        className="btn bg-primary text-primary-content border-none w-full text-sm hover:bg-primary/90 disabled:opacity-70"
       >
         {loading && <span className="loading loading-spinner loading-xs mr-2" />}
         {submitLabel}

@@ -2,8 +2,12 @@ import React from 'react';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import CommonHeader from "@/components/commonHeader";
+import HeaderAction from '@/components/headerAction';
+import PageAlert from '@/components/pageAlert';
+import PageSection from '@/components/pageSection';
 import moment from 'moment';
 import Link from 'next/link';
+import { HiPencilSquare, HiTrash } from 'react-icons/hi2';
 
 type Discussion = {
   id: number;
@@ -22,12 +26,9 @@ const DiscussionDetails = () => {
   const [discussion, setDiscussion] = useState<Discussion[]>([]);
 
   useEffect(() => {
-
     if (!discid) return;
-
     fetchDiscussions();
   }, [discid]);
-
 
   async function fetchDiscussions() {
     setLoading(true);
@@ -42,7 +43,6 @@ const DiscussionDetails = () => {
       setLoading(false);
     }
   }
-
 
   async function deleteDiscussion(discIdToDelete: number) {
     setLoading(true);
@@ -63,71 +63,84 @@ const DiscussionDetails = () => {
     }
   }
 
-
   return (
     <div className='bg-base-100 min-h-dvh'>
       <CommonHeader
         title='Discussion Details'
         right={(
           <div className='flex items-center gap-2'>
-            <Link href={`/alldiscussions/discdetails/${discid}/edit`} className='btn btn-xs btn-success text-white'>Update</Link>
-            <button onClick={() => deleteDiscussion(discussion[0]?.id)} className='btn btn-xs btn-error text-white'>Delete</button>
+            <HeaderAction
+              href={`/alldiscussions/discdetails/${discid}/edit`}
+              label="Update"
+              tone="success"
+              icon={<HiPencilSquare />}
+            />
+            <HeaderAction
+              onClick={() => deleteDiscussion(discussion[0]?.id)}
+              label="Delete"
+              tone="danger"
+              icon={<HiTrash />}
+            />
           </div>
         )}
       />
 
-      {loading ?
-        <div className='p-4'>
-          {[1, 2, 3, 4]?.map((key) => (
-            <div className="h-[70px] w-[100%] bg-base-100 dark:bg-base-200 border-2 border-base-300 dark:border-base-400 px-4 py-4 my-3 rounded-[12px] flex" key={key}>
-              <div className="skeleton h-full w-[10%] bg-[#d6d6fc] dark:bg-base-300 rounded-[12px] mr-3"></div>
-              <div className='w-full'>
-                <div className="skeleton h-4 w-[100%] bg-[#d6d6fc] dark:bg-base-300 mb-2"></div>
-                <div className="skeleton h-4 w-[100%] bg-[#d6d6fc] dark:bg-base-300"></div>
-              </div>
-            </div>
-          ))}
-        </div>
-        : discussion?.length ?
-          <div className='px-4 pt-4 page-body'>
-
-            <div className='bg-base-100 dark:bg-base-200 border-2 border-base-300 dark:border-base-400 px-4 py-4 my-3 rounded-[12px] flex justify-between'>
-              <div className='flex items-center justify-center'>
-                <div className={`h-[40px] w-[40px] ${discussion[0]?.user === 'Dilshad' ? 'bg-[#126581]' : 'bg-[#8e156a]'}  rounded-full flex items-center justify-center mr-4 flex-shrink-0`}>
-                  <span className='text-[18px] text-white font-poppinsMed'>{discussion[0]?.user === 'Dilshad' ? 'D' : 'S'}</span>
+      {loading ? (
+        <div className='page-body px-4 pt-2'>
+          <div className='page-shell'>
+            {[1, 2, 3, 4]?.map((key) => (
+              <div className="my-3 flex h-16 w-full rounded-box border-2 border-base-300 bg-base-100 px-4 py-4 dark:border-base-400 dark:bg-base-200" key={key}>
+                <div className="mr-3 h-full w-1/12 rounded-box bg-[#d6d6fc] skeleton dark:bg-base-300"></div>
+                <div className='w-full'>
+                  <div className="mb-2 h-4 w-full bg-[#d6d6fc] skeleton dark:bg-base-300"></div>
+                  <div className="h-4 w-full bg-[#d6d6fc] skeleton dark:bg-base-300"></div>
                 </div>
-                <div>
-                  <div className='flex items-center justify-start'>
-                    <span className='mr-1 text-[10px] text-base-content/70'>{discussion[0]?.user}</span>
-                    <span className='mr-1 mb-2 text-[16px] text-base-content/60'>.</span>
-                    <span className='text-[10px] text-base-content/70 mr-2'>{moment(discussion[0]?.created_at).fromNow().replace(/^\w/, c => c.toUpperCase())}</span>
-                    <span className='mr-1 mb-2 text-[16px] text-base-content/60'>.</span>
-                    {discussion[0]?.status === "pending" ?
-                      <div className='bg-error/10 rounded-[12px] text-[8px] py-1 px-3 flex items-center justify-center uppercase text-error font-poppinsMed'>{discussion[0]?.status}</div>
-                      :
-                      <div className='bg-success/10 rounded-[12px] text-[8px] py-1 px-3 flex items-center justify-center uppercase text-success font-poppinsMed'>{discussion[0]?.status}</div>
-
-                    }
-                  </div>
-                  <span className='text-base-content/80 text-[12px]'>{discussion[0]?.message}</span>
-                </div>
-
               </div>
-
-            </div>
+            ))}
           </div>
-          : null
-      }
-
+        </div>
+      ) : discussion?.length ? (
+        <div className='page-body px-4 pt-2'>
+          <div className='page-shell'>
+            <PageSection className='!px-0 !pt-0' contentClassName='space-y-4'>
+              <div className='flex justify-between rounded-box'>
+                <div className='flex items-center justify-center'>
+                  <div className={`mr-4 flex size-10 flex-shrink-0 items-center justify-center rounded-full ${discussion[0]?.user === 'Dilshad' ? 'bg-[#126581]' : 'bg-[#8e156a]'}`}>
+                    <span className='text-lg text-white font-poppinsMed'>{discussion[0]?.user === 'Dilshad' ? 'D' : 'S'}</span>
+                  </div>
+                  <div>
+                    <div className='flex items-center justify-start'>
+                      <span className='mr-1 text-xs text-base-content/70'>{discussion[0]?.user}</span>
+                      <span className='mr-1 mb-2 text-base text-base-content/60'>.</span>
+                      <span className='mr-2 text-xs text-base-content/70'>{moment(discussion[0]?.created_at).fromNow().replace(/^\w/, c => c.toUpperCase())}</span>
+                      <span className='mr-1 mb-2 text-base text-base-content/60'>.</span>
+                      {discussion[0]?.status === "pending" ? (
+                        <div className='rounded-badge bg-warning/10 px-3 py-1 text-xs font-poppinsMed capitalize text-warning'>{discussion[0]?.status}</div>
+                      ) : (
+                        <div className='rounded-badge bg-success/10 px-3 py-1 text-xs font-poppinsMed capitalize text-success'>{discussion[0]?.status}</div>
+                      )}
+                    </div>
+                    <span className='text-sm text-base-content/80'>{discussion[0]?.message}</span>
+                  </div>
+                </div>
+              </div>
+              <div className='rounded-[20px] border border-base-content/10 bg-base-200/60 p-3'>
+                <div className='text-[11px] font-poppinsMed text-base-content/50'>Created</div>
+                <div className='mt-1 text-sm font-poppinsBold text-base-content'>{moment(discussion[0]?.created_at).format("DD MMM YYYY")}</div>
+                <div className='mt-1 text-xs text-base-content/60'>{moment(discussion[0]?.created_at).format("hh:mm A")}</div>
+              </div>
+            </PageSection>
+          </div>
+        </div>
+      ) : null}
 
       {showSuccessMessage && (
-        <div className="flex items-center justify-end w-full p-4">
-          <div role="alert" className="alert alert-success alert-soft mb-4 text-center w-full">
-            <span className="text-white text-[14px]">{showSuccessMessage}</span>
+        <div className="page-body px-4 pt-0">
+          <div className="page-shell">
+            <PageAlert>{showSuccessMessage}</PageAlert>
           </div>
         </div>
-      )
-      }
+      )}
     </div>
   )
 }

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import CommonHeader from "@/components/commonHeader";
+import PageSection from "@/components/pageSection";
 
 export default function UpdatePage() {
   const [id, setId] = useState<string | null>(null);
@@ -43,19 +44,19 @@ export default function UpdatePage() {
   return (
     <div className="bg-base-100 min-h-dvh relative">
       <CommonHeader title='Update Period Details' />
-      <div className="flex items-center justify-center h-full pt-24">
-        <div className="bg-base-100 rounded-2xl p-6 max-w-md w-full border border-base-300">
+      <PageSection contentClassName="max-w-md">
+        <div className="w-full">
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-base-content mb-1">Cycle Length (days)</label>
-              <input
-                type="number"
-                value={cycle}
-                onChange={(e) => setCycle(Number(e.target.value))}
-                min={1}
-                className="input input-bordered text-base-content/80 mb-2 w-full p-4 rounded-[8px] bg-base-200 placeholder:text-[12px]"
-              />
-            </div>
+                <input
+                  type="number"
+                  value={cycle}
+                  onChange={(e) => setCycle(Number(e.target.value))}
+                  min={1}
+                  className="input input-bordered text-base-content/80 mb-2 w-full p-4 rounded-btn bg-base-200 placeholder:text-xs"
+                />
+              </div>
 
             <div>
               <label className="block text-sm font-medium text-base-content mb-1">Last Period Start Date</label>
@@ -63,19 +64,19 @@ export default function UpdatePage() {
                 type="date"
                 value={lastDate}
                 onChange={(e) => setLastDate(e.target.value)}
-                className="input input-bordered text-base-content/80 mb-2 w-full p-4 rounded-[8px] bg-base-200 placeholder:text-[12px]"
+                className="input input-bordered text-base-content/80 mb-2 w-full p-4 rounded-btn bg-base-200 placeholder:text-xs"
               />
             </div>
 
             <button
               onClick={handleSave}
-              className="btn btn-primary text-white border-none text-[12px] my-[16px] w-full"
+              className="btn btn-primary text-white border-none text-sm my-4 w-full"
             >
               Save & Go Back
             </button>
           </div>
         </div>
-      </div>
+      </PageSection>
 
     </div>
   );

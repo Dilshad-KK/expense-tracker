@@ -1,5 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import CommonHeader from "@/components/commonHeader";
+import PageAlert from '@/components/pageAlert';
+import PageSection from '@/components/pageSection';
 import { categoryIcons, getAllCategories, getSuggestedCategory, trainCategoryForToken } from '@/utils/categoryMapper';
 
 
@@ -147,7 +149,7 @@ const NewExpense = () => {
     return (
         <div className="bg-base-100 min-h-dvh relative">
             <CommonHeader title='Add New Expense' />
-            <div className='px-4 page-body'>
+            <PageSection contentClassName='space-y-4'>
                 <div className="flex items-center justify-center flex-col">
                     {suggestions.length > 0 && (
                       <div className='w-full mb-3'>
@@ -230,15 +232,11 @@ const NewExpense = () => {
                     </button>
 
                     {showSuccessMessage && (
-                        <div className="flex items-center justify-center w-full">
-                            <div role="alert" className="alert alert-success alert-soft mb-4 text-center w-full">
-                                <span className="text-white text-[14px]">{showSuccessMessage}</span>
-                            </div>
-                        </div>
+                        <PageAlert className="w-full">{showSuccessMessage}</PageAlert>
                     )
                     }
                 </div>
-            </div>
+            </PageSection>
         </div>
     )
 }

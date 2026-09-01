@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import CommonHeader from "@/components/commonHeader";
+import PageAlert from '@/components/pageAlert';
+import PageSection from '@/components/pageSection';
 import { useRouter } from 'next/router';
 
 type Discussion = {
@@ -67,7 +69,7 @@ const UpdateDiscussion = () => {
         return;
       }
 
-      setShowSuccessMessage("Discussion Updated Successfully...!");
+      setShowSuccessMessage("Expense Updated Successfully...!");
       setLoading(false);
     } catch (err) {
       console.error("Unexpected error:", err);
@@ -77,12 +79,12 @@ const UpdateDiscussion = () => {
 
   return (
     <div className="bg-base-100 min-h-dvh relative">
-      <CommonHeader title='Update Discussion' />
-      <div className='px-4 page-body'>
+      <CommonHeader title='Update Expense' />
+      <PageSection contentClassName='space-y-4'>
         <div className="flex items-center justify-center flex-col">
           <textarea
             rows={4}
-            placeholder="Write here..."
+            placeholder="Expense note"
             className="text-black/60 mb-2 border-[1px] border-solid border-[#d3d3fe] w-full p-4 rounded-[8px] bg-[#f3f3fd] placeholder:text-[12px]"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
@@ -94,19 +96,15 @@ const UpdateDiscussion = () => {
           </select>
 
           <button className="btn bg-[#514cff] text-white border-none text-[12px] my-[16px] w-full" onClick={handleUpdateDiscussion}>
-             {loading ? <span className="ml-2 loading loading-dots loading-md"></span> : 'Update Discussion'}
+             {loading ? <span className="ml-2 loading loading-dots loading-md"></span> : 'Update Expense'}
           </button>
 
           {showSuccessMessage && (
-            <div className="flex items-center justify-center w-full">
-              <div role="alert" className="alert alert-success alert-soft mb-4 text-center w-full">
-                <span className="text-white text-[14px]">{showSuccessMessage}</span>
-              </div>
-            </div>
+            <PageAlert className="w-full">{showSuccessMessage}</PageAlert>
           )
           }
         </div>
-      </div>
+      </PageSection>
     </div>
   )
 }

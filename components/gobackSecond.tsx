@@ -8,12 +8,13 @@ const GoBack = () => {
     const router = useRouter()
     return (
         <div 
-            className='cursor-pointer z-[2000] transition-all duration-200 hover:scale-110 active:scale-95
-                      bg-primary-content/20 dark:bg-primary-content/10 hover:bg-primary-content/30 
-                      dark:hover:bg-primary-content/20 rounded-full w-8 h-8 flex items-center justify-center'
+            className='flex h-10 w-10 cursor-pointer items-center justify-center rounded-2xl
+                      border border-primary-content/10 bg-primary-content/15 text-primary-content
+                      shadow-[inset_0_1px_0_rgba(255,255,255,0.15)] transition-all duration-200
+                      hover:scale-[1.03] hover:bg-primary-content/20 active:scale-95'
             onClick={() => router.back()}
         >
-            <FaArrowLeft className='text-[16px] text-primary-content dark:text-primary-content/90' />
+            <FaArrowLeft className='text-[15px]' />
         </div>
     )
 }

@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import moment from "moment";
 import CommonHeader from "@/components/commonHeader";
+import PageAlert from "@/components/pageAlert";
+import PageSection from "@/components/pageSection";
 import WorkDataForm, { WorkDataFormState } from "@/components/workdata/workDataForm";
 
 const defaultForm: WorkDataFormState = {
@@ -105,17 +107,15 @@ const NewWorkData = () => {
   return (
     <div className="bg-base-100 min-h-dvh relative">
       <CommonHeader title="Add Work Data" />
-      <div className="px-4 page-body">
+      <PageSection contentClassName="space-y-4">
         {error && (
-          <div className="alert alert-error alert-soft mb-4">
-            <span className="text-white text-[12px]">{error}</span>
-          </div>
+          <PageAlert tone="error">{error}</PageAlert>
         )}
 
         <div className="space-y-2 mb-4">
-          <label className="text-[12px] text-base-content/80 font-poppinsMed">User</label>
+          <label className="text-xs text-base-content/80 font-poppinsMed">User</label>
           <select
-            className="select select-bordered w-full text-[13px] bg-base-200 border-base-300 dark:bg-base-300 dark:border-base-400"
+            className="select select-bordered w-full text-sm bg-base-200 border-base-300 dark:bg-base-300 dark:border-base-400"
             value={user}
             onChange={(e) => setUser(e.target.value)}
             disabled={!options.length}
@@ -137,16 +137,11 @@ const NewWorkData = () => {
         />
 
         {showSuccessMessage && (
-          <div className="flex items-center justify-center w-full mt-4">
-            <div role="alert" className="alert alert-success alert-soft text-center w-full">
-              <span className="text-white text-[14px]">{showSuccessMessage}</span>
-            </div>
-          </div>
+          <PageAlert>{showSuccessMessage}</PageAlert>
         )}
-      </div>
+      </PageSection>
     </div>
   );
 };
 
 export default NewWorkData;
-

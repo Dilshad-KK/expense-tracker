@@ -1,4 +1,5 @@
 import CommonHeader from '@/components/commonHeader';
+import PageFab from '@/components/pageFab';
 import React, {  useEffect, useMemo, useState } from 'react';
 import { FiPlus, FiMinus } from "react-icons/fi";
 import Link from 'next/link';
@@ -227,19 +228,19 @@ const Milestones = () => {
             <CommonHeader title='MILESTONES' />
             <div className="flex justify-center items-center w-full  my-8">
                 {options?.length ? options?.map((option: string) => (
-                    <div className={`${option === active ? 'bg-[#514cff] text-white' : 'bg-[#ffffff91] text-black/80 border border-solid border-[#d3e2f9]'} mx-2  py-2 px-4 rounded-[8px] text-[12px] `}
+                    <div className={`${option === active ? 'bg-[#514cff] text-white' : 'bg-[#ffffff91] text-black/80 border border-solid border-[#d3e2f9]'} mx-2  py-2 px-4 rounded-btn text-xs `}
                         onClick={() => { handleFilter(option) }}>{option}</div>
                 )) : null}
             </div>
             <div className='flex items-center justify-center'>
                 {days.map((day, idx) => (
                     <div className='flex flex-col items-center justify-center'>
-                        <div className='text-[12px] mb-2 text-black/90'>{day.format("ddd")}</div>
+                        <div className='text-xs mb-2 text-black/90'>{day.format("ddd")}</div>
                         <div key={idx} className={`${day.isSame(activeDate, 'day') ? 'bg-[#514cff]' : 'bg-white'}
-                             h-[40px] w-[40px] mx-2 rounded-full flex items-center justify-center cursor-pointer`} onClick={() => {
+                             h-10 w-10 mx-2 rounded-full flex items-center justify-center cursor-pointer shadow-sm`} onClick={() => {
                                 handleDateChange(day)
                             }}>
-                            <div className={`text-[12px] ${day.isSame(activeDate, 'day') ? 'text-[#ffffff]' : 'text-black'}`}>{day.format("D")}</div>       {/* Day of month like 7, 8, 9 */}
+                            <div className={`text-xs ${day.isSame(activeDate, 'day') ? 'text-[#ffffff]' : 'text-black'}`}>{day.format("D")}</div>       {/* Day of month like 7, 8, 9 */}
                         </div>
                     </div>
                 ))}
@@ -248,62 +249,62 @@ const Milestones = () => {
             <div className='px-4 pt-8 page-body-with-fab'>
                 {totalProgress >= 0 ? <div className='flex items-center justify-center mb-6'>
                     <div className="flex-1">
-                        <div className="w-full h-2 bg-white rounded-full overflow-hidden">
+                        <div className="w-full h-2 bg-white rounded-full overflow-hidden shadow-inner">
                             <div className="h-full bg-green-500" style={{ width: `${totalProgress}%` }} />
                         </div>
                     </div>
-                    <span className='text-[10px] text-black/70 ml-2'>{totalProgress}%</span>
+                    <span className='text-xs text-black/70 ml-2 font-poppinsMed'>{totalProgress}%</span>
                 </div> : null}
 
                 {loading ?
                     <div>
                         {[1, 2, 3, 4]?.map((key) => (
-                            <div className="h-[50px] w-[100%] bg-white px-4 py-4 my-3 rounded-[12px] flex" key={key}>
+                            <div className="h-12 w-full bg-white px-4 py-4 my-3 rounded-box flex" key={key}>
                                 <div className='w-full'>
-                                    <div className="skeleton h-2 w-[100%] bg-[#d6d6fc] mb-2"></div>
-                                    <div className="skeleton h-2 w-[100%] bg-[#d6d6fc]"></div>
+                                    <div className="skeleton h-2 w-full bg-[#d6d6fc] mb-2"></div>
+                                    <div className="skeleton h-2 w-full bg-[#d6d6fc]"></div>
                                 </div>
                             </div>
                         ))}
                     </div> :
 
                     habits.map((item, idx) => (
-                        <div className='relative shadow-sm mb-3  h-[60px]'>
-                            <div key={item.title} className='flex absolute rounded-xl bg-white inset-0 items-center justify-between z-[100]'>
+                        <div className='relative shadow-sm mb-3 h-16'>
+                            <div key={item.title} className='flex absolute rounded-box bg-white inset-0 items-center justify-between z-[100]'>
                                 <div className='flex items-center space-x-3 h-full'>
-                                    <div className='h-full w-[40px] cursor-pointer flex items-center justify-center relative'
+                                    <div className='h-full w-10 cursor-pointer flex items-center justify-center relative'
                                         onClick={() => logHabit(item?.id, 'dec', item?.total)}>
                                         {decLoading && activeHabitKey === String(item?.id) ?
                                             <span className={`loading loading-ring loading-md`} style={{ color: `#${colors[idx % colors?.length]}` }}></span> : <FiMinus className='absolute' size={14} style={{ color: `#${colors[idx % colors?.length]}` }} />}
-                                        <div className='absolute inset-0 rounded-l-xl opacity-[4%]' style={{ backgroundColor: `#${colors[idx % colors?.length]}` }}></div>
+                                        <div className='absolute inset-0 rounded-l-box opacity-[4%]' style={{ backgroundColor: `#${colors[idx % colors?.length]}` }}></div>
                                     </div>
-                                    <div className='text-black/70 text-[12px]'>{item.title}</div>
+                                    <div className='text-black/70 text-xs font-poppinsMed'>{item.title}</div>
                                 </div>
 
                                 <div className='flex items-center space-x-3 h-full'>
                                     <div className='text-right'>
                                         <div>
-                                            <span className='text-[12px] font-medium' style={{ color: `#${colors[idx % colors?.length]}` }}>
+                                            <span className='text-xs font-medium' style={{ color: `#${colors[idx % colors?.length]}` }}>
                                                 {getLogValue(item?.id)}
                                             </span>
-                                            <span className='text-[12px] opacity-50' style={{ color: `#${colors[idx % colors?.length]}` }}>
+                                            <span className='text-xs opacity-50' style={{ color: `#${colors[idx % colors?.length]}` }}>
                                                 /{item.total}
                                             </span>
                                         </div>
-                                        <div className='text-[10px] text-black/50'>{item.unit}</div>
+                                        <div className='text-xs text-black/50'>{item.unit}</div>
                                     </div>
-                                    <div className='h-full w-[40px] cursor-pointer flex items-center justify-center relative'
+                                    <div className='h-full w-10 cursor-pointer flex items-center justify-center relative'
                                         onClick={() => logHabit(item?.id, 'inc', item?.total)}>
                                         {
                                             incLoading && activeHabitKey === String(item?.id) ?
                                                 <span className={`loading loading-ring loading-md`} style={{ color: `#${colors[idx % colors?.length]}` }}></span> :
                                                 <FiPlus className='absolute' size={14} style={{ color: `#${colors[idx % colors?.length]}` }} />
                                         }
-                                        <div className='absolute inset-0 rounded-r-xl opacity-[4%]' style={{ backgroundColor: `#${colors[idx % colors?.length]}` }}></div>
+                                        <div className='absolute inset-0 rounded-r-box opacity-[4%]' style={{ backgroundColor: `#${colors[idx % colors?.length]}` }}></div>
                                     </div>
                                 </div>
                             </div>
-                            <div className='absolute bottom-[-3px] right-0 left-0 rounded-xl  opacity-[70%] h-[50px] z-[99]'
+                            <div className='absolute bottom-[-3px] right-0 left-0 rounded-box opacity-[70%] h-12 z-[99]'
                                 style={{ backgroundColor: `#${colors[idx % colors?.length]}`, width: `${getLogValue(item?.id) / item?.total * 100}%` }}></div>
                         </div>
 
@@ -313,9 +314,7 @@ const Milestones = () => {
 
                 { }
             </div>
-            <Link href={"/milestones/newitem"} className='fixed z-[2000] right-8 bottom-28 bg-[#514cff] h-[50px] w-[50px] rounded-full flex items-center justify-center cursor-pointer'>
-                <FaPlus className='text-white text-base' />
-            </Link>
+            <PageFab href="/milestones/newitem" ariaLabel="Add milestone" className="bg-[#514cff]" />
         </div>
     );
 };

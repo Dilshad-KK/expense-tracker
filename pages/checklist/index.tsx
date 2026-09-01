@@ -1,4 +1,5 @@
 import CommonHeader from '@/components/commonHeader'
+import PageFab from '@/components/pageFab';
 import moment from 'moment';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
@@ -140,35 +141,35 @@ const CheckList = () => {
 
                     checklist?.filter(item => checked ? item?.checked === true : item?.checked === false).map?.((item, key) => (
 
-                        <div key={key} className='bg-base-100 dark:bg-base-200 border-2 border-base-300 dark:border-base-400 px-4 py-4 my-3 rounded-[12px] flex justify-between items-center'>
+                        <div key={key} className='bg-base-100 dark:bg-base-200 border-2 border-base-300 dark:border-base-400 px-4 py-4 my-3 rounded-box flex justify-between items-center'>
                             {/* <div className='bg-[#a5a5fe2d] rounded-[12px] h-[60px] w-[60px] flex items-center justify-center flex-col mr-4 flex-shrink-0'>
                                 <span className='text-black/80 text-[12px] font-poppinsMed'>{moment(item?.created_at).format("DD")}</span>
                                 <span className='text-black/80 text-[10px] uppercase font-poppinsMed'>{moment(item?.created_at).format("MMM")}</span>
                                 <span className='text-black/80 text-[8px] uppercase font-poppinsMed'>{moment(item?.created_at).format("YYYY")}</span>
                             </div> */}
                             <div className='flex flex-grow flex-col items-start justify-center'>
-                                <div className='text-[12px] text-base-content/80 mb-3'>
+                                <div className='text-sm text-base-content/80 mb-3 font-poppinsMed'>
                                     {item?.title}
                                 </div>
                                 <div className='flex'>
                                     <div className={`${item?.priority === 'low' ? 'text-success bg-success/10'
                                         : item?.priority === 'medium' ? 'text-warning bg-warning/10'
-                                            : 'text-error bg-error/10'} text-[10px] rounded-[4px] px-2 py-1 mr-3`}>
+                                            : 'text-error bg-error/10'} text-xs rounded px-2 py-1 mr-3`}>
                                         {item?.priority === 'low' ? 'Low' : item?.priority === 'medium' ? 'Medium' : 'High'}
                                     </div>
-                                    <div className='bg-base-200 flex items-center justify-center px-3 py-1 rounded-[4px] text-base-content/70 mr-3'>
-                                        <span className='text-[10px] mr-1'>{moment(item?.created_at).format("DD")}</span>
-                                        <span className='text-[10px] mr-1'>{moment(item?.created_at).format("MMM")}</span>
-                                        <span className='text-[10px] mr-1'>{moment(item?.created_at).format("YYYY")}</span>
+                                    <div className='bg-base-200 flex items-center justify-center px-3 py-1 rounded text-base-content/70 mr-3'>
+                                        <span className='text-xs mr-1'>{moment(item?.created_at).format("DD")}</span>
+                                        <span className='text-xs mr-1'>{moment(item?.created_at).format("MMM")}</span>
+                                        <span className='text-xs mr-1'>{moment(item?.created_at).format("YYYY")}</span>
                                     </div>
-                                    <div className='bg-error/10 text-[10px] flex items-center justify-center px-3 py-1 rounded-[4px] text-error cursor-pointer' onClick={() => { handleDelete(item?.id, key, item?.user) }}>
+                                    <div className='bg-error/10 text-xs flex items-center justify-center px-3 py-1 rounded text-error cursor-pointer' onClick={() => { handleDelete(item?.id, key, item?.user) }}>
                                         Delete
                                     </div>
                                 </div>
 
                             </div>
-                            <div className='flex items-center justify-end w-[50px] flex-shrink-0'>
-                                <div className={`${item?.checked ? 'bg-success' : 'bg-base-100 dark:bg-base-200 border-2 border-success/50'} h-[20px] w-[20px] rounded-full flex items-center justify-center cursor-pointer`}
+                            <div className='flex items-center justify-end w-12 flex-shrink-0'>
+                                <div className={`${item?.checked ? 'bg-success' : 'bg-base-100 dark:bg-base-200 border-2 border-success/50'} h-6 w-6 rounded-full flex items-center justify-center cursor-pointer`}
                                     onClick={() => {
                                         handleUpdateChecklist(key, !item?.checked, item?.id, item?.user)
                                     }}
@@ -192,11 +193,11 @@ const CheckList = () => {
                 {loading || options?.length === 0 ?
                     <div>
                         {[1, 2, 3, 4]?.map((key) => (
-                            <div className="h-[70px] w-[100%] bg-base-100 dark:bg-base-200 border-2 border-base-300 dark:border-base-400 px-4 py-4 my-3 rounded-[12px] flex" key={key}>
-                                <div className="skeleton h-full w-[10%] bg-[#d6d6fc] dark:bg-base-300 rounded-[12px] mr-3"></div>
+                            <div className="h-16 w-full bg-base-100 dark:bg-base-200 border-2 border-base-300 dark:border-base-400 px-4 py-4 my-3 rounded-box flex" key={key}>
+                                <div className="skeleton h-full w-1/12 bg-[#d6d6fc] dark:bg-base-300 rounded-box mr-3"></div>
                                 <div className='w-full'>
-                                    <div className="skeleton h-4 w-[100%] bg-[#d6d6fc] dark:bg-base-300 mb-2"></div>
-                                    <div className="skeleton h-4 w-[100%] bg-[#d6d6fc] dark:bg-base-300"></div>
+                                    <div className="skeleton h-4 w-full bg-[#d6d6fc] dark:bg-base-300 mb-2"></div>
+                                    <div className="skeleton h-4 w-full bg-[#d6d6fc] dark:bg-base-300"></div>
                                 </div>
                             </div>
                         ))}
@@ -205,7 +206,7 @@ const CheckList = () => {
                     <>
                         <div className="flex justify-center items-center w-full mb-6 mt-3">
                             {options?.length ? options?.map((option: string) => (
-                                <div className={`${option === active ? 'bg-primary text-primary-content' : 'bg-base-100 dark:bg-base-200 text-base-content/80 border border-base-300 dark:border-base-400'} mx-2  py-2 px-4 rounded-[8px] text-[12px] `}
+                                <div className={`${option === active ? 'bg-primary text-primary-content' : 'bg-base-100 dark:bg-base-200 text-base-content/80 border border-base-300 dark:border-base-400'} mx-2  py-2 px-4 rounded-btn text-xs `}
                                     onClick={() => { handleFilter(option) }}>{option}</div>
                             )) : null}
                         </div>
@@ -218,9 +219,7 @@ const CheckList = () => {
 
                 }
             </div>
-            <Link href={"/checklist/newitem"} className='fixed z-[2000] right-8 bottom-28 bg-primary hover:bg-primary-focus h-[50px] w-[50px] rounded-full flex items-center justify-center cursor-pointer transition-all hover:scale-105 shadow-lg border-2 border-white/20'>
-                <FaPlus className='text-white text-base' />
-            </Link>
+            <PageFab href="/checklist/newitem" ariaLabel="Add checklist item" />
         </div>
     )
 }

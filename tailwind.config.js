@@ -62,6 +62,9 @@ module.exports = {
           success: '#1b987b',
           warning: '#d8c627',
           error: '#fc3f3f',
+          '--rounded-box': '1.25rem', // 20px
+          '--rounded-btn': '0.75rem', // 12px
+          '--rounded-badge': '1rem',
         },
       },
       {
@@ -76,6 +79,9 @@ module.exports = {
           success: '#34d399',
           warning: '#f59e0b',
           error: '#f87171',
+          '--rounded-box': '1.25rem', // 20px
+          '--rounded-btn': '0.75rem', // 12px
+          '--rounded-badge': '1rem',
         },
       },
     ],

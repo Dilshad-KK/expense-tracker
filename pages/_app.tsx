@@ -13,7 +13,7 @@ import { applyTheme } from '@/utils/theme';
 import LockScreen from '@/components/LockScreen';
 import { isBiometricRegistered } from '@/lib/webauthn';
 
-export default function App({ Component, pageProps }: AppProps) {
+export default function App({ Component, pageProps, router }: AppProps) {
   const [toast, setToast] = useState<null | { title?: string; body?: string }>(null);
   const [iosPromptVisible, setIosPromptVisible] = useState(false);
   const [envChecked, setEnvChecked] = useState(false);
@@ -179,23 +179,23 @@ export default function App({ Component, pageProps }: AppProps) {
   return (
     <Provider store={store}>
       {envChecked && iosPromptVisible && (
-        <div style={{ position: 'fixed', bottom: 72, left: 12, right: 12, zIndex: 9999 }}>
-          <div className="shadow-lg rounded-[12px] bg-base-100 dark:bg-base-200 border border-base-300 dark:border-base-400 px-4 py-3">
-            <div className="text-[12px] font-poppinsMed text-base-content mb-[4px]">Enable Notifications</div>
-            <div className="text-[11px] text-base-content/70 mb-2">Tap to allow push notifications for this PWA. You can change this later in Settings.</div>
-            <div style={{ display: 'flex', gap: 8 }}>
-              <button onClick={enableIosPush} className="btn btn-primary btn-xs normal-case text-[12px]">Enable</button>
-              <button onClick={() => { setIosPromptVisible(false); localStorage.setItem('iosPushPromptDismissed','1'); }} className="text-primary bg-base-100 dark:bg-base-200 border border-base-300 dark:border-base-400 px-3 py-2 rounded-[8px] text-[12px]">Later</button>
+        <div className="fixed bottom-20 left-4 right-4 z-[9999]">
+          <div className="shadow-lg rounded-box bg-base-100 dark:bg-base-200 border border-base-300 dark:border-base-400 px-4 py-3">
+            <div className="text-sm font-poppinsMed text-base-content mb-1">Enable Notifications</div>
+            <div className="text-xs text-base-content/70 mb-2">Tap to allow push notifications for this PWA. You can change this later in Settings.</div>
+            <div className="flex gap-2">
+              <button onClick={enableIosPush} className="btn btn-primary btn-sm normal-case">Enable</button>
+              <button onClick={() => { setIosPromptVisible(false); localStorage.setItem('iosPushPromptDismissed','1'); }} className="text-primary bg-base-100 dark:bg-base-200 border border-base-300 dark:border-base-400 px-3 py-2 rounded-btn text-sm">Later</button>
               <div className="text-[10px] text-base-content/60 ml-auto self-center">{channelInfo}</div>
             </div>
           </div>
         </div>
       )}
       {toast && (
-        <div style={{ position: 'fixed', top: 12, right: 12, zIndex: 9999 }}>
-          <div className="shadow-lg rounded-[12px] bg-base-100 dark:bg-base-200 border border-base-300 dark:border-base-400 px-4 py-3 max-w-[300px]">
-            <div className="text-[12px] font-poppinsMed text-base-content mb-[4px]">{toast.title}</div>
-            <div className="text-[11px] text-base-content/70">{toast.body}</div>
+        <div className="fixed top-4 right-4 z-[9999]">
+          <div className="shadow-lg rounded-box bg-base-100 dark:bg-base-200 border border-base-300 dark:border-base-400 px-4 py-3 max-w-xs">
+            <div className="text-sm font-poppinsMed text-base-content mb-1">{toast.title}</div>
+            <div className="text-xs text-base-content/70">{toast.body}</div>
           </div>
         </div>
       )}
@@ -213,10 +213,10 @@ export default function App({ Component, pageProps }: AppProps) {
 
       {/* Render app only after auth state is resolved to prevent flashing */}
       {isAuthResolved && (
-        <>
+        <div className={router.pathname === '/chat' ? "" : "md:pl-24"}>
           <Component {...pageProps} />
           <NavLinks />
-        </>
+        </div>
       )}
     </Provider>
   )

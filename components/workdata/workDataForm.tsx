@@ -62,21 +62,21 @@ const WorkDataForm = ({
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-2">
-          <label className="text-[12px] text-base-content/80 font-poppinsMed">Month</label>
+          <label className="text-xs text-base-content/80 font-poppinsMed">Month</label>
           <input
             required
             type="month"
-            className="input input-bordered w-full text-[13px] bg-base-200 border-base-300 dark:bg-base-300 dark:border-base-400"
+            className="input input-bordered w-full text-sm bg-base-200 border-base-300 dark:bg-base-300 dark:border-base-400"
             value={form.month}
             onChange={handleChange("month")}
           />
         </div>
         <div className="space-y-2">
-          <label className="text-[12px] text-base-content/80 font-poppinsMed">Days worked</label>
+          <label className="text-xs text-base-content/80 font-poppinsMed">Days worked</label>
           <input
             type="number"
             min={0}
-            className="input input-bordered w-full text-[13px] bg-base-200 border-base-300 dark:bg-base-300 dark:border-base-400"
+            className="input input-bordered w-full text-sm bg-base-200 border-base-300 dark:bg-base-300 dark:border-base-400"
             placeholder="0"
             value={form.daysWorked}
             onChange={handleChange("daysWorked")}
@@ -86,70 +86,70 @@ const WorkDataForm = ({
 
       <div className="grid grid-cols-3 gap-3">
         <div className="space-y-2">
-          <label className="text-[12px] text-base-content/80 font-poppinsMed">Annual leave taken</label>
+          <label className="text-xs text-base-content/80 font-poppinsMed">Annual leave taken</label>
           <input
             type="number"
             min={0}
-            className="input input-bordered w-full text-[13px] bg-base-200 border-base-300 dark:bg-base-300 dark:border-base-400"
+            className="input input-bordered w-full text-sm bg-base-200 border-base-300 dark:bg-base-300 dark:border-base-400"
             placeholder="0"
             value={form.leaveTaken}
             onChange={handleChange("leaveTaken")}
           />
         </div>
         <div className="space-y-2">
-          <label className="text-[12px] text-base-content/80 font-poppinsMed">Sick leave</label>
+          <label className="text-xs text-base-content/80 font-poppinsMed">Sick leave</label>
           <input
             type="number"
             min={0}
-            className="input input-bordered w-full text-[13px] bg-base-200 border-base-300 dark:bg-base-300 dark:border-base-400"
+            className="input input-bordered w-full text-sm bg-base-200 border-base-300 dark:bg-base-300 dark:border-base-400"
             placeholder="0"
             value={form.sickLeaveTaken}
             onChange={handleChange("sickLeaveTaken")}
           />
         </div>
         <div className="space-y-2">
-          <label className="text-[12px] text-base-content/80 font-poppinsMed">Unpaid leave</label>
+          <label className="text-xs text-base-content/80 font-poppinsMed">Unpaid leave</label>
           <input
             type="number"
             min={0}
-            className="input input-bordered w-full text-[13px] bg-base-200 border-base-300 dark:bg-base-300 dark:border-base-400"
+            className="input input-bordered w-full text-sm bg-base-200 border-base-300 dark:bg-base-300 dark:border-base-400"
             placeholder="0"
             value={form.unpaidLeaveTaken}
             onChange={handleChange("unpaidLeaveTaken")}
           />
         </div>
       </div>
-      <div className="text-[11px] text-base-content/70">
+      <div className="text-xs text-base-content/70">
         Total leave this month: <span className="font-poppinsMed text-base-content/90">{totalLeaveThisMonth}</span> day(s)
       </div>
 
-      <div className="bg-base-200 dark:bg-base-300 border border-base-300 dark:border-base-400 rounded-[14px] p-4">
-        <div className="text-[12px] text-base-content font-poppinsMed mb-3">Annual leave</div>
+      <div className="bg-base-200 dark:bg-base-300 border border-base-300 dark:border-base-400 rounded-box p-4">
+        <div className="text-xs text-base-content font-poppinsMed mb-3">Annual leave</div>
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-2">
-            <label className="text-[12px] text-base-content/80 font-poppinsMed">Total</label>
+            <label className="text-xs text-base-content/80 font-poppinsMed">Total</label>
             <input
               type="number"
               min={0}
-              className="input input-bordered w-full text-[13px] bg-base-100 border-base-300 dark:bg-base-200 dark:border-base-400"
+              className="input input-bordered w-full text-sm bg-base-100 border-base-300 dark:bg-base-200 dark:border-base-400"
               placeholder="0"
               value={form.annualLeaveTotal}
               onChange={handleChange("annualLeaveTotal")}
             />
           </div>
           <div className="space-y-2">
-            <label className="text-[12px] text-base-content/80 font-poppinsMed">Remaining</label>
+            <label className="text-xs text-base-content/80 font-poppinsMed">Remaining</label>
             <input
               type="number"
               min={0}
-              className="input input-bordered w-full text-[13px] bg-base-100 border-base-300 dark:bg-base-200 dark:border-base-400"
+              className="input input-bordered w-full text-sm bg-base-100 border-base-300 dark:bg-base-200 dark:border-base-400"
               placeholder="0"
               value={form.annualLeaveRemaining}
               onChange={handleChange("annualLeaveRemaining")}
             />
           </div>
         </div>
-        <div className="mt-3 text-[11px] text-base-content/70">
+        <div className="mt-3 text-xs text-base-content/70">
           Used: <span className="font-poppinsMed text-base-content/90">{Number.isFinite(annualUsed) ? annualUsed : 0}</span>{" "}
           day(s)
         </div>
@@ -157,23 +157,23 @@ const WorkDataForm = ({
 
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-2">
-          <label className="text-[12px] text-base-content/80 font-poppinsMed">WFH days</label>
+          <label className="text-xs text-base-content/80 font-poppinsMed">WFH days</label>
           <input
             type="number"
             min={0}
-            className="input input-bordered w-full text-[13px] bg-base-200 border-base-300 dark:bg-base-300 dark:border-base-400"
+            className="input input-bordered w-full text-sm bg-base-200 border-base-300 dark:bg-base-300 dark:border-base-400"
             placeholder="0"
             value={form.wfhDays}
             onChange={handleChange("wfhDays")}
           />
         </div>
         <div className="space-y-2">
-          <label className="text-[12px] text-base-content/80 font-poppinsMed">Overtime (hours)</label>
+          <label className="text-xs text-base-content/80 font-poppinsMed">Overtime (hours)</label>
           <input
             type="number"
             min={0}
             step="0.5"
-            className="input input-bordered w-full text-[13px] bg-base-200 border-base-300 dark:bg-base-300 dark:border-base-400"
+            className="input input-bordered w-full text-sm bg-base-200 border-base-300 dark:bg-base-300 dark:border-base-400"
             placeholder="0"
             value={form.overtimeHours}
             onChange={handleChange("overtimeHours")}
@@ -182,10 +182,10 @@ const WorkDataForm = ({
       </div>
 
       <div className="space-y-2">
-        <label className="text-[12px] text-base-content/80 font-poppinsMed">Notes</label>
+        <label className="text-xs text-base-content/80 font-poppinsMed">Notes</label>
         <textarea
           rows={3}
-          className="textarea textarea-bordered w-full text-[13px] bg-base-200 border-base-300 dark:bg-base-300 dark:border-base-400"
+          className="textarea textarea-bordered w-full text-sm bg-base-200 border-base-300 dark:bg-base-300 dark:border-base-400"
           placeholder="Any extra info..."
           value={form.notes}
           onChange={handleChange("notes")}
@@ -195,7 +195,7 @@ const WorkDataForm = ({
       <button
         type="submit"
         disabled={loading}
-        className="btn bg-primary text-primary-content border-none w-full text-[13px] hover:bg-primary/90 disabled:opacity-70"
+        className="btn bg-primary text-primary-content border-none w-full text-sm hover:bg-primary/90 disabled:opacity-70"
       >
         {loading && <span className="loading loading-spinner loading-xs mr-2" />}
         {submitLabel}

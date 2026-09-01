@@ -136,7 +136,7 @@ export default function CallScreen({
 
       {/* Top section: Avatar and Status (hide avatar if video connected) */}
       <div className={`flex flex-col items-center mt-10 transition-opacity ${isVideoCall && isConnected ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
-        <div className={`h-[120px] w-[120px] rounded-full flex items-center justify-center text-white text-5xl shadow-2xl ${AVATAR_BG[otherUser] ?? "bg-secondary"}`}>
+        <div className={`h-32 w-32 rounded-full flex items-center justify-center text-white text-5xl shadow-2xl ${AVATAR_BG[otherUser] ?? "bg-secondary"}`}>
           {AVATAR_INITIAL[otherUser] ?? "?"}
         </div>
         <h2 className="text-2xl font-poppinsBold text-white mt-6 drop-shadow-md">{otherUser}</h2>
@@ -193,7 +193,7 @@ export default function CallScreen({
         <div className="flex justify-center gap-10 w-full mt-4">
           <button 
             onClick={isRinging ? onReject : onEndCall}
-            className="h-[72px] w-[72px] rounded-full bg-error flex items-center justify-center text-white text-[32px] shadow-lg hover:scale-105 active:scale-95 transition-transform"
+            className="h-20 w-20 rounded-full bg-error flex items-center justify-center text-white text-3xl shadow-lg hover:scale-105 active:scale-95 transition-transform"
           >
             <MdCallEnd />
           </button>
@@ -201,7 +201,7 @@ export default function CallScreen({
           {isRinging && (
             <button 
               onClick={onAccept}
-              className="h-[72px] w-[72px] rounded-full bg-success flex items-center justify-center text-white text-[32px] shadow-lg hover:scale-105 active:scale-95 transition-transform"
+              className="h-20 w-20 rounded-full bg-success flex items-center justify-center text-white text-3xl shadow-lg hover:scale-105 active:scale-95 transition-transform"
             >
               {isVideoCall ? <IoVideocam /> : <MdCall />}
             </button>

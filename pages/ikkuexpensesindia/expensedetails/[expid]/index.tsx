@@ -2,6 +2,9 @@ import React from 'react';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import CommonHeader from "@/components/commonHeader";
+import HeaderAction from '@/components/headerAction';
+import PageAlert from '@/components/pageAlert';
+import PageSection from '@/components/pageSection';
 import moment from 'moment';
 import Link from 'next/link';
 import { HiPencilSquare, HiTrash } from 'react-icons/hi2';
@@ -70,33 +73,32 @@ const ExpenseDetails = () => {
         title='Expense Details'
         right={(
           <div className='flex items-center gap-2'>
-            <Link
-              href={`/ikkuexpensesindia`}
-              aria-label='Edit'
-              className='h-9 w-9 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white flex items-center justify-center shadow-sm hover:bg-white/20 active:scale-95 transition-all'
-              title='Edit'
-            >
-              <HiPencilSquare className='w-5 h-5' />
-            </Link>
-            <button
+            <HeaderAction
+              href={`/ikkuexpensesindia/expensedetails/${expid}/edit`}
+              label="Update"
+              tone="success"
+              icon={<HiPencilSquare className='w-5 h-5' />}
+            />
+            <HeaderAction
               onClick={() => deleteExpense()}
-              aria-label='Delete'
-              title='Delete'
-              className='h-9 w-9 rounded-full bg-red-500/15 backdrop-blur-md border border-red-500/20 text-red-100 flex items-center justify-center shadow-sm hover:bg-red-500/25 active:scale-95 transition-all disabled:opacity-50'
+              label="Delete"
+              tone="danger"
               disabled={loading}
-            >
-              {loading ? (
-                <span className='loading loading-spinner loading-sm text-red-200' />
-              ) : (
-                <HiTrash className='w-5 h-5' />
-              )}
-            </button>
+              icon={
+                loading ? (
+                  <span className='loading loading-spinner loading-sm text-rose-100' />
+                ) : (
+                  <HiTrash className='w-5 h-5' />
+                )
+              }
+            />
           </div>
         )}
       />
 
       {loading ? (
-        <div className='p-4'>
+        <div className='page-body px-4 pt-2'>
+          <div className='mx-auto max-w-2xl'>
           <div className="h-[70px] w-full bg-base-100 dark:bg-base-200 border border-base-300/60 dark:border-base-400/40 px-4 py-4 my-3 rounded-xl flex">
             <div className="skeleton h-full w-[10%] bg-base-200 dark:bg-base-300 rounded-xl mr-3"></div>
             <div className='w-full'>
@@ -104,11 +106,14 @@ const ExpenseDetails = () => {
               <div className="skeleton h-4 w-full bg-base-200 dark:bg-base-300"></div>
             </div>
           </div>
+          </div>
         </div>
       ) : expenses?.length ? (
-        <div className='px-4 pt-6 page-body'>
+        <div className='page-body px-4 pt-2'>
+          <div className='mx-auto max-w-2xl'>
+          <PageSection className='!px-0 !pt-0' contentClassName='space-y-3'>
           {expenses?.map(item => (
-            <div className="mb-3 flex items-center rounded-xl bg-base-100/40 p-2">
+            <div className="flex items-center rounded-xl bg-base-100/40 p-2" key={item.id}>
               <div className="flex flex-col items-center justify-start w-[36px] mr-3">
                 <span className="text-[12px] text-base-content/70 leading-none">{moment(item?.created_at).format("MMM")}</span>
                 <span className="text-[12px] text-base-content/70 leading-none">{moment(item?.created_at).format("DD")}</span>
@@ -126,14 +131,16 @@ const ExpenseDetails = () => {
               </div>
             </div>
           ))}
+          </PageSection>
+          </div>
         </div>
       ) : null}
 
 
       {showSuccessMessage && (
-        <div className="flex items-center justify-end w-full p-4">
-          <div role="alert" className="alert alert-success alert-soft mb-4 text-center w-full">
-            <span className="text-white text-[14px]">{showSuccessMessage}</span>
+        <div className="page-body px-4 pt-0">
+          <div className="mx-auto max-w-2xl">
+            <PageAlert>{showSuccessMessage}</PageAlert>
           </div>
         </div>
       )

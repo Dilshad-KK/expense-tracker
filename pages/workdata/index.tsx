@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import moment from "moment";
 import Link from "next/link";
 import CommonHeader from "@/components/commonHeader";
+import PageFab from "@/components/pageFab";
 import { FaPlus } from "react-icons/fa6";
 import { IoPencil, IoTrashOutline } from "react-icons/io5";
 import { WorkData } from "@/types/workdata";
@@ -150,10 +151,10 @@ const WorkDataPage = () => {
     <div>
       {[1, 2, 3].map((key) => (
         <div
-          className="h-[110px] w-full bg-base-100 dark:bg-base-200 border-2 border-base-300 dark:border-base-400 px-4 py-4 my-3 rounded-[12px] flex"
+          className="h-28 w-full bg-base-100 dark:bg-base-200 border-2 border-base-300 dark:border-base-400 px-4 py-4 my-3 rounded-box flex"
           key={key}
         >
-          <div className="skeleton h-full w-[18%] bg-base-200 dark:bg-base-300 rounded-[12px] mr-3" />
+          <div className="skeleton h-full w-1/5 bg-base-200 dark:bg-base-300 rounded-box mr-3" />
           <div className="w-full">
             <div className="skeleton h-4 w-full bg-base-200 dark:bg-base-300 mb-2" />
             <div className="skeleton h-3 w-3/4 bg-base-200 dark:bg-base-300 mb-2" />
@@ -171,13 +172,13 @@ const WorkDataPage = () => {
       <div className="px-4 page-body-with-fab">
         {error && (
           <div className="alert alert-error alert-soft mb-4">
-            <span className="text-white text-[12px]">{error}</span>
+            <span className="text-white text-xs">{error}</span>
           </div>
         )}
 
         <div className="grid grid-cols-2 gap-3 mb-4">
           <select
-            className="select select-bordered w-full text-[12px] bg-base-100 dark:bg-base-200 border-base-300 dark:border-base-400 text-base-content"
+            className="select select-bordered w-full text-xs bg-base-100 dark:bg-base-200 border-base-300 dark:border-base-400 text-base-content"
             value={activeUser}
             onChange={(e) => handleUserChange(e.target.value)}
             disabled={!options.length}
@@ -191,7 +192,7 @@ const WorkDataPage = () => {
           </select>
 
           <select
-            className="select select-bordered w-full text-[12px] bg-base-100 dark:bg-base-200 border-base-300 dark:border-base-400 text-base-content"
+            className="select select-bordered w-full text-xs bg-base-100 dark:bg-base-200 border-base-300 dark:border-base-400 text-base-content"
             value={year}
             onChange={(e) => setYear(e.target.value)}
             disabled={loading}
@@ -206,32 +207,32 @@ const WorkDataPage = () => {
         </div>
 
         {!!filtered.length && (
-          <div className="bg-base-200 dark:bg-base-300 border-2 border-base-300 dark:border-base-400 rounded-[14px] p-4 mb-4">
-            <div className="text-[12px] text-base-content font-poppinsMed mb-3">Summary ({year === "all" ? "All" : year})</div>
+          <div className="bg-base-200 dark:bg-base-300 border-2 border-base-300 dark:border-base-400 rounded-box p-4 mb-4">
+            <div className="text-xs text-base-content font-poppinsMed mb-3">Summary ({year === "all" ? "All" : year})</div>
             <div className="grid grid-cols-3 gap-2">
-              <div className="bg-base-100 dark:bg-base-200 border border-base-300 dark:border-base-400 rounded-[12px] p-3">
-                <div className="text-[10px] text-base-content/60">Worked</div>
-                <div className="text-[14px] text-base-content font-poppinsBold">
-                  {summary.totals.daysWorked} <span className="text-[11px] font-poppinsMed">days</span>
+              <div className="bg-base-100 dark:bg-base-200 border border-base-300 dark:border-base-400 rounded-box p-3">
+                <div className="text-xs text-base-content/60">Worked</div>
+                <div className="text-sm text-base-content font-poppinsBold">
+                  {summary.totals.daysWorked} <span className="text-xs font-poppinsMed">days</span>
                 </div>
               </div>
-              <div className="bg-base-100 dark:bg-base-200 border border-base-300 dark:border-base-400 rounded-[12px] p-3">
-                <div className="text-[10px] text-base-content/60">Total Leave</div>
-                <div className="text-[14px] text-base-content font-poppinsBold">
+              <div className="bg-base-100 dark:bg-base-200 border border-base-300 dark:border-base-400 rounded-box p-3">
+                <div className="text-xs text-base-content/60">Total Leave</div>
+                <div className="text-sm text-base-content font-poppinsBold">
                   {summary.totals.leaveTaken + summary.totals.sickLeave + summary.totals.unpaidLeave}{" "}
-                  <span className="text-[11px] font-poppinsMed">days</span>
+                  <span className="text-xs font-poppinsMed">days</span>
                 </div>
               </div>
-              <div className="bg-base-100 dark:bg-base-200 border border-base-300 dark:border-base-400 rounded-[12px] p-3">
-                <div className="text-[10px] text-base-content/60">Overtime</div>
-                <div className="text-[14px] text-base-content font-poppinsBold">
-                  {formatHours(summary.totals.overtimeHours)} <span className="text-[11px] font-poppinsMed">hrs</span>
+              <div className="bg-base-100 dark:bg-base-200 border border-base-300 dark:border-base-400 rounded-box p-3">
+                <div className="text-xs text-base-content/60">Overtime</div>
+                <div className="text-sm text-base-content font-poppinsBold">
+                  {formatHours(summary.totals.overtimeHours)} <span className="text-xs font-poppinsMed">hrs</span>
                 </div>
               </div>
             </div>
 
             {summary.annual && (
-              <div className="mt-3 text-[11px] text-base-content/70">
+              <div className="mt-3 text-xs text-base-content/70">
                 Annual leave (latest):{" "}
                 <span className="font-poppinsMed text-base-content/90">
                   {summary.annual.remaining}/{summary.annual.total}
@@ -247,14 +248,14 @@ const WorkDataPage = () => {
           filtered.map((item) => (
             <div
               key={item.id}
-              className="bg-base-100 dark:bg-base-200 border-2 border-base-300 dark:border-base-400 px-4 py-4 my-3 rounded-[12px]"
+              className="bg-base-100 dark:bg-base-200 border-2 border-base-300 dark:border-base-400 px-4 py-4 my-3 rounded-box"
             >
               <div className="flex items-start justify-between mb-3">
                 <div className="flex flex-col">
-                  <span className="text-base-content font-poppinsMed text-[14px]">
+                  <span className="text-base-content font-poppinsMed text-sm">
                     {moment(item.month).format("MMMM YYYY")}
                   </span>
-                  <span className="text-[10px] text-base-content/60">
+                  <span className="text-xs text-base-content/60">
                     Annual leave: {item.annual_leave_remaining}/{item.annual_leave_total}
                   </span>
                 </div>
@@ -262,15 +263,15 @@ const WorkDataPage = () => {
                 <div className="flex items-center gap-2">
                   <Link
                     href={`/workdata/${item.id}/edit`}
-                    className="h-[32px] w-[32px] rounded-full bg-primary/10 text-primary flex items-center justify-center border border-primary/20"
+                    className="size-8 rounded-full bg-primary/10 text-primary flex items-center justify-center border border-primary/20"
                     aria-label="Edit"
                     title="Edit"
                   >
-                    <IoPencil className="text-[14px]" />
+                    <IoPencil className="text-sm" />
                   </Link>
                   <button
                     onClick={() => handleDelete(item.id)}
-                    className="h-[32px] w-[32px] rounded-full bg-error/10 text-error flex items-center justify-center border border-error/20 disabled:opacity-70"
+                    className="size-8 rounded-full bg-error/10 text-error flex items-center justify-center border border-error/20 disabled:opacity-70"
                     aria-label="Delete"
                     title="Delete"
                     disabled={actionLoading && actionId === item.id}
@@ -278,50 +279,50 @@ const WorkDataPage = () => {
                     {actionLoading && actionId === item.id ? (
                       <span className="loading loading-spinner loading-xs" />
                     ) : (
-                      <IoTrashOutline className="text-[14px]" />
+                      <IoTrashOutline className="text-sm" />
                     )}
                   </button>
                 </div>
               </div>
 
               <div className="grid grid-cols-3 gap-2">
-                <div className="bg-base-200 dark:bg-base-300 border border-base-300 dark:border-base-400 rounded-[12px] p-3">
-                  <div className="text-[10px] text-base-content/60">Worked</div>
-                  <div className="text-[13px] text-base-content font-poppinsBold">{item.days_worked}</div>
+                <div className="bg-base-200 dark:bg-base-300 border border-base-300 dark:border-base-400 rounded-box p-3">
+                  <div className="text-xs text-base-content/60">Worked</div>
+                  <div className="text-sm text-base-content font-poppinsBold">{item.days_worked}</div>
                 </div>
-                <div className="bg-base-200 dark:bg-base-300 border border-base-300 dark:border-base-400 rounded-[12px] p-3">
-                  <div className="text-[10px] text-base-content/60">AL Taken</div>
-                  <div className="text-[13px] text-base-content font-poppinsBold">{item.leave_taken}</div>
+                <div className="bg-base-200 dark:bg-base-300 border border-base-300 dark:border-base-400 rounded-box p-3">
+                  <div className="text-xs text-base-content/60">AL Taken</div>
+                  <div className="text-sm text-base-content font-poppinsBold">{item.leave_taken}</div>
                 </div>
-                <div className="bg-base-200 dark:bg-base-300 border border-base-300 dark:border-base-400 rounded-[12px] p-3">
-                  <div className="text-[10px] text-base-content/60">WFH</div>
-                  <div className="text-[13px] text-base-content font-poppinsBold">{item.wfh_days}</div>
+                <div className="bg-base-200 dark:bg-base-300 border border-base-300 dark:border-base-400 rounded-box p-3">
+                  <div className="text-xs text-base-content/60">WFH</div>
+                  <div className="text-sm text-base-content font-poppinsBold">{item.wfh_days}</div>
                 </div>
-                <div className="bg-base-200 dark:bg-base-300 border border-base-300 dark:border-base-400 rounded-[12px] p-3">
-                  <div className="text-[10px] text-base-content/60">Sick</div>
-                  <div className="text-[13px] text-base-content font-poppinsBold">{item.sick_leave_taken}</div>
+                <div className="bg-base-200 dark:bg-base-300 border border-base-300 dark:border-base-400 rounded-box p-3">
+                  <div className="text-xs text-base-content/60">Sick</div>
+                  <div className="text-sm text-base-content font-poppinsBold">{item.sick_leave_taken}</div>
                 </div>
-                <div className="bg-base-200 dark:bg-base-300 border border-base-300 dark:border-base-400 rounded-[12px] p-3">
-                  <div className="text-[10px] text-base-content/60">Unpaid</div>
-                  <div className="text-[13px] text-base-content font-poppinsBold">{item.unpaid_leave_taken}</div>
+                <div className="bg-base-200 dark:bg-base-300 border border-base-300 dark:border-base-400 rounded-box p-3">
+                  <div className="text-xs text-base-content/60">Unpaid</div>
+                  <div className="text-sm text-base-content font-poppinsBold">{item.unpaid_leave_taken}</div>
                 </div>
-                <div className="bg-base-200 dark:bg-base-300 border border-base-300 dark:border-base-400 rounded-[12px] p-3">
-                  <div className="text-[10px] text-base-content/60">Overtime</div>
-                  <div className="text-[13px] text-base-content font-poppinsBold">
+                <div className="bg-base-200 dark:bg-base-300 border border-base-300 dark:border-base-400 rounded-box p-3">
+                  <div className="text-xs text-base-content/60">Overtime</div>
+                  <div className="text-sm text-base-content font-poppinsBold">
                     {formatHours(item.overtime_hours)}h
                   </div>
                 </div>
               </div>
 
               {item.notes ? (
-                <div className="mt-3 text-[11px] text-base-content/70 whitespace-pre-wrap">{item.notes}</div>
+                <div className="mt-3 text-xs text-base-content/70 whitespace-pre-wrap">{item.notes}</div>
               ) : null}
             </div>
           ))
         ) : (
-          <div className="bg-base-200 border-2 border-base-300 dark:bg-base-300 dark:border-base-400 rounded-[16px] p-6 text-center mt-4">
-            <h3 className="text-base-content font-poppinsMed text-[14px] mb-2">No work data yet</h3>
-            <p className="text-base-content/70 text-[12px] mb-4">
+          <div className="bg-base-200 border-2 border-base-300 dark:bg-base-300 dark:border-base-400 rounded-box p-6 text-center mt-4">
+            <h3 className="text-base-content font-poppinsMed text-sm mb-2">No work data yet</h3>
+            <p className="text-base-content/70 text-xs mb-4">
               Track days worked, leave taken, annual leave, WFH, overtime, and notes.
             </p>
             <Link href="/workdata/new" className="btn btn-sm bg-primary text-primary-content border-none">
@@ -331,13 +332,7 @@ const WorkDataPage = () => {
         )}
       </div>
 
-      <Link
-        href="/workdata/new"
-        className="fixed z-[2000] right-8 bottom-28 bg-primary hover:bg-primary-focus h-[50px] w-[50px] rounded-full flex items-center justify-center cursor-pointer transition-all hover:scale-105 shadow-lg border-2 border-white/20"
-        aria-label="Add work data"
-      >
-        <FaPlus className="text-white text-base" />
-      </Link>
+      <PageFab href="/workdata/new" ariaLabel="Add work data" />
     </div>
   );
 };

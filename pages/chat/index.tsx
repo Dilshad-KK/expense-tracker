@@ -271,27 +271,27 @@ export default function ChatPage() {
           className="text-white/80 hover:text-white transition-colors p-1.5 rounded-full hover:bg-white/10 active:scale-95"
           aria-label="Go back"
         >
-          <IoArrowBack className="text-[22px]" />
+          <IoArrowBack className="text-2xl" />
         </button>
 
         <div
-          className={`h-[40px] w-[40px] rounded-full flex-shrink-0 flex items-center justify-center ${
+          className={`h-10 w-10 rounded-full flex-shrink-0 flex items-center justify-center ${
             AVATAR_BG[otherUser] ?? "bg-secondary"
           }`}
         >
-          <span className="text-white font-poppinsMed text-[16px]">
+          <span className="text-white font-poppinsMed text-base">
             {AVATAR_INITIAL[otherUser] ?? "?"}
           </span>
         </div>
 
         {/* FIX 6: "online" indicator instead of placeholder text */}
         <div className="flex flex-col min-w-0 flex-1">
-          <span className="text-white font-poppinsMed text-[15px] leading-snug truncate">
+          <span className="text-white font-poppinsMed text-sm leading-snug truncate">
             {otherUser || "Chat"}
           </span>
           <div className="flex items-center gap-1 mt-[1px]">
-            <span className="inline-block w-[6px] h-[6px] rounded-full bg-success" />
-            <span className="text-white/70 text-[11px]">online</span>
+            <span className="inline-block w-1.5 h-1.5 rounded-full bg-success" />
+            <span className="text-white/70 text-xs">online</span>
           </div>
         </div>
 
@@ -303,7 +303,7 @@ export default function ChatPage() {
             className="text-white hover:text-white/80 transition-colors p-2 active:scale-95 disabled:opacity-50"
             aria-label="Start Video Call"
           >
-            <IoVideocamOutline className="text-[26px]" />
+            <IoVideocamOutline className="text-3xl" />
           </button>
           <button
             onClick={() => initiateCall(false)}
@@ -311,7 +311,7 @@ export default function ChatPage() {
             className="text-white hover:text-white/80 transition-colors p-2 active:scale-95 disabled:opacity-50"
             aria-label="Start Voice Call"
           >
-            <IoCallOutline className="text-[24px]" />
+            <IoCallOutline className="text-2xl" />
           </button>
         </div>
       </header>
@@ -341,10 +341,10 @@ export default function ChatPage() {
         {/* Empty state */}
         {!loading && messages.length === 0 && (
           <div className="flex flex-col items-center justify-center h-full gap-3">
-            <div className="h-[70px] w-[70px] rounded-full bg-primary/10 flex items-center justify-center">
-              <span className="text-[32px]">💬</span>
+            <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
+              <span className="text-3xl">💬</span>
             </div>
-            <p className="text-base-content/50 text-[13px] font-poppinsMed text-center px-8">
+            <p className="text-base-content/50 text-sm font-poppinsMed text-center px-8">
               No messages yet. Say hi! 👋
             </p>
           </div>
@@ -356,7 +356,7 @@ export default function ChatPage() {
             <div key={group.label}>
               {/* Date divider */}
               <div className="flex items-center justify-center my-3">
-                <div className="bg-base-200/80 backdrop-blur-sm text-base-content/50 text-[11px] font-poppinsMed px-3 py-[3px] rounded-full border border-base-content/10">
+                <div className="bg-base-200/80 backdrop-blur-sm text-base-content/50 text-xs font-poppinsMed px-3 py-1 rounded-full border border-base-content/10">
                   {group.label}
                 </div>
               </div>
@@ -378,10 +378,10 @@ export default function ChatPage() {
                   >
                     {/* Avatar for received messages */}
                     {!isMine && (
-                      <div className="w-[30px] flex-shrink-0 flex items-end mr-1">
+                      <div className="w-8 flex-shrink-0 flex items-end mr-1">
                         {!nextSameSender && (
                           <div
-                            className={`h-[26px] w-[26px] rounded-full flex items-center justify-center text-[11px] text-white font-poppinsMed ${
+                            className={`h-7 w-7 rounded-full flex items-center justify-center text-xs text-white font-poppinsMed ${
                               AVATAR_BG[msg.sender] ?? "bg-secondary"
                             }`}
                           >
@@ -402,7 +402,7 @@ export default function ChatPage() {
                         `max-w-full` still caps it at the parent's max-w-[78vw].
                       */}
                       <div
-                        className={`w-fit max-w-full px-3 py-[7px] text-[14px] font-poppins leading-relaxed break-words shadow-sm transition-opacity duration-150 ${
+                        className={`w-fit max-w-full px-3 py-2 text-sm font-poppins leading-relaxed break-words shadow-sm transition-opacity duration-150 ${
                           temp ? "opacity-55" : "opacity-100"
                         } ${
                           isMine
@@ -422,7 +422,7 @@ export default function ChatPage() {
                         </span>
                         {isMine && (
                           <span
-                            className={`text-[13px] transition-colors ${
+                            className={`text-sm transition-colors ${
                               temp
                                 ? "text-base-content/20"
                                 : isReadByOther(msg)
@@ -465,16 +465,16 @@ export default function ChatPage() {
           autoComplete="off"
           autoCorrect="off"
           autoCapitalize="sentences"
-          className="chat-input flex-1 bg-base-200 rounded-full px-4 py-[11px] text-[14px] text-base-content placeholder:text-base-content/40 outline-none transition-all border-none"
+          className="chat-input flex-1 bg-base-200 rounded-full px-4 py-3 text-sm text-base-content placeholder:text-base-content/40 outline-none transition-all border-none"
         />
         <button
           id="chat-send-btn"
           onClick={sendMessage}
           disabled={!input.trim() || sending}
-          className="h-[46px] w-[46px] flex-shrink-0 bg-primary rounded-full flex items-center justify-center shadow-md disabled:opacity-40 disabled:cursor-not-allowed transition-all active:scale-90 hover:bg-primary/90"
+          className="h-12 w-12 flex-shrink-0 bg-primary rounded-full flex items-center justify-center shadow-md disabled:opacity-40 disabled:cursor-not-allowed transition-all active:scale-90 hover:bg-primary/90"
           aria-label="Send message"
         >
-          <IoSend className="text-white text-[18px] translate-x-[1px]" />
+          <IoSend className="text-white text-lg translate-x-[1px]" />
         </button>
       </div>
 
