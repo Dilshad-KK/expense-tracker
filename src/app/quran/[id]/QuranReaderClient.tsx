@@ -239,15 +239,9 @@ export default function QuranReaderClient({ surah, allSurahs = [] }: { surah: Su
   const goToPage = (pageNumber: number) => {
     const el = document.getElementById(`mushaf-page-${pageNumber}`);
     if (el) {
-      const container = el.parentElement;
-      if (container) {
-        // RTL scroll offsets are negative or positive depending on browser.
-        // Easiest is to set scrollLeft to the element's offsetLeft relative to container
-        // Note: Safari in RTL may need negative values, but offsetLeft usually gives the raw coordinate.
-        container.scrollTo({ left: el.offsetLeft - container.offsetLeft, behavior: 'smooth' });
-      } else {
-        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
+      // Smooth scrolling in RTL flex snap containers is notoriously broken across browsers.
+      // Instant jump bypasses these bugs and acts like a true page flip.
+      el.scrollIntoView({ behavior: 'auto', block: 'start' });
     }
   };
 
