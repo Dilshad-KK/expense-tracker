@@ -66,7 +66,6 @@ export default function TimelineView({
         >
           {/* Subtle Inner Border Glow */}
           <div className="absolute inset-0 rounded-[2rem] border border-white/10 dark:border-white/5 pointer-events-none" />
-          <div className="absolute top-0 right-0 w-64 h-64 bg-[var(--q-accent)]/10 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none transition-all duration-700 hover:scale-110"></div>
           
           <h2 className="text-2xl font-bold text-[var(--q-text)] mb-3 tracking-tight">{title}</h2>
           <p className="text-[var(--q-text-subtle)] text-sm leading-relaxed mb-5 font-medium max-w-lg">
@@ -106,7 +105,7 @@ export default function TimelineView({
                       : 'bg-[var(--q-bg)] border-2 border-[var(--q-accent)]/50 hover:border-[var(--q-accent)] shadow-md'
                   }`}
                 >
-                  <div className={`w-2.5 h-2.5 rounded-full transition-colors duration-500 ${isSelected ? 'bg-white animate-pulse' : 'bg-[var(--q-accent)]'}`}></div>
+                  <div className={`w-2.5 h-2.5 rounded-full transition-colors duration-500 ${isSelected ? 'bg-[var(--q-bg)] animate-pulse' : 'bg-[var(--q-accent)]'}`}></div>
                 </div>
 
                 {/* Node Content Card */}
@@ -122,7 +121,7 @@ export default function TimelineView({
                   <div className="flex justify-between items-start mb-2 relative z-10">
                     <div className="pr-4">
                       <span className={`text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-full mb-3 inline-block transition-colors duration-300 ${
-                        isSelected ? 'bg-[var(--q-accent)] text-white' : 'bg-[var(--q-accent)]/10 text-[var(--q-accent)]'
+                        isSelected ? 'bg-[var(--q-accent)] text-[var(--q-bg)]' : 'bg-[var(--q-accent)]/10 text-[var(--q-accent)]'
                       }`}>
                         {item.period}
                       </span>
@@ -161,7 +160,7 @@ export default function TimelineView({
                               <Link 
                                 key={surah.id} 
                                 href={`/quran/${surah.id}`}
-                                className="flex items-center text-xs font-semibold bg-[var(--q-bg)] border border-[var(--q-border)] text-[var(--q-text)] px-3.5 py-2 rounded-xl hover:bg-[var(--q-accent)] hover:text-white hover:border-[var(--q-accent)] transition-all duration-300 shadow-sm hover:shadow-md"
+                                className="flex items-center text-xs font-semibold bg-[var(--q-bg)] border border-[var(--q-border)] text-[var(--q-text)] px-3.5 py-2 rounded-xl hover:bg-[var(--q-accent)] hover:text-[var(--q-bg)] hover:border-[var(--q-accent)] transition-all duration-300 shadow-sm hover:shadow-md"
                                 onClick={(e) => e.stopPropagation()}
                               >
                                 <span className="opacity-60 mr-1.5">{surah.id}.</span> 

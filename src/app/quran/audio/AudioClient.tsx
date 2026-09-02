@@ -148,7 +148,7 @@ export default function AudioClient({ surahs }: { surahs: Surah[] }) {
                     onClick={() => togglePlay(surah.id, surah.versesCount)}
                     className={`w-10 h-10 rounded-full border-2 flex items-center justify-center transition-all ${
                       isActive && isPlaying 
-                        ? 'bg-[var(--q-accent)] border-[var(--q-accent)] text-white shadow-md scale-105' 
+                        ? 'bg-[var(--q-accent)] border-[var(--q-accent)] text-[var(--q-bg)] shadow-md scale-105' 
                         : 'border-[var(--q-border)] text-[var(--q-text)] hover:bg-[var(--q-border)]'
                     }`}
                   >

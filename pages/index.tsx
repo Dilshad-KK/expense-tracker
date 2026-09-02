@@ -90,10 +90,6 @@ const Home = () => {
               </div>
             </div>
             <div className="relative z-[1] flex shrink-0 gap-2">
-              
-              <Link href="/profile" className='flex h-[42px] w-[42px] items-center justify-center rounded-full bg-white/20 backdrop-blur-sm transition-colors active:scale-95 hover:bg-white/30 dark:bg-white/10'>
-                <IoSettingsSharp className='text-[20px] text-white' />
-              </Link>
 
               <Link href="/notifications" className='relative flex h-[42px] w-[42px] items-center justify-center rounded-full bg-white shadow-sm dark:bg-white/80'>
                 <IoMdNotifications className='text-[22px] text-primary' />

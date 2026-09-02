@@ -115,9 +115,6 @@ export default function DiscoverHubPage() {
                 {/* Subtle Inner Border Glow */}
                 <div className="absolute inset-0 rounded-[2rem] border border-white/10 dark:border-white/5 pointer-events-none" />
                 
-                {/* Deep Background Glow mapped to category color */}
-                <div className={`absolute -right-16 -top-16 w-64 h-64 bg-gradient-to-br ${category.color} rounded-full blur-3xl opacity-50 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700 pointer-events-none`} />
-                
                 <div className={`flex ${index === 0 ? 'flex-col sm:flex-row items-start sm:items-center' : 'flex-col items-start'} gap-6 relative z-10 h-full`}>
                   
                   {/* Glassmorphic Icon Container */}

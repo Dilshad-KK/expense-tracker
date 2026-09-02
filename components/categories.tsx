@@ -2,9 +2,8 @@ import React from 'react';
 import Link from 'next/link'
 import { CiReceipt } from "react-icons/ci";
 import { PiBankLight } from "react-icons/pi";
-import { HiOutlineEnvelope, HiOutlineChatBubbleBottomCenter, HiOutlineCreditCard, HiOutlineSparkles, HiOutlineArrowTrendingUp } from "react-icons/hi2";
+import { HiOutlineEnvelope, HiOutlineChatBubbleBottomCenter, HiOutlineCreditCard, HiOutlineSparkles, HiOutlineArrowTrendingUp, HiOutlineBookOpen } from "react-icons/hi2";
 import { IoIosFemale } from "react-icons/io";
-import { FaMosque } from "react-icons/fa6";
 
 const Categories = () => {
     const menuItems = [
@@ -66,7 +65,7 @@ const Categories = () => {
         {
             label: "QURAN",
             href: "/quran",
-            icon: <FaMosque className='text-[26px] text-emerald-400' />
+            icon: <HiOutlineBookOpen className='text-[26px] text-emerald-400' />
         }
     ];
 

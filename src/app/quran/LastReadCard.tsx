@@ -11,10 +11,7 @@ export default function LastReadCard() {
 
   return (
     <Link href={`/quran/${lastRead.surahId}`}>
-      <div className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-[var(--q-card)] to-[var(--q-card-hover)] p-6 mb-8 shadow-lg border border-[var(--q-border)] transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-[var(--q-accent)]">
-        {/* Background Decorative Elements */}
-        <div className="absolute -right-16 -top-16 h-48 w-48 rounded-full bg-[var(--q-accent-bold)] opacity-10 blur-3xl transition-transform duration-700 group-hover:scale-110"></div>
-        <div className="absolute -bottom-8 -left-8 h-32 w-32 rounded-full bg-[var(--q-accent)] opacity-10 blur-2xl transition-transform duration-700 group-hover:scale-110"></div>
+      <div className="group relative overflow-hidden rounded-3xl bg-[var(--q-card)] p-6 mb-8 shadow-lg border border-[var(--q-border)] transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-[var(--q-accent)]">
         
         <div className="relative z-10 flex items-center justify-between">
           <div className="flex flex-col space-y-4">
@@ -46,8 +43,8 @@ export default function LastReadCard() {
           </div>
           
           {/* Action Button */}
-          <div className="relative flex items-center justify-center w-14 h-14 rounded-full bg-[var(--q-accent)] text-white shadow-lg shadow-[var(--q-accent)]/30 overflow-hidden group-hover:shadow-[var(--q-accent)]/50 group-hover:scale-105 transition-all duration-300 shrink-0 ml-4">
-             <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
+          <div className="relative flex items-center justify-center w-14 h-14 rounded-full bg-[var(--q-accent)] text-[var(--q-bg)] shadow-lg shadow-[var(--q-accent)]/30 overflow-hidden group-hover:shadow-[var(--q-accent)]/50 group-hover:scale-105 transition-all duration-300 shrink-0 ml-4">
+             <div className="absolute inset-0 bg-[var(--q-bg)] opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
              <svg className="w-6 h-6 transform group-hover:translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" />
              </svg>

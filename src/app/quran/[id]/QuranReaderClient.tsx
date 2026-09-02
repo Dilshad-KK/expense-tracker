@@ -243,15 +243,19 @@ export default function QuranReaderClient({ surah, allSurahs = [] }: { surah: Su
   }, [mushafViewMode, pages.length]);
 
   const handleNextPage = () => {
-    if (currentPage < pages.length - 1) {
-      goToPageIndex(currentPage + 1);
-    }
+    setCurrentPage(prev => {
+      const next = Math.min(prev + 1, pages.length - 1);
+      goToPageIndex(next);
+      return next;
+    });
   };
 
   const handlePrevPage = () => {
-    if (currentPage > 0) {
-      goToPageIndex(currentPage - 1);
-    }
+    setCurrentPage(prev => {
+      const prevIdx = Math.max(0, prev - 1);
+      goToPageIndex(prevIdx);
+      return prevIdx;
+    });
   };
 
   return (
@@ -303,8 +307,8 @@ export default function QuranReaderClient({ surah, allSurahs = [] }: { surah: Su
                   onClick={() => setReadingMode(mode.id as ReadingMode)}
                   className={`flex-1 py-1.5 text-xs font-bold rounded-full transition-all duration-300 ${
                     readingMode === mode.id
-                      ? 'bg-[var(--q-accent-bold)] text-white shadow-md'
-                      : 'text-[var(--q-accent)]/60 hover:text-[var(--q-text)]'
+                      ? 'bg-[var(--q-text)] text-[var(--q-bg)] shadow-md'
+                      : 'text-[var(--q-text-muted)] hover:text-[var(--q-text)]'
                   }`}
                 >
                   {mode.label}
@@ -551,7 +555,7 @@ export default function QuranReaderClient({ surah, allSurahs = [] }: { surah: Su
                   <>
                     <div className="flex items-center justify-between mb-4 relative">
                         <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all ${
-                          isActive ? 'bg-[var(--q-accent)] text-white shadow-md scale-110' : 'bg-[var(--q-card)] text-[var(--q-text-muted)]'
+                          isActive ? 'bg-[var(--q-accent)] text-[var(--q-bg)] shadow-md scale-110' : 'bg-[var(--q-card)] text-[var(--q-text-muted)]'
                         }`}>
                           {verse.id}
                         </div>
@@ -603,7 +607,7 @@ export default function QuranReaderClient({ surah, allSurahs = [] }: { surah: Su
                               e.stopPropagation();
                               handlePlayAudioClicked(verse.id);
                             }}
-                            className={`p-2 transition-all rounded-full ${isActive ? 'text-white bg-[var(--q-accent)] shadow-md scale-110' : 'text-[var(--q-text-muted)] hover:text-[var(--q-accent)] hover:bg-[var(--q-card-hover)]'}`}
+                            className={`p-2 transition-all rounded-full ${isActive ? 'text-[var(--q-bg)] bg-[var(--q-accent)] shadow-md scale-110' : 'text-[var(--q-text-muted)] hover:text-[var(--q-accent)] hover:bg-[var(--q-card-hover)]'}`}
                           >
                             {isActive && isPlaying ? (
                               <svg className="w-6 h-6 animate-pulse" fill="currentColor" viewBox="0 0 24 24">
