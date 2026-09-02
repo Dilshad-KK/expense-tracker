@@ -41,7 +41,7 @@ export default function ProgressClient({ surahs }: { surahs: Surah[] }) {
   });
 
   return (
-    <div className="w-full min-h-[100dvh] flex flex-col bg-[var(--q-bg)] text-[var(--q-text)] overflow-y-auto pb-32">
+    <div className="w-full min-h-[100dvh] bg-[var(--q-bg)] text-[var(--q-text)] overflow-y-auto pb-32 relative">
       <header className="px-6 py-6 sticky top-0 bg-[var(--q-bg)]/95 backdrop-blur-md z-40 border-b border-[var(--q-border)]">
         <div className="flex items-center justify-between mb-4">
           <Link href="/quran" className="text-[var(--q-text-subtle)] hover:text-[var(--q-text)] transition-colors">
@@ -73,7 +73,7 @@ export default function ProgressClient({ surahs }: { surahs: Surah[] }) {
         <p className="text-center text-xs text-[var(--q-text-subtle)] mt-2 font-medium">Overall Progress: {((memorizedCount / totalVerses) * 100).toFixed(1)}%</p>
       </header>
 
-      <div className="flex-1 px-4 py-6 space-y-4 max-w-3xl mx-auto w-full">
+      <div className="min-h-[calc(100dvh-200px)] px-4 py-6 space-y-4 max-w-3xl mx-auto w-full">
         {surahProgress.filter(s => s.memorized > 0 || s.learning > 0).length === 0 && (
            <div className="text-center text-[var(--q-text-subtle)] py-12">
               <svg className="w-16 h-16 mx-auto mb-4 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">

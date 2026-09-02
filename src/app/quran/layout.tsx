@@ -9,7 +9,7 @@ export default function QuranLayout({ children }: { children: ReactNode }) {
       <div className="w-full h-[100dvh] flex flex-col relative bg-[var(--q-bg)]">
         <GlobalAudioPlayer />
         {/* Main Content Area */}
-        <div className="flex-1 w-full flex flex-col overflow-y-auto">
+        <div className="flex-1 w-full overflow-y-auto relative">
           {children}
         </div>
         

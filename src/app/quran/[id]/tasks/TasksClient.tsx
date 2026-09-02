@@ -142,7 +142,9 @@ export default function TasksClient({ surah }: { surah: SurahData }) {
       
       const words = text.split(' ');
       finalNodes = words.map((word, index) => {
-        const isHidden = random() > 0.7; // ~30% words hidden
+        // Only hide words that contain basic Arabic letters (prevents hiding standalone marks/punctuation)
+        const isEligible = /[\u0621-\u064A]/.test(word);
+        const isHidden = isEligible && random() > 0.7; // ~30% words hidden
         const key = `${verseId}-${index}`;
         const isRevealed = revealedWords.has(key);
         
@@ -151,9 +153,9 @@ export default function TasksClient({ surah }: { surah: SurahData }) {
             <span 
               key={key} 
               onClick={(e) => { e.stopPropagation(); setRevealedWords(prev => new Set(prev).add(key)); }}
-              className="inline-block cursor-pointer mx-1 px-2 pb-1 border-b-2 border-indigo-400/50 text-transparent select-none bg-black/10 rounded-t-md hover:bg-[var(--q-accent-bold)]/20 transition-colors"
+              className="inline-block cursor-pointer mx-1 px-2 pb-1 border-b-2 border-indigo-400/50 select-none bg-black/10 rounded-t-md hover:bg-[var(--q-accent-bold)]/20 transition-colors"
             >
-              {word}
+              <span className="opacity-0">{word}</span>
             </span>
           );
         }
@@ -451,7 +453,7 @@ export default function TasksClient({ surah }: { surah: SurahData }) {
                   </div>
 
                   <div className="flex flex-col gap-4">
-                    <div className={`text-right transition-all duration-500 break-words ${isActive ? 'text-[var(--q-accent)]' : 'text-[var(--q-text)]'}`}>
+                    <div className={`text-right transition-all duration-500 ${isActive ? 'text-[var(--q-accent)]' : 'text-[var(--q-text)]'}`}>
                       <p 
                         className={`leading-loose font-arabic transition-all duration-300 ${
                           taskMode === 'recall' && !revealedVerses.has(verse.id)

@@ -209,12 +209,15 @@ export default function QuranReaderClient({ surah, allSurahs = [] }: { surah: Su
   // Reference to the scrollable mushaf container
   const mushafScrollRef = useRef<HTMLDivElement>(null);
 
-  // Scroll to a page by index using scrollLeft (works correctly in LTR containers)
+  // Scroll to a page by index
   const goToPageIndex = (index: number) => {
-    const container = mushafScrollRef.current;
-    if (!container) return;
-    const pageWidth = container.clientWidth;
-    container.scrollTo({ left: index * pageWidth, behavior: 'smooth' });
+    const pageData = pages[index];
+    if (pageData) {
+      const el = document.getElementById(`mushaf-page-${pageData.page}`);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
+      }
+    }
   };
 
   const goToPage = (pageNumber: number) => {
@@ -322,26 +325,24 @@ export default function QuranReaderClient({ surah, allSurahs = [] }: { surah: Su
               {allSurahs.map((s: any) => {
                 const isActive = activeSurahId === s.id;
                 return (
-                  <div key={s.id} className="flex items-center justify-between py-4 group">
-                    <div className="flex items-center space-x-4">
-                      <div className={`relative w-10 h-10 flex items-center justify-center transition-colors ${isActive ? 'text-[var(--q-accent-bold)]' : 'text-[var(--q-accent)]'}`}>
+                  <div key={s.id} className="flex items-center justify-between py-4 group gap-2">
+                    <div className="flex items-center space-x-3 md:space-x-4 flex-1 min-w-0">
+                      <div className={`shrink-0 relative w-10 h-10 flex items-center justify-center transition-colors ${isActive ? 'text-[var(--q-accent-bold)]' : 'text-[var(--q-accent)]'}`}>
                         <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="4">
                           <polygon points="50,5 82,18 95,50 82,82 50,95 18,82 5,50 18,18" />
                         </svg>
                         <span className="text-sm font-bold">{s.id}</span>
                       </div>
                       
-                      <div className="flex flex-col">
-                        <div className="flex items-center gap-2 mb-1">
-                          <h3 className={`text-2xl font-bold transition-colors font-arabic pt-1.5 ${isActive ? 'text-[var(--q-accent)]' : 'text-[var(--q-text)]'}`}>
-                            {surahNamesArabic[s.id]}
-                          </h3>
-                          <span className={`text-sm font-bold mt-1.5 ${isActive ? 'text-[var(--q-accent)]' : 'text-[var(--q-text-muted)]'}`}>
-                            {s.englishName}
-                          </span>
-                        </div>
-                        <div className="flex items-center text-xs text-[var(--q-accent)] font-medium space-x-1">
-                          <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <div className="flex flex-col flex-1 min-w-0">
+                        <h3 className={`text-xl md:text-2xl font-bold transition-colors font-arabic leading-tight pt-1 ${isActive ? 'text-[var(--q-accent)]' : 'text-[var(--q-text)]'}`}>
+                          {surahNamesArabic[s.id]}
+                        </h3>
+                        <span className={`text-[13px] md:text-sm font-bold mt-1 leading-snug truncate ${isActive ? 'text-[var(--q-accent)]' : 'text-[var(--q-text-muted)]'}`}>
+                          {s.englishName}
+                        </span>
+                        <div className="flex items-center text-[11px] md:text-xs text-[var(--q-accent)] font-medium space-x-1 mt-1">
+                          <svg className="w-3 h-3 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                           </svg>
                           <span>{s.versesCount} verses</span>
@@ -349,7 +350,7 @@ export default function QuranReaderClient({ surah, allSurahs = [] }: { surah: Su
                       </div>
                     </div>
                     
-                    <div className="flex items-center space-x-3 z-10 relative">
+                    <div className="flex items-center space-x-2 md:space-x-3 shrink-0 z-10 relative">
                       <button 
                         onClick={() => {
                           const speeds = [0.5, 1, 1.25, 1.5, 2];

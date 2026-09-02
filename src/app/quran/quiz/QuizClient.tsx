@@ -71,7 +71,7 @@ export default function QuizClient() {
   };
 
   return (
-    <div className="w-full min-h-[100dvh] flex flex-col bg-[var(--q-bg)] text-[var(--q-text)] overflow-y-auto overflow-x-hidden pb-24">
+    <div className="w-full min-h-[100dvh] bg-[var(--q-bg)] text-[var(--q-text)] overflow-y-auto overflow-x-hidden pb-24 relative">
       <header className="px-6 py-6 sticky top-0 bg-[var(--q-bg)]/95 backdrop-blur-md z-40 border-b border-[var(--q-border)] flex items-center justify-between">
         <Link href="/quran" className="text-[var(--q-text-subtle)] hover:text-[var(--q-text)] transition-colors">
           <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -85,7 +85,7 @@ export default function QuizClient() {
         </div>
       </header>
 
-      <div className="flex-1 px-4 py-4 flex flex-col items-center justify-center max-w-2xl mx-auto w-full">
+      <div className="min-h-[calc(100dvh-100px)] px-4 py-4 flex flex-col items-center justify-center max-w-2xl mx-auto w-full">
         {loading ? (
           <div className="flex flex-col items-center animate-pulse">
             <div className="w-16 h-16 rounded-full bg-[var(--q-accent-bold)]/20 mb-4"></div>

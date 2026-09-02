@@ -10,7 +10,7 @@ export default function QuranBottomNav() {
   const tabs = [
     {
       id: 'home',
-      href: '/student',
+      href: '/',
       icon: <Home className="w-5 h-5" />,
       label: 'Home'
     },
