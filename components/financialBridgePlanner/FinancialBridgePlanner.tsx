@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
 import { Settings2, X } from "lucide-react";
+import CommonHeader from "@/components/commonHeader";
 
 type Key = "sep" | "oct" | "nov" | "dec" | "jan" | "feb";
 type Status = "CONFIRMED" | "ESTIMATE" | "POTENTIAL" | "UNRESOLVED" | "EXPECTED";
@@ -134,8 +135,18 @@ export default function FinancialBridgePlanner() {
   const selected = monthOpen ? map[monthOpen] : null;
   const positive = plans.find((plan) => plan.base > 0)?.label ?? "Not yet projected";
   const updateActual = (key: TabbyKey, actual: string) => setState((previous) => ({ ...previous, tabby: { ...previous.tabby, [key]: { ...previous.tabby[key], actual } } }));
-  return <main className="min-h-dvh bg-base-100 pb-10 font-poppins text-base-content"><div className="mx-auto w-full max-w-[1400px] px-4 py-5 lg:px-6">
-    <header className="flex items-end justify-between border-b border-base-content/15 pb-4"><div><h1 className="text-xl font-poppinsBold tracking-[-0.03em]">Financial Bridge</h1><p className="mt-1 text-sm text-base-content/55">Sep 2026 - Feb 2027</p></div><button type="button" onClick={() => setSettingsOpen(!settingsOpen)} className="inline-flex items-center gap-2 border border-base-content/20 px-3 py-2 text-xs font-poppinsMed hover:bg-base-200"><Settings2 className="h-4 w-4" />Assumptions</button></header>
+  return <main className="min-h-dvh bg-base-100 pb-10 font-poppins text-base-content"><CommonHeader
+      title="Financial Bridge"
+      right={
+        <button
+          type="button"
+          onClick={() => setSettingsOpen(!settingsOpen)}
+          className="inline-flex items-center gap-2 border border-primary-content/20 bg-primary-content/15 px-3 py-2 text-xs font-poppinsMed text-primary-content hover:bg-primary-content/25 rounded-xl transition-colors"
+        >
+          <Settings2 className="h-4 w-4" />Assumptions
+        </button>
+      }
+    /><div className="mx-auto w-full max-w-[1400px] px-4 py-5 lg:px-6">
     <section className="grid grid-cols-2 divide-x divide-y divide-base-content/10 border-b border-base-content/15 text-sm lg:grid-cols-4 lg:divide-y-0"><Metric label="Available now" value={money(state.cash)} /><Metric label="Next income" value={`${money(state.oct.salary)} · Sep 28`} /><Metric label="Next Tabby" value={`~${money(nextTabby.amount)} · Oct 13`} note={nextTabby.actual === undefined ? "ESTIMATE" : "ACTUAL"} /><Metric label="Expected positive turn" value={positive.replace(" 2027", "")} /></section>
     <section className="mt-4 border border-base-content/15"><div className="flex items-center justify-between border-b border-base-content/15 px-3 py-2"><h2 className="text-xs font-poppinsMed text-base-content/55">Cash-flow timeline</h2><span className="text-[11px] text-base-content/45">Click a month for transactions · Click Tabby for its detail drawer</span></div><div className="bg-base-200/30 lg:bg-transparent"><div className="grid grid-cols-1 gap-4 p-4 md:grid-cols-2 lg:grid-cols-6 lg:gap-0 lg:p-0 lg:divide-x lg:divide-base-content/15">{plans.map((plan) => <MonthColumn key={plan.key} plan={plan} open={() => setMonthOpen(monthOpen === plan.key ? null : plan.key)} tabby={() => setTabbyOpen(true)} />)}</div></div><BridgeTrace plans={plans} /></section>
     <section className="mt-3 grid gap-3 lg:grid-cols-[1fr_auto]"><div className="border-l-2 border-base-content/30 bg-base-200/45 px-3 py-2 text-xs leading-5 text-base-content/70"><b className="font-poppinsMed text-base-content">Potential kuri: ₹1 lakh</b> · possible on a future 10th · 6 draws remaining · not included in base forecast.{state.kuri.received && <span className="ml-1 text-success">Receipt entered: it intercepts the bridge from {state.kuri.month.toUpperCase()}.</span>}</div><button type="button" onClick={() => setTabbyOpen(true)} className="border border-base-content/20 px-3 py-2 text-left text-xs font-poppinsMed hover:bg-base-200">Tabby mechanism & forecasts</button></section>

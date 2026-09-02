@@ -4,6 +4,7 @@ import { CiReceipt } from "react-icons/ci";
 import { PiBankLight } from "react-icons/pi";
 import { HiOutlineEnvelope, HiOutlineChatBubbleBottomCenter, HiOutlineCreditCard, HiOutlineSparkles, HiOutlineArrowTrendingUp } from "react-icons/hi2";
 import { IoIosFemale } from "react-icons/io";
+import { FaMosque } from "react-icons/fa6";
 
 const Categories = () => {
     const menuItems = [
@@ -61,6 +62,11 @@ const Categories = () => {
             label: "SUBSCRIPTIONS",
             href: "/subscriptions",
             icon: <HiOutlineCreditCard className='text-[26px] text-primary' />
+        },
+        {
+            label: "QURAN",
+            href: "/quran",
+            icon: <FaMosque className='text-[26px] text-emerald-400' />
         }
     ];
 

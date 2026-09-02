@@ -4,14 +4,17 @@ import { setTheme } from '@/utils/theme';
 import { useDispatch, useSelector } from 'react-redux';
 import type { RootState } from '@/lib/store';
 import { setThemeName } from '@/store/uiSlice';
-import { HiUser, HiMoon, HiSun, HiCheck, HiClock } from 'react-icons/hi2';
+import { HiUser, HiMoon, HiCheck, HiLockClosed } from 'react-icons/hi2';
 import { HiGlobe } from 'react-icons/hi';
+import { registerBiometric, removeBiometric, isBiometricRegistered } from '@/lib/webauthn';
 
 const Profile = () => {
   const tz = useMemo(() => Intl.DateTimeFormat().resolvedOptions().timeZone, []);
   const suggestedUser = useMemo(() => (tz?.includes('Asia/Dubai') ? 'Dilshad' : 'Shifa Dilshad'), [tz]);
   const [selected, setSelected] = useState<'auto' | 'dilshad' | 'shifa'>('auto');
   const [saved, setSaved] = useState('');
+  const [biometricEnabled, setBiometricEnabled] = useState(false);
+  const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
   const theme = useSelector((s: RootState) => s.ui.theme);
 
@@ -25,6 +28,10 @@ const Profile = () => {
       if (current === 'Dilshad') setSelected('dilshad');
       else if (current === 'Shifa Dilshad') setSelected('shifa');
       else setSelected('auto');
+      
+      if (current) {
+        setBiometricEnabled(isBiometricRegistered(current));
+      }
     } catch {}
   }, []);
 
@@ -39,6 +46,28 @@ const Profile = () => {
       setSaved('Settings saved successfully!');
       setTimeout(() => setSaved(''), 3000);
     } catch {}
+  };
+
+  const handleToggleBiometric = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const isChecked = e.target.checked;
+    setLoading(true);
+
+    const currentUser = localStorage.getItem('userIdentity') || (selected === 'auto' ? suggestedUser : (selected === 'dilshad' ? 'Dilshad' : 'Shifa Dilshad'));
+
+    if (isChecked) {
+      const success = await registerBiometric(currentUser);
+      if (success) {
+        setBiometricEnabled(true);
+      } else {
+        e.target.checked = false;
+        setBiometricEnabled(false);
+      }
+    } else {
+      removeBiometric(currentUser);
+      setBiometricEnabled(false);
+    }
+    
+    setLoading(false);
   };
 
   const RadioButton = ({ value, label, isSelected }: { value: string; label: string; isSelected: boolean }) => (
@@ -114,6 +143,28 @@ const Profile = () => {
               isSelected={selected === 'shifa'}
             />
           </div>
+        </div>
+
+        {/* App Lock Card */}
+        <div className='bg-base-200 dark:bg-base-300 rounded-box border border-base-300 dark:border-base-700 p-5 shadow-sm'>
+          <div className='flex items-center justify-between mb-2'>
+            <div className='flex items-center'>
+              <div className='w-8 h-8 bg-primary/10 dark:bg-primary/20 rounded-box flex items-center justify-center mr-3'>
+                <HiLockClosed className='w-4 h-4 text-primary' />
+              </div>
+              <h3 className='text-sm font-poppinsBold text-base-content dark:text-base-content/90'>App Lock</h3>
+            </div>
+            <input 
+              type="checkbox" 
+              className="toggle toggle-primary toggle-md" 
+              checked={biometricEnabled}
+              onChange={handleToggleBiometric}
+              disabled={loading}
+            />
+          </div>
+          <p className='text-xs text-base-content/60 dark:text-base-content/50 ml-11'>
+            Require Face ID or Touch ID to open the app
+          </p>
         </div>
 
         {/* Theme Selection Card */}

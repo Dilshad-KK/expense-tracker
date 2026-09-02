@@ -158,10 +158,10 @@ export default function TasksClient({ surah }: { surah: SurahData }) {
           );
         }
         
-        if (!highlightTajweed) return <span key={key} className="mx-0.5">{word}</span>;
+        if (!highlightTajweed) return <span key={key} className="mx-1">{word}</span>;
         const segments = parseTajweed(word);
         return (
-          <span key={key} className="mx-0.5">
+          <span key={key} className="mx-1">
             {segments.map((seg, i) => {
               if (seg.rule === 'allah') return <span key={i} className="text-red-400 font-bold drop-shadow-sm">{seg.text}</span>;
               if (seg.rule === 'ghunnah') return <span key={i} className="text-emerald-400 font-bold drop-shadow-sm">{seg.text}</span>;
@@ -460,7 +460,8 @@ export default function TasksClient({ surah }: { surah: SurahData }) {
                         }`}
                         style={{ 
                           fontFamily: arabicFont === 'Amiri' ? 'var(--font-arabic), "Amiri", serif' : '"Scheherazade New", serif',
-                          lineHeight: '2',
+                          lineHeight: '2.2',
+                          wordSpacing: '0.2em',
                           fontSize: `${arabicFontSize}px`
                         }}
                         dir="rtl"

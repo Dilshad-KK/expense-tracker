@@ -5,7 +5,7 @@ import type { RootState } from '@/lib/store';
 import { useAppDispatch } from '@/lib/store';
 import { fetchUnreadCount } from '@/store/notificationsSlice';
 import { IoMdNotifications } from "react-icons/io";
-import { FaMosque } from "react-icons/fa6";
+
 import Clock from '@/components/time';
 
 import Loans from '@/components/loans';
@@ -13,12 +13,10 @@ import Discussions from '@/components/discussions';
 import Categories from '@/components/categories';
 import Periods from '@/components/periods';
 import { IoSettingsSharp } from 'react-icons/io5';
-import SettingsModal from '@/components/SettingsModal';
 
 const Home = () => {
 
   const [user, setUser] = useState("");
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const dispatch = useAppDispatch();
   const unread = useSelector((s: RootState) => s.notifications.unreadCount);
 
@@ -92,13 +90,10 @@ const Home = () => {
               </div>
             </div>
             <div className="relative z-[1] flex shrink-0 gap-2">
-              <Link href="/quran" className='flex h-[42px] w-[42px] items-center justify-center rounded-full bg-white/20 backdrop-blur-sm transition-colors active:scale-95 hover:bg-white/30 dark:bg-white/10'>
-                <FaMosque className='text-[20px] text-white' />
-              </Link>
               
-              <button onClick={() => setIsSettingsOpen(true)} className='flex h-[42px] w-[42px] items-center justify-center rounded-full bg-white/20 backdrop-blur-sm transition-colors active:scale-95 hover:bg-white/30 dark:bg-white/10'>
+              <Link href="/profile" className='flex h-[42px] w-[42px] items-center justify-center rounded-full bg-white/20 backdrop-blur-sm transition-colors active:scale-95 hover:bg-white/30 dark:bg-white/10'>
                 <IoSettingsSharp className='text-[20px] text-white' />
-              </button>
+              </Link>
 
               <Link href="/notifications" className='relative flex h-[42px] w-[42px] items-center justify-center rounded-full bg-white shadow-sm dark:bg-white/80'>
                 <IoMdNotifications className='text-[22px] text-primary' />
@@ -118,12 +113,6 @@ const Home = () => {
         <Discussions />
         <Periods /> 
       </div>
-
-      <SettingsModal 
-        isOpen={isSettingsOpen} 
-        onClose={() => setIsSettingsOpen(false)} 
-        currentUser={user} 
-      />
     </div>
 
   )

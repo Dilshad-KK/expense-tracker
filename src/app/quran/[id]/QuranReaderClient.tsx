@@ -204,58 +204,50 @@ export default function QuranReaderClient({ surah, allSurahs = [] }: { surah: Su
     }));
   }, [isMushafMode, surah.verses]);
 
-  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [currentPage, setCurrentPage] = useState<number>(0); // index into pages array
 
-  useEffect(() => {
-    if (mushafViewMode !== 'swipable' || pages.length === 0) return;
+  // Reference to the scrollable mushaf container
+  const mushafScrollRef = useRef<HTMLDivElement>(null);
 
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          const pageStr = entry.target.getAttribute('data-page');
-          if (pageStr) setCurrentPage(Number(pageStr));
-        }
-      });
-    }, { threshold: 0.5 });
-
-    pages.forEach(p => {
-      const el = document.getElementById(`mushaf-page-${p.page}`);
-      if (el) observer.observe(el);
-    });
-
-    return () => observer.disconnect();
-  }, [isMushafMode, mushafViewMode, pages]);
-
-  // Reset scroll position to top when page changes
-  useEffect(() => {
-    if (mushafViewMode === 'swipable') {
-      const el = document.getElementById(`mushaf-page-${currentPage}`);
-      if (el) {
-        el.scrollTop = 0;
-      }
-    }
-  }, [currentPage, isMushafMode, mushafViewMode]);
-
-  const goToPage = (pageNumber: number) => {
-    const el = document.getElementById(`mushaf-page-${pageNumber}`);
-    if (el) {
-      // Smooth scrolling in RTL flex snap containers is notoriously broken across browsers.
-      // Instant jump bypasses these bugs and acts like a true page flip.
-      el.scrollIntoView({ behavior: 'auto', block: 'start' });
-    }
+  // Scroll to a page by index using scrollLeft (works correctly in LTR containers)
+  const goToPageIndex = (index: number) => {
+    const container = mushafScrollRef.current;
+    if (!container) return;
+    const pageWidth = container.clientWidth;
+    container.scrollTo({ left: index * pageWidth, behavior: 'smooth' });
   };
 
+  const goToPage = (pageNumber: number) => {
+    const index = pages.findIndex(p => p.page === pageNumber);
+    if (index !== -1) goToPageIndex(index);
+  };
+
+  // Keep currentPage in sync as the user scrolls/swipes
+  useEffect(() => {
+    const container = mushafScrollRef.current;
+    if (!container || mushafViewMode !== 'swipable') return;
+
+    const onScroll = () => {
+      const pageWidth = container.clientWidth;
+      if (pageWidth === 0) return;
+      const index = Math.round(container.scrollLeft / pageWidth);
+      const clamped = Math.max(0, Math.min(index, pages.length - 1));
+      setCurrentPage(clamped);
+    };
+
+    container.addEventListener('scroll', onScroll, { passive: true });
+    return () => container.removeEventListener('scroll', onScroll);
+  }, [mushafViewMode, pages.length]);
+
   const handleNextPage = () => {
-    const currentIndex = pages.findIndex(p => p.page === currentPage);
-    if (currentIndex < pages.length - 1) {
-      goToPage(pages[currentIndex + 1].page);
+    if (currentPage < pages.length - 1) {
+      goToPageIndex(currentPage + 1);
     }
   };
 
   const handlePrevPage = () => {
-    const currentIndex = pages.findIndex(p => p.page === currentPage);
-    if (currentIndex > 0) {
-      goToPage(pages[currentIndex - 1].page);
+    if (currentPage > 0) {
+      goToPageIndex(currentPage - 1);
     }
   };
 
@@ -323,7 +315,7 @@ export default function QuranReaderClient({ surah, allSurahs = [] }: { surah: Su
 
       {/* Main Content */}
       <main className={`flex-1 flex flex-col w-full relative ${isMushafMode && mushafViewMode === 'swipable' ? 'overflow-hidden' : 'overflow-y-auto px-4 py-4 pb-32'}`}>
-        <div className={`max-w-7xl w-full mx-auto ${isMushafMode && mushafViewMode === 'swipable' ? 'flex-1 flex flex-col min-h-0' : ''}`}>
+        <div className={`max-w-7xl w-full mx-auto ${isMushafMode && mushafViewMode === 'swipable' ? 'flex-1 flex flex-col min-h-0' : 'w-full'}`}>
           
           {isAudioMode && (
             <div className="divide-y divide-white/5">
@@ -408,10 +400,11 @@ export default function QuranReaderClient({ surah, allSurahs = [] }: { surah: Su
           {/* Header Card */}
           {!isMushafMode && !isAudioMode && (
             <div className="bg-gradient-to-br from-[var(--q-card)] to-[var(--q-bg)] rounded-3xl p-4 text-center text-[var(--q-text)] shadow-xl shadow-[var(--q-bg)]/20 relative overflow-hidden mb-4">
-               <div className="absolute top-0 right-0 opacity-10">
-                  <svg className="w-32 h-32 -mr-8 -mt-8" fill="currentColor" viewBox="0 0 24 24">
-                     <path d="M12 2L2 12l10 10 10-10L12 2z" />
-                  </svg>
+               {/* Subtle decorative crescent — much smaller and properly positioned */}
+               <div className="absolute top-3 right-4 opacity-[0.07] pointer-events-none" aria-hidden="true">
+                 <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor">
+                   <path d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                 </svg>
                </div>
                
                <div className="relative z-10">
@@ -450,8 +443,10 @@ export default function QuranReaderClient({ surah, allSurahs = [] }: { surah: Su
           {!isAudioMode && (
             isMushafMode ? (
             <div 
-              className={mushafViewMode === 'swipable' ? "flex flex-1 min-h-0 overflow-x-auto snap-x snap-mandatory w-full" : "max-w-3xl mx-auto w-full px-2"}
-              dir={mushafViewMode === 'swipable' ? "rtl" : "ltr"}
+              ref={mushafScrollRef}
+              className={mushafViewMode === 'swipable'
+                ? "flex flex-1 min-h-0 overflow-x-auto snap-x snap-mandatory w-full"
+                : "max-w-3xl mx-auto w-full px-4"}
               style={mushafViewMode === 'swipable' ? { scrollbarWidth: 'none', msOverflowStyle: 'none' } : {}}
             >
               {pages.map((pageData, index) => (
@@ -459,7 +454,9 @@ export default function QuranReaderClient({ surah, allSurahs = [] }: { surah: Su
                   id={`mushaf-page-${pageData.page}`}
                   data-page={pageData.page}
                   key={pageData.page} 
-                  className={mushafViewMode === 'swipable' ? "no-scrollbar min-w-full md:min-w-[50%] w-full md:w-1/2 h-full overflow-y-auto shrink-0 snap-start px-4 pt-4 pb-[calc(8rem+env(safe-area-inset-bottom))]" : "mb-8"}
+                  className={mushafViewMode === 'swipable'
+                    ? "no-scrollbar min-w-full w-full h-full overflow-y-auto shrink-0 snap-start px-4 pt-4 pb-[calc(8rem+env(safe-area-inset-bottom))]"
+                    : "mb-8"}
                 >
                   <div className="max-w-3xl mx-auto w-full">
                     {/* Mushaf Mode Bismillah (First Page Only) */}
@@ -488,7 +485,8 @@ export default function QuranReaderClient({ surah, allSurahs = [] }: { surah: Su
                               style={{ 
                                 fontFamily: arabicFont === 'Amiri' ? 'var(--font-arabic), "Amiri", serif' : '"Scheherazade New", serif',
                                 fontSize: mushafViewMode === 'swipable' ? `min(${arabicFontSize}px, 3.8dvh)` : `${arabicFontSize}px`,
-                                lineHeight: mushafViewMode === 'swipable' ? '2.1' : '2.5'
+                                lineHeight: mushafViewMode === 'swipable' ? '2.1' : '2.5',
+                                wordSpacing: '0.15em'
                               }}
                             >
                                {verse.arabic}
@@ -707,25 +705,38 @@ export default function QuranReaderClient({ surah, allSurahs = [] }: { surah: Su
       {isMushafMode && mushafViewMode === 'swipable' && pages.length > 0 && (
         <div className="fixed left-0 right-0 z-40 flex justify-center pointer-events-none" style={{ bottom: 'calc(4.5rem + env(safe-area-inset-bottom))' }}>
           <div className="bg-[var(--q-card)]/90 backdrop-blur-md px-3 py-2 rounded-full border border-[var(--q-border)] flex items-center space-x-4 shadow-xl pointer-events-auto">
-            <button className="p-2 text-[var(--q-text)] hover:text-[var(--q-accent)] hover:bg-[var(--q-border)] rounded-full transition-colors active:scale-95" onClick={handleNextPage}>
+            {/* Prev page (← in LTR = earlier pages) */}
+            <button
+              className="p-2 text-[var(--q-text)] hover:text-[var(--q-accent)] hover:bg-[var(--q-border)] rounded-full transition-colors active:scale-95 disabled:opacity-30"
+              onClick={handlePrevPage}
+              disabled={currentPage === 0}
+              aria-label="Previous page"
+            >
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" /></svg>
             </button>
             
             <div className="relative flex items-center bg-[var(--q-border)] rounded-full px-2 py-1">
               <select 
-                value={currentPage} 
+                value={currentPage}
                 onChange={(e) => {
-                  setCurrentPage(Number(e.target.value));
-                  goToPage(Number(e.target.value));
-                }} 
+                  const idx = Number(e.target.value);
+                  setCurrentPage(idx);
+                  goToPageIndex(idx);
+                }}
                 className="bg-transparent hover:bg-[var(--q-border)] transition-colors text-[var(--q-text)] font-bold text-sm outline-none cursor-pointer appearance-none px-4 py-1 rounded-full pr-8 text-center"
               >
-                {pages.map(p => <option key={p.page} value={p.page} className="bg-[var(--q-bg)] text-[var(--q-text)]">Page {p.page}</option>)}
+                {pages.map((p, i) => <option key={p.page} value={i} className="bg-[var(--q-bg)] text-[var(--q-text)]">Page {p.page}</option>)}
               </select>
               <svg className="w-4 h-4 text-[var(--q-text)]/70 absolute right-2.5 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 9l-7 7-7-7" /></svg>
             </div>
 
-            <button className="p-2 text-[var(--q-text)] hover:text-[var(--q-accent)] hover:bg-[var(--q-border)] rounded-full transition-colors active:scale-95" onClick={handlePrevPage}>
+            {/* Next page */}
+            <button
+              className="p-2 text-[var(--q-text)] hover:text-[var(--q-accent)] hover:bg-[var(--q-border)] rounded-full transition-colors active:scale-95 disabled:opacity-30"
+              onClick={handleNextPage}
+              disabled={currentPage === pages.length - 1}
+              aria-label="Next page"
+            >
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" /></svg>
             </button>
           </div>

@@ -1,6 +1,7 @@
 'use client';
 
-import { Menu, Settings as SettingsIcon } from 'lucide-react';
+import Link from 'next/link';
+import { Settings as SettingsIcon } from 'lucide-react';
 import { useQuran } from '../QuranContext';
 
 export default function SettingsPage() {
@@ -21,9 +22,11 @@ export default function SettingsPage() {
     <div className="w-full min-h-full flex-1 flex flex-col bg-[var(--q-bg)] text-[var(--q-text)]">
       {/* Header */}
       <header className="flex items-center justify-between px-6 py-4 sticky top-0 bg-[var(--q-bg)]/95 backdrop-blur-md z-40 border-b border-[var(--q-border)]">
-        <button className="text-[var(--q-text)] hover:text-[var(--q-accent)] transition-colors">
-          <Menu className="w-6 h-6" />
-        </button>
+        <Link href="/quran" className="text-[var(--q-text)] hover:text-[var(--q-accent)] transition-colors">
+          <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+        </Link>
         <h1 className="text-xl font-bold text-[var(--q-text)] tracking-wide">Settings</h1>
         <div className="w-6 h-6"></div> {/* Spacer */}
       </header>
