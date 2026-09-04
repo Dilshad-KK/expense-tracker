@@ -235,19 +235,19 @@ export default function QuranReaderClient({ surah, allSurahs = [] }: { surah: Su
   }, [mushafViewMode, pages.length]);
 
   const handleNextPage = () => {
-    setCurrentPage(prev => {
-      const next = Math.min(prev + 1, pages.length - 1);
+    const next = Math.min(currentPage + 1, pages.length - 1);
+    if (next !== currentPage) {
+      setCurrentPage(next);
       goToPageIndex(next);
-      return next;
-    });
+    }
   };
 
   const handlePrevPage = () => {
-    setCurrentPage(prev => {
-      const prevIdx = Math.max(0, prev - 1);
+    const prevIdx = Math.max(0, currentPage - 1);
+    if (prevIdx !== currentPage) {
+      setCurrentPage(prevIdx);
       goToPageIndex(prevIdx);
-      return prevIdx;
-    });
+    }
   };
 
   return (
@@ -687,18 +687,18 @@ export default function QuranReaderClient({ surah, allSurahs = [] }: { surah: Su
       {/* Bottom Page Navigator */}
       {isMushafMode && mushafViewMode === 'swipable' && pages.length > 0 && (
         <div className="fixed left-0 right-0 z-40 flex justify-center pointer-events-none" style={{ bottom: 'calc(4.5rem + env(safe-area-inset-bottom))' }}>
-          <div className="bg-[var(--q-card)]/90 backdrop-blur-md px-3 py-2 rounded-full border border-[var(--q-border)] flex items-center space-x-4 shadow-xl pointer-events-auto">
-            {/* Prev page (← in LTR = earlier pages) */}
+          <div className="bg-[var(--q-bg)]/85 backdrop-blur-xl px-2 py-1.5 rounded-full border border-[var(--q-border)] shadow-2xl flex items-center space-x-2 pointer-events-auto ring-1 ring-black/5 dark:ring-white/5">
+            {/* Next page (visually left arrow in RTL, meaning go deeper into the book) */}
             <button
-              className="p-2 text-[var(--q-text)] hover:text-[var(--q-accent)] hover:bg-[var(--q-border)] rounded-full transition-colors active:scale-95 disabled:opacity-30"
-              onClick={handlePrevPage}
-              disabled={currentPage === 0}
-              aria-label="Previous page"
+              className="p-3 text-[var(--q-text)] hover:text-[var(--q-accent)] hover:bg-[var(--q-card-hover)] rounded-full transition-all active:scale-90 disabled:opacity-20"
+              onClick={handleNextPage}
+              disabled={currentPage === pages.length - 1}
+              aria-label="Next page"
             >
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" /></svg>
             </button>
             
-            <div className="relative flex items-center bg-[var(--q-border)] rounded-full px-2 py-1">
+            <div className="relative flex items-center hover:bg-[var(--q-card-hover)] rounded-full px-3 py-1.5 transition-colors">
               <select 
                 value={currentPage}
                 onChange={(e) => {
@@ -706,19 +706,19 @@ export default function QuranReaderClient({ surah, allSurahs = [] }: { surah: Su
                   setCurrentPage(idx);
                   goToPageIndex(idx);
                 }}
-                className="bg-transparent hover:bg-[var(--q-border)] transition-colors text-[var(--q-text)] font-bold text-sm outline-none cursor-pointer appearance-none px-4 py-1 rounded-full pr-8 text-center"
+                className="bg-transparent text-[var(--q-text)] font-bold text-sm outline-none cursor-pointer appearance-none px-4 py-1 pr-6 text-center z-10"
               >
                 {pages.map((p, i) => <option key={p.page} value={i} className="bg-[var(--q-bg)] text-[var(--q-text)]">Page {p.page}</option>)}
               </select>
-              <svg className="w-4 h-4 text-[var(--q-text)]/70 absolute right-2.5 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 9l-7 7-7-7" /></svg>
+              <svg className="w-4 h-4 text-[var(--q-accent)] absolute right-2 pointer-events-none opacity-80" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 9l-7 7-7-7" /></svg>
             </div>
 
-            {/* Next page */}
+            {/* Prev page (visually right arrow in RTL, meaning go back to earlier pages) */}
             <button
-              className="p-2 text-[var(--q-text)] hover:text-[var(--q-accent)] hover:bg-[var(--q-border)] rounded-full transition-colors active:scale-95 disabled:opacity-30"
-              onClick={handleNextPage}
-              disabled={currentPage === pages.length - 1}
-              aria-label="Next page"
+              className="p-3 text-[var(--q-text)] hover:text-[var(--q-accent)] hover:bg-[var(--q-card-hover)] rounded-full transition-all active:scale-90 disabled:opacity-20"
+              onClick={handlePrevPage}
+              disabled={currentPage === 0}
+              aria-label="Previous page"
             >
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" /></svg>
             </button>
