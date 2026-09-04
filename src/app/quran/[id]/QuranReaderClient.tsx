@@ -50,6 +50,7 @@ export default function QuranReaderClient({ surah, allSurahs = [] }: { surah: Su
     setLoopsRemaining,
     verseLoopConfig,
     playVerse,
+    playFullSurah,
     pauseAudio,
     stopAudio,
     setLoopCount
@@ -62,50 +63,34 @@ export default function QuranReaderClient({ surah, allSurahs = [] }: { surah: Su
 
   // Audio Mode States
   const [toastMessage, setToastMessage] = useState<string | null>(null);
-  const [downloadingIds, setDownloadingIds] = useState<Set<number>>(new Set());
+
 
   const getFullSurahAudioUrl = (surahId: number) => {
     const paddedId = String(surahId).padStart(3, '0');
     return `https://server8.mp3quran.net/afs/${paddedId}.mp3`;
   };
 
-  const handleDownload = async (surahId: number, surahName: string) => {
-    if (downloadingIds.has(surahId)) return;
-    
-    setDownloadingIds(prev => new Set(prev).add(surahId));
+  const handleDownload = (surahId: number, surahName: string) => {
     setToastMessage(`Starting download for ${surahName}...`);
     
     try {
       const url = getFullSurahAudioUrl(surahId);
-      const response = await fetch(url);
-      if (!response.ok) throw new Error('Network response was not ok');
-      
-      const blob = await response.blob();
-      const objectUrl = URL.createObjectURL(blob);
-      
       const link = document.createElement('a');
-      link.href = objectUrl;
+      link.href = url;
+      link.target = '_blank';
       link.download = `${surahName}.mp3`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      URL.revokeObjectURL(objectUrl);
-      
-      setToastMessage(`${surahName} downloaded successfully!`);
     } catch (error) {
       setToastMessage(`Failed to download ${surahName}. Please try again.`);
     } finally {
-      setDownloadingIds(prev => {
-        const next = new Set(prev);
-        next.delete(surahId);
-        return next;
-      });
       setTimeout(() => setToastMessage(null), 4000);
     }
   };
 
   const togglePlay = (surahId: number) => {
-    if (activeSurahId === surahId) {
+    if (activeSurahId === surahId && activeVerseId === null) {
       if (isPlaying) pauseAudio();
       else {
         if (audioRef.current) {
@@ -119,13 +104,16 @@ export default function QuranReaderClient({ surah, allSurahs = [] }: { surah: Su
   };
 
   useEffect(() => {
-    // Update last read when surah is opened
-    setLastRead({
-      surahId: surah.id,
-      surahName: surah.englishName,
-      surahNameArabic: surah.name,
-      verseId: activeVerseId || 1
-    });
+    // Update last read when surah is opened, with debounce
+    const timeoutId = setTimeout(() => {
+      setLastRead({
+        surahId: surah.id,
+        surahName: surah.englishName,
+        surahNameArabic: surah.name,
+        verseId: activeVerseId || 1
+      });
+    }, 2000);
+    return () => clearTimeout(timeoutId);
   }, [surah, activeVerseId, setLastRead]);
 
   const toggleReveal = (verseId: number) => {
@@ -141,7 +129,7 @@ export default function QuranReaderClient({ surah, allSurahs = [] }: { surah: Su
     if (isPlaying) {
       pauseAudio();
     } else {
-      if (activeVerseId === null || activeSurahId !== surah.id) {
+      if (activeSurahId !== surah.id) {
         playVerse(surah.id, 1, surah.verses.length, isContinuousPlay);
       } else {
         if (audioRef.current) {
@@ -159,11 +147,7 @@ export default function QuranReaderClient({ surah, allSurahs = [] }: { surah: Su
       playVerse(surah.id, verseId, surah.verses.length, false);
     }
   };
-  
-  const playFullSurah = (surahId: number = surah.id) => {
-    const targetSurah = allSurahs.find(s => s.id === surahId) || surah;
-    playVerse(surahId, 1, targetSurah.versesCount || targetSurah.verses.length, true);
-  };
+
 
   const handleSetLoopCount = (verseId: number, count: number) => {
     setLoopCount(verseId, count);
@@ -230,12 +214,20 @@ export default function QuranReaderClient({ surah, allSurahs = [] }: { surah: Su
     const container = mushafScrollRef.current;
     if (!container || mushafViewMode !== 'swipable') return;
 
+    let ticking = false;
     const onScroll = () => {
-      const pageWidth = container.clientWidth;
-      if (pageWidth === 0) return;
-      const index = Math.round(container.scrollLeft / pageWidth);
-      const clamped = Math.max(0, Math.min(index, pages.length - 1));
-      setCurrentPage(clamped);
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const pageWidth = container.clientWidth;
+          if (pageWidth > 0) {
+            const index = Math.round(Math.abs(container.scrollLeft) / pageWidth);
+            const clamped = Math.max(0, Math.min(index, pages.length - 1));
+            setCurrentPage(prev => prev !== clamped ? clamped : prev);
+          }
+          ticking = false;
+        });
+        ticking = true;
+      }
     };
 
     container.addEventListener('scroll', onScroll, { passive: true });
@@ -261,13 +253,6 @@ export default function QuranReaderClient({ surah, allSurahs = [] }: { surah: Su
   return (
     <div className={`w-full h-[100dvh] overflow-hidden flex flex-col relative transition-colors duration-500 bg-[var(--q-bg)]`}>
       
-      {/* Toast Notification */}
-      {toastMessage && (
-        <div className="absolute top-20 left-4 right-4 z-50 bg-[var(--q-accent-bold)] text-[var(--q-text)] px-4 py-3 rounded-lg shadow-xl text-sm font-medium animate-in fade-in slide-in-from-top-2">
-          {toastMessage}
-        </div>
-      )}
-
       {/* Top Navbar */}
       <header className={`sticky top-0 z-40 transition-colors duration-500 shadow-sm bg-[var(--q-bg)]/90 backdrop-blur-md border-b border-[var(--q-border)]`}>
         <div className="max-w-md md:max-w-xl mx-auto px-4 py-4 flex items-center justify-between">
@@ -307,7 +292,7 @@ export default function QuranReaderClient({ surah, allSurahs = [] }: { surah: Su
                   onClick={() => setReadingMode(mode.id as ReadingMode)}
                   className={`flex-1 py-1.5 text-xs font-bold rounded-full transition-all duration-300 ${
                     readingMode === mode.id
-                      ? 'bg-[var(--q-text)] text-[var(--q-bg)] shadow-md'
+                      ? 'bg-[var(--q-card)] text-[var(--q-text)] shadow-sm border border-[var(--q-border)]'
                       : 'text-[var(--q-text-muted)] hover:text-[var(--q-text)]'
                   }`}
                 >
@@ -383,17 +368,9 @@ export default function QuranReaderClient({ surah, allSurahs = [] }: { surah: Su
                       </button>
                       <button 
                         onClick={() => handleDownload(s.id, s.englishName)}
-                        disabled={downloadingIds.has(s.id)}
-                        className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-[#1c234a] hover:bg-indigo-50 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-[#1c234a] hover:bg-indigo-50 transition-colors shadow-sm"
                       >
-                        {downloadingIds.has(s.id) ? (
-                          <svg className="animate-spin h-5 w-5 text-[#1c234a]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                          </svg>
-                        ) : (
-                          <Download className="w-4 h-4" strokeWidth={3} />
-                        )}
+                        <Download className="w-4 h-4" strokeWidth={3} />
                       </button>
                     </div>
                   </div>
@@ -436,7 +413,7 @@ export default function QuranReaderClient({ surah, allSurahs = [] }: { surah: Su
                  )}
                  
                  {surah.id !== 9 && (
-                    <h2 className="font-arabic pb-2 pt-1 text-[var(--q-text)]" style={{ fontFamily: arabicFont === 'Amiri' ? 'var(--font-arabic), "Amiri", serif' : '"Scheherazade New", serif', fontSize: `min(${arabicFontSize * 1.3}px, 4.5dvh)`, lineHeight: '1.4' }}>
+                    <h2 className="font-arabic pb-2 pt-1 mb-6 text-[var(--q-text)]" style={{ fontFamily: arabicFont === 'Amiri' ? 'var(--font-arabic), "Amiri", serif' : '"Scheherazade New", serif', fontSize: `min(${arabicFontSize * 1.3}px, 4.5dvh)`, lineHeight: '1.4' }}>
                       بِسۡمِ ٱللَّهِ ٱلرَّحۡمَٰنِ ٱلرَّحِيمِ
                     </h2>
                   )}
@@ -453,6 +430,7 @@ export default function QuranReaderClient({ surah, allSurahs = [] }: { surah: Su
                 ? "flex flex-1 min-h-0 overflow-x-auto snap-x snap-mandatory w-full"
                 : "max-w-3xl mx-auto w-full px-4"}
               style={mushafViewMode === 'swipable' ? { scrollbarWidth: 'none', msOverflowStyle: 'none' } : {}}
+              dir={mushafViewMode === 'swipable' ? "rtl" : undefined}
             >
               {pages.map((pageData, index) => (
                 <div 
@@ -466,7 +444,7 @@ export default function QuranReaderClient({ surah, allSurahs = [] }: { surah: Su
                   <div className="max-w-3xl mx-auto w-full">
                     {/* Mushaf Mode Bismillah (First Page Only) */}
                     {index === 0 && surah.id !== 9 && (
-                       <div className="text-center pb-4 border-b border-[var(--q-border)] mb-4">
+                       <div className="text-center pb-4 border-b border-[var(--q-border)] mb-8">
                           <h2 className="font-arabic text-[var(--q-text)]" style={{ fontFamily: arabicFont === 'Amiri' ? 'var(--font-arabic), "Amiri", serif' : '"Scheherazade New", serif', fontSize: mushafViewMode === 'swipable' ? `min(${arabicFontSize * 1.5}px, 5dvh)` : '2.25rem', lineHeight: mushafViewMode === 'swipable' ? '2.1' : '2.5' }}>
                             بِسۡمِ ٱللَّهِ ٱلرَّحۡمَٰنِ ٱلرَّحِيمِ
                           </h2>
@@ -625,7 +603,7 @@ export default function QuranReaderClient({ surah, allSurahs = [] }: { surah: Su
                       <div className="flex flex-col gap-4 relative">
                         <div className={`text-right transition-all duration-500 break-words ${isActive ? 'text-[var(--q-accent)]' : 'text-[var(--q-text)]'}`}>
                           {showWordByWord && verse.words && verse.words.length > 0 ? (
-                            <div className="flex flex-wrap flex-row-reverse gap-x-6 gap-y-8 justify-start" dir="rtl">
+                            <div className="flex flex-wrap gap-x-6 gap-y-8 justify-start" dir="rtl">
                               {verse.words.map((word: any, i: number) => (
                                 <div key={i} className="flex flex-col items-center justify-start group cursor-pointer rounded-xl p-2 -m-2 hover:bg-[var(--q-card-hover)]/30 transition-colors">
                                   <span 

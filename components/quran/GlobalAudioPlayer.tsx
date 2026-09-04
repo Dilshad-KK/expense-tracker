@@ -43,6 +43,7 @@ export default function GlobalAudioPlayer() {
         // Handle loop logic
         if (loopsRemaining > 0) {
            setLoopsRemaining(prev => prev === Infinity ? Infinity : prev - 1);
+           audioRef.current!.currentTime = 0;
            audioRef.current!.play().catch(console.error);
            return;
         }

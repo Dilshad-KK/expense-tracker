@@ -138,8 +138,6 @@ export function QuranProvider({ children }: { children: ReactNode }) {
         effectiveTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'midnight' : 'light';
       }
       
-      if (effectiveTheme === 'dark') effectiveTheme = 'midnight';
-      
       document.documentElement.classList.add(`theme-${effectiveTheme}`);
     }
   }, [appTheme, isMounted]);
